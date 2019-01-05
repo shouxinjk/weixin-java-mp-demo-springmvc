@@ -3,13 +3,13 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.github.binarywang</groupId>
-    <artifactId>weixin-java-mp-demo</artifactId>
+    <groupId>com.ilife.wechat</groupId>
+    <artifactId>ilife-wechat</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>Weixin MP Demo</name>
-    <description>weixin mp demo with spring MVC</description>
-    <url>https://github.com/binarywang/weixin-java-mp-demo-springmvc</url>
+    <name>iLife-wechat</name>
+    <description>weixin mp</description>
+    <url>https://www.biglistoflittlethings.com</url>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
