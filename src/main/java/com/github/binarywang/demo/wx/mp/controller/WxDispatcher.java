@@ -36,7 +36,7 @@ public class WxDispatcher {
 	public WxMpOAuth2AccessToken wxLogin( @RequestParam("code")String code) throws IOException {
 		WxMpOAuth2AccessToken wxMpOAuth2AccessToken = null;
 		try {
-			logger.debug("try to get access token with code and state.",code);
+			logger.debug("try to get access token with code.[code]"+code,code);
 			wxMpOAuth2AccessToken = wxMpService.oauth2getAccessToken(code);
 		} catch (WxErrorException e) {
 			logger.error("failed to get access token.[code]"+code,e);
@@ -56,7 +56,7 @@ public class WxDispatcher {
 	@RequestMapping("/login")
 	@ResponseBody
 	public WxMpUser WxRedirect( @RequestParam("code")String code) throws WxErrorException, IOException {
-		logger.debug("try to get access token with code and state.",code);
+		logger.debug("try to get access token with code.[code]"+code,code);
 		//用户同意授权后，通过code获得access token，其中也包含openid
 		WxMpOAuth2AccessToken wxMpOAuth2AccessToken = wxMpService.oauth2getAccessToken(code);
 		//获取基本信息
