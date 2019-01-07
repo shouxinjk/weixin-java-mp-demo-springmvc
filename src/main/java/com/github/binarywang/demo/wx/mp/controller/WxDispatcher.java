@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,7 +56,7 @@ public class WxDispatcher {
 	 */
 	@RequestMapping("/login")
 	@ResponseBody
-	public WxMpUser WxRedirect( @RequestParam("code")String code) throws WxErrorException, IOException {
+	public WxMpUser WxRedirect(String code) throws WxErrorException, IOException {
 		logger.debug("try to get access token with code.[code]"+code,code);
 		//用户同意授权后，通过code获得access token，其中也包含openid
 		WxMpOAuth2AccessToken wxMpOAuth2AccessToken = wxMpService.oauth2getAccessToken(code);
