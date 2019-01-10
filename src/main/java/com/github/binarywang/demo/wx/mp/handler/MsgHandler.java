@@ -94,7 +94,7 @@ $itemTpl = " <item>
   
   private String search(String keyword) throws UnknownHostException {
 	  TransportClient client = new PreBuiltTransportClient(Settings.EMPTY)
-		        .addTransportAddress(new TransportAddress(InetAddress.getByName("host2"), 9300));
+		        .addTransportAddress(new TransportAddress(InetAddress.getByName(esConfig.getHost()), 80));
 	  Map<String, Object> template_params = new HashMap<>();
 	  //查询总共符合的数量
 	  template_params.put("keyword", keyword);
@@ -123,7 +123,7 @@ $itemTpl = " <item>
 		  String title = hit.field("title").getValue();
 		  String description = hit.field("summary").getValue().toString();
 		  String picUrl = ((String[])hit.field("images").getValue())[0];
-		  String url = "http://www.biglistoflittlethings.com/list-web-wx/info2.html?id="+hit.field("_key").getValue().toString();
+		  String url = "http://www.biglistoflittlethings.com/ilife-web-wx/info2.html?id="+hit.field("_key").getValue().toString();
 		  result = item(title,description,picUrl,url);
 	  }
 	  client.close();	 
@@ -136,7 +136,7 @@ $itemTpl = " <item>
 	String title = "小确幸，大生活";
 	String description = "Life is all about having a good time.";
 	String picUrl = "http://www.shouxinjk.net/list/images/logo"+iStr+".jpeg";
-	String url = "http://www.biglistoflittlethings.com/list-web-wx";
+	String url = "http://www.biglistoflittlethings.com/ilife-web-wx";
 	return item(title,description,picUrl,url);
   }
 
