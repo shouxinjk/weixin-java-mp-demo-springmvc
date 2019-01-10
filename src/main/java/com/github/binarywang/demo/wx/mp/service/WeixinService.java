@@ -1,5 +1,6 @@
 package com.github.binarywang.demo.wx.mp.service;
 
+import com.github.binarywang.demo.wx.mp.config.ElasticSearchConfig;
 import com.github.binarywang.demo.wx.mp.config.WxMpConfig;
 import com.github.binarywang.demo.wx.mp.handler.*;
 import me.chanjar.weixin.mp.api.WxMpInMemoryConfigStorage;
@@ -39,6 +40,9 @@ public class WeixinService extends WxMpServiceImpl {
 
   @Autowired
   private WxMpConfig wxConfig;
+  
+  @Autowired
+  private ElasticSearchConfig esConfig;
 
   @Autowired
   private LocationHandler locationHandler;

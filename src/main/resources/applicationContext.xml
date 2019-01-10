@@ -6,4 +6,5 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     <import resource="classpath*:spring-service-bean.xml"/>
     <util:properties id="wxProperties" location="classpath:/wx.properties"/>
+    <util:properties id="esProperties" location="classpath:/es.properties"/>
 </beans>
