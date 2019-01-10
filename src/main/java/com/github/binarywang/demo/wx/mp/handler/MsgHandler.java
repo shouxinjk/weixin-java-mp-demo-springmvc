@@ -84,10 +84,10 @@ $itemTpl = " <item>
   private String item(String title,String description,String picUrl,String url) {
 	  StringBuffer sb = new StringBuffer();
 	  sb.append("<item>");
-	  sb.append("<Title>"+title+"</Title>");
-	  sb.append("<Description>"+description+"</Description>");
-	  sb.append("<PicUrl>"+picUrl+"</PicUrl>");
-	  sb.append("<Url>"+url+"</Url>");
+	  sb.append("<title>"+title+"</title>");
+	  sb.append("<description>"+description+"</description>");
+	  sb.append("<picUrl>"+picUrl+"</picUrl>");
+	  sb.append("<url>"+url+"</url>");
 	  sb.append("</item>");
 	  return sb.toString();
   }
