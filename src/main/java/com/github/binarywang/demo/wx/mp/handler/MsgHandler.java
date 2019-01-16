@@ -131,7 +131,7 @@ $itemTpl = " <item>
   }
   
   private String defaultItem() {
-  	final int i = (int)( System.currentTimeMillis() % 12 );//取一个随机数用于随机显示LOGO图片
+  	final int i = (int)( System.currentTimeMillis() % 25 );//取一个随机数用于随机显示LOGO图片
   	String iStr = (""+(100+i)).substring(1);//格式化：结果为00，01，，，，11，12
 	String title = "小确幸，大生活";
 	String description = "Life is all about having a good time.";
