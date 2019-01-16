@@ -131,13 +131,25 @@ $itemTpl = " <item>
   }
   
   private String defaultItem() {
-  	final int i = (int)( System.currentTimeMillis() % 25 );//取一个随机数用于随机显示LOGO图片
-  	String iStr = (""+(100+i)).substring(1);//格式化：结果为00，01，，，，11，12
+//  	final int i = (int)( System.currentTimeMillis() % 25 );//取一个随机数用于随机显示LOGO图片
+//  	String iStr = (""+(100+i)).substring(1);//格式化：结果为00，01，，，，11，12
+//	String picUrl = "http://www.shouxinjk.net/list/images/logo"+iStr+".jpeg";
 	String title = "小确幸，大生活";
 	String description = "Life is all about having a good time.";
-	String picUrl = "http://www.shouxinjk.net/list/images/logo"+iStr+".jpeg";
+	String picUrl = getDefaultImage();
 	String url = "http://www.biglistoflittlethings.com/ilife-web-wx";
 	return item(title,description,picUrl,url);
+  }
+  
+  private String getDefaultImage() {
+	  String[] logos = {
+			  "logo01.jpeg","logo02.jpeg","logo03.jpeg","logo04.jpeg","logo05.jpeg","logo06.jpeg","logo07.jpeg","logo08.jpeg","logo09.jpeg","logo10.jpeg",
+			  "logo11.jpg","logo12.jpg","logo13.jpg","logo14.jpg","logo15.jpg","logo16.jpg","logo17.jpg","logo18.png","logo19.jpg","logo20.jpg",
+			  "logo21.jpg","logo22.jpg","logo23.jpg","logo24.jpg"
+	  };
+	  final int i = (int)( System.currentTimeMillis() % 24 );//取一个随机数用于随机显示LOGO图片
+	  String img = "http://www.shouxinjk.net/list/images/"+logos[i];
+	  return img;
   }
 
 }
