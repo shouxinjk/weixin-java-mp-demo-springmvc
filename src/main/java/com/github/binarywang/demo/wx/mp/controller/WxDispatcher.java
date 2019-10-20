@@ -6,6 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -79,7 +80,7 @@ public class WxDispatcher {
 	 */
 	@RequestMapping("/qrcode")
 	@ResponseBody
-	public Map<String, Object> generateBrokerQRCode(String brokerId) throws WxErrorException, IOException {
+	public Map<String, Object> generateBrokerQRCode(@RequestParam("brokerId")String brokerId) throws WxErrorException, IOException {
 		Map<String, Object> result = Maps.newHashMap();
 		logger.debug("try to generate QRcode for broker.[id]"+brokerId);
 		//用户同意授权后，通过code获得access token，其中也包含openid
@@ -97,7 +98,7 @@ public class WxDispatcher {
 	
 	@RequestMapping("/qrcodeByInt")
 	@ResponseBody
-	public Map<String, Object> generateBrokerQRCodeByInt(String brokerId) throws WxErrorException, IOException {
+	public Map<String, Object> generateBrokerQRCodeByInt(@RequestParam("brokerId")String brokerId) throws WxErrorException, IOException {
 		Map<String, Object> result = Maps.newHashMap();
 		logger.debug("try to generate QRcode for broker.[id]"+brokerId);
 		//用户同意授权后，通过code获得access token，其中也包含openid
