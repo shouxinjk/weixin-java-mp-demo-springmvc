@@ -8,8 +8,14 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
+import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
+import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
+
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -44,10 +50,25 @@ public class SubscribeHandler extends AbstractHandler {
       return responseResult;
     }
 
-    try {
-      return new TextBuilder().build("感谢关注。我们用小确幸充满你的大生活。", wxMessage, weixinService);
-    } catch (Exception e) {
-      this.logger.error(e.getMessage(), e);
+    if(userWxInfo.getQrSceneStr().trim().length()>0) {//如果是扫描上级达人二维码关注，则发送模板消息完善达人信息
+    		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+        	      .toUser(userWxInfo.getOpenId())
+        	      .templateId("1WpHiMZLMTpjMRXaJuOsWDTGz2nghOdT7X2yEx8_U28")
+        	      .url("http://www.biglistoflittlethings.com/list/")
+        	      .build();
+
+        	    templateMessage.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，您已成功注册推广达人", "#FF00FF"))
+        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname(), "#FF00FF"))
+        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date()), "#FF00FF"))
+        	    		.addData(new WxMpTemplateData("remark", "感谢注册，请点击完善达人信息", "#FF00FF"));
+        	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(templateMessage);    	
+    }else {//如果是不带参数扫描则作为用户反馈信息：
+	    try {
+	      return new TextBuilder().build("感谢关注。我们用小确幸充满你的大生活。", wxMessage, weixinService);
+	    } catch (Exception e) {
+	      this.logger.error(e.getMessage(), e);
+	    }
     }
 
     return null;
