@@ -54,14 +54,15 @@ public class SubscribeHandler extends AbstractHandler {
     		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
         	      .toUser(userWxInfo.getOpenId())
-        	      .templateId("1WpHiMZLMTpjMRXaJuOsWDTGz2nghOdT7X2yEx8_U28")
+        	      .templateId("oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk")
         	      .url("http://www.biglistoflittlethings.com/list/")
         	      .build();
 
-        	    templateMessage.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，您已成功注册推广达人", "#FF00FF"))
-        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname(), "#FF00FF"))
-        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date()), "#FF00FF"))
-        	    		.addData(new WxMpTemplateData("remark", "感谢注册，请点击完善达人信息", "#FF00FF"));
+        	    templateMessage.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，您已成功注册达人"))
+        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
+        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
+        	    		.addData(new WxMpTemplateData("keyword3", "待完善","ff0000"))
+        	    		.addData(new WxMpTemplateData("remark", "感谢注册，还有几个基本信息需要填写，请点击完善"));
         	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(templateMessage);    	
     }else {//如果是不带参数扫描则作为用户反馈信息：
 	    try {
