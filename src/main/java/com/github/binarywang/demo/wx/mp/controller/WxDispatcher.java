@@ -1,6 +1,7 @@
 package com.github.binarywang.demo.wx.mp.controller;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,12 +13,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.binarywang.demo.wx.mp.service.WeixinService;
+import com.google.common.collect.Maps;
 
 import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpInMemoryConfigStorage;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
+import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
 
 @RestController
@@ -45,7 +48,7 @@ public class WxDispatcher {
 		return wxMpOAuth2AccessToken;
 	}
 	
-	/**we
+	/**
 	 * 用户授权后获取UserInfo。如果未授权则无信息返回
 	 * 从公众号菜单进入时，回调地址会请求到该服务，并且传递code
 	 * 网页访问则在用户授权后进入本服务
@@ -67,4 +70,28 @@ public class WxDispatcher {
 		return wxMpUser;
 	}
 	  
+	
+	/**
+	 * 生成达人推广二维码。操作逻辑为：
+	 * 1，先通过ilife注册达人，并获得达人ID
+	 * 2，请求生成二维码，参数为达人ID。返回达人ID、二维码URL
+	 * 3，通过ilife更新达人，将二维码URL写入达人信息
+	 */
+	@RequestMapping("/qrcode")
+	@ResponseBody
+	public Map<String, Object> generateBrokerQRCode(String brokerId) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.debug("try to generate QRcode for broker.[id]"+brokerId);
+		//用户同意授权后，通过code获得access token，其中也包含openid
+		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateLastTicket(brokerId);
+		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
+		logger.debug("Got QRcode URL. [URL]",url);
+		Map<String, Object> data = Maps.newHashMap();
+		data.put("id", brokerId);
+		data.put("url", url);
+		result.put("status",true);
+		result.put("data",data);
+		result.put("description","Broker QRCode created successfully");
+		return result;
+	}
 }
