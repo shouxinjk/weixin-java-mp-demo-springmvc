@@ -94,4 +94,22 @@ public class WxDispatcher {
 		result.put("description","Broker QRCode created successfully");
 		return result;
 	}
+	
+	@RequestMapping("/qrcodeByInt")
+	@ResponseBody
+	public Map<String, Object> generateBrokerQRCodeByInt(String brokerId) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.debug("try to generate QRcode for broker.[id]"+brokerId);
+		//用户同意授权后，通过code获得access token，其中也包含openid
+		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateLastTicket(Integer.parseInt(brokerId));
+		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
+		logger.debug("Got QRcode URL. [URL]",url);
+		Map<String, Object> data = Maps.newHashMap();
+		data.put("id", brokerId);
+		data.put("url", url);
+		result.put("status",true);
+		result.put("data",data);
+		result.put("description","Broker QRCode created successfully");
+		return result;
+	}
 }
