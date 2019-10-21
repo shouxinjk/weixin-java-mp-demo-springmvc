@@ -61,8 +61,8 @@ public class SubscribeHandler extends AbstractHandler {
         	    templateMessage.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，您已成功注册达人"))
         	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
         	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
-        	    		.addData(new WxMpTemplateData("keyword3", "待完善","ff0000"))
-        	    		.addData(new WxMpTemplateData("remark", "感谢注册，还有几个基本信息需要填写，请点击完善"));
+        	    		.addData(new WxMpTemplateData("keyword3", "待完善","#FF0000"))
+        	    		.addData(new WxMpTemplateData("remark", "为完成审核，还需要填写真实姓名和电话号码，请点击完善"));
         	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(templateMessage);    	
     }else {//如果是不带参数扫描则作为用户反馈信息：
 	    try {
