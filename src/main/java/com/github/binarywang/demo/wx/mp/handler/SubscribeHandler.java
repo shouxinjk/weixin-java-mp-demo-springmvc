@@ -52,18 +52,22 @@ public class SubscribeHandler extends AbstractHandler {
 
     if(userWxInfo.getQrSceneStr().trim().length()>0) {//如果是扫描上级达人二维码关注，则发送模板消息完善达人信息
     		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+    		
+    		//发送消息给新注册达人，提示完成信息
+        WxMpTemplateMessage welcomeMsg = WxMpTemplateMessage.builder()
         	      .toUser(userWxInfo.getOpenId())
         	      .templateId("oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk")
-        	      .url("http://www.biglistoflittlethings.com/list/")
+        	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/team-register.html?openId="+userWxInfo.getOpenId()+"&parentBrokerId="+userWxInfo.getQrSceneStr())
         	      .build();
 
-        	    templateMessage.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，您已成功注册达人"))
+        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，您已成功注册达人"))
         	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
         	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
         	    		.addData(new WxMpTemplateData("keyword3", "待完善","#FF0000"))
         	    		.addData(new WxMpTemplateData("remark", "为完成审核，还需要填写真实姓名和电话号码，请点击完善"));
-        	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(templateMessage);    	
+        	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg);  
+      	            	    
+        	    
     }else {//如果是不带参数扫描则作为用户反馈信息：
 	    try {
 	      return new TextBuilder().build("感谢关注。我们用小确幸充满你的大生活。", wxMessage, weixinService);

@@ -1,6 +1,8 @@
 package com.github.binarywang.demo.wx.mp.controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -23,6 +25,8 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
 import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
+import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
+import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
 
 @RestController
 @RequestMapping("/wechat/ilife")
@@ -73,7 +77,7 @@ public class WxDispatcher {
 	  
 	
 	/**
-	 * 生成达人推广二维码。操作逻辑为：
+	 * 生成达人推广二维码。需要通过前端完成，操作逻辑为：
 	 * 1，先通过ilife注册达人，并获得达人ID
 	 * 2，请求生成二维码，参数为达人ID。返回达人ID、二维码URL
 	 * 3，通过ilife更新达人，将二维码URL写入达人信息
@@ -96,21 +100,31 @@ public class WxDispatcher {
 		return result;
 	}
 	
-	@RequestMapping("/qrcodeByInt")
+	@RequestMapping(value = "/notify", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, Object> generateBrokerQRCodeByInt(@RequestParam("brokerId")String brokerId) throws WxErrorException, IOException {
+	public Map<String, Object> sendTemplateMessage(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
 		Map<String, Object> result = Maps.newHashMap();
-		logger.debug("try to generate QRcode for broker.[id]"+brokerId);
-		//用户同意授权后，通过code获得access token，其中也包含openid
-		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateLastTicket(Integer.parseInt(brokerId));
-		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
-		logger.debug("Got QRcode URL. [URL]",url);
-		Map<String, Object> data = Maps.newHashMap();
-		data.put("id", brokerId);
-		data.put("url", url);
-		result.put("status",true);
-		result.put("data",data);
-		result.put("description","Broker QRCode created successfully");
-		return result;
+		
+		logger.debug("try to send notification message.[params]",params);
+		SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		
+   	 	//发送通知信息给上级达人
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(params.get("parentBorkerOpenId"))//注意：场景值存放的是上级达人的openid
+      	      .templateId("hj3ZcC37s4IRo5iJO_TUwJ7ID-VkJ3XQLBMJQeEYNrE")
+      	      //.url("http://www.biglistoflittlethings.com/list/")//当前不做跳转
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", "新成员注册成功"))
+  	    		.addData(new WxMpTemplateData("keyword1", params.get("name")))
+  	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
+  	    		.addData(new WxMpTemplateData("keyword3", "已注册"))
+  	    		.addData(new WxMpTemplateData("remark", "新用户已经完成注册，还需要你的帮助才能完成设置并开始推荐。请保持关注并做必要的示范，让团队变的更强大。<br/>姓名："+params.get("name")+"<br/>电话："+params.get("phone")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
 	}
+
 }
