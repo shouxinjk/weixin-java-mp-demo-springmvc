@@ -71,7 +71,9 @@ public class SubscribeHandler extends AbstractHandler {
     			logger.error("Wrong scene str.[str]"+userWxInfo.getQrSceneStr());
     		}else if("User".equalsIgnoreCase(params[0])) {//如果是用户邀请则发送
     			//注册新用户，并建立新用户与推荐用的关联
-    			JSONObject result = HttpClientHelper.getInstance().post(ilifeConfig.getRegisterUserUrl(), JSONObject.parseObject(userWxInfo.toString()),header);
+    			JSONObject user = JSONObject.parseObject(userWxInfo.toString());
+    			user.put("_key", userWxInfo.getOpenId());//重要：使用openId作为key
+    			JSONObject result = HttpClientHelper.getInstance().post(ilifeConfig.getRegisterUserUrl(), user,header);
     			if(result!=null && result.getString("_id")!=null) {//成功创建则继续创建关联关系
     				//建立用户关联：
     				JSONObject conn = new JSONObject();
@@ -93,7 +95,7 @@ public class SubscribeHandler extends AbstractHandler {
 	    	    	        	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/connection.html")//跳转到好友查看界面
 	    	    	        	      .build();
 	    	    	
-	    	    	        msg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，有亲友注册成功"))
+	    	    	        msg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+" 接受了你的邀请"))
 	    	    	        	    		.addData(new WxMpTemplateData("keyword2", userWxInfo.getNickname()))
 	    	    	        	    		.addData(new WxMpTemplateData("keyword1", dateFormatLong.format(new Date())))
 	    	    	        	    		.addData(new WxMpTemplateData("remark", "为帮助TA获得更好的推荐结果，可以到关心的人查看并完成设置，并查看到特定于TA的推荐结果哦~~"));
@@ -117,7 +119,7 @@ public class SubscribeHandler extends AbstractHandler {
     	        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，欢迎关注小确幸大生活"))
     	        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
     	        	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
-    	        	    		.addData(new WxMpTemplateData("remark", "我们只做一件事，那就是用小确幸填满你的的大生活。成为您的私人生活助手是我们的目标。\nLife is all about having a good time. \nEnjoy ~~"));
+    	        	    		.addData(new WxMpTemplateData("remark", "Life is all about having a good time.\n\n我们只做一件事，那就是用小确幸填满你的的大生活。成为您的私人生活助手是我们的目标。 \n\nEnjoy ~~"));
     	        	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg);      			
     		}else if("Broker".equalsIgnoreCase(params[0])) {//如果是扫描上级达人二维码关注，则发送模板消息完善达人信息
     			//注册新达人。并建立新达人与上级达人的关联
