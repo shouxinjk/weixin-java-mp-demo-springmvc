@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -17,6 +18,7 @@ import com.alibaba.fastjson.JSONObject;
 
 public class HttpClientHelper {
 	Logger logger = LoggerFactory.getLogger(getClass());
+	CloseableHttpClient httpClient = HttpClients.createDefault();
 	
 	public static void main(String[] args) {
 		String url = "http://www.shouxinjk.net/ilife/a/mod/broker/rest/1001";
@@ -58,7 +60,6 @@ public class HttpClientHelper {
 	
 	public JSONObject post(String url, JSONObject data,Map<String,String> header) {
 		JSONObject result = new JSONObject();
-		CloseableHttpClient httpClient = HttpClients.createDefault();
 		HttpPost post = new HttpPost(url);
 		
 		post.setHeader("Content-type", "application/json; charset=utf-8");
@@ -80,12 +81,57 @@ public class HttpClientHelper {
 			HttpResponse response = httpClient.execute(post);
 			int statusCode = response.getStatusLine().getStatusCode();
 			String content = EntityUtils.toString(response.getEntity(), "UTF-8");
+			post.releaseConnection();
 			//httpClient.close();
 			logger.debug("got status code.",statusCode);
 			logger.debug("got response content.",content);
+			
 			return JSONObject.parseObject(content);
 		} catch (Exception e) {
-			logger.error("Error occured whild post request to server.[url]"+url,data,e);
+			logger.error("Error occured while do post request to server.[url]"+url,data,e);
+			result.put("error", e);
+		}
+		result.put("status", false);
+		return result;
+	}
+	
+	public JSONObject get(String url, Map<String,String> params,Map<String,String> header) {
+		JSONObject result = new JSONObject();
+		
+		//组装参数
+		int i=0;
+		if(params!=null && params.size()>0) {
+			for(Map.Entry<String, String> entry: params.entrySet()) {
+				if(i==0)
+					url += "?"+entry.getKey()+""+entry.getValue();
+				else
+					url += "&"+entry.getKey()+""+entry.getValue();
+				i++;
+			}
+		}		
+		
+		HttpGet get = new HttpGet(url);
+		
+		//设置请求头
+		get.setHeader("Content-type", "application/json; charset=utf-8");
+		if(header!=null && header.size()>0) {
+			for(Map.Entry<String, String> entry: header.entrySet()) {
+				get.setHeader(entry.getKey(),entry.getValue());
+			}
+		}
+		
+		try {
+			HttpResponse response = httpClient.execute(get);
+			int statusCode = response.getStatusLine().getStatusCode();
+			String content = EntityUtils.toString(response.getEntity(), "UTF-8");
+			get.releaseConnection();
+			//httpClient.close();
+			logger.debug("got status code.",statusCode);
+			logger.debug("got response content.",content);
+			
+			return JSONObject.parseObject(content);
+		} catch (Exception e) {
+			logger.error("Error occured while do get request to server.[url]"+url,params,e);
 			result.put("error", e);
 		}
 		result.put("status", false);

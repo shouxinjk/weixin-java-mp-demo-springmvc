@@ -44,8 +44,16 @@ public class SubscribeHandler extends AbstractHandler {
     // 获取微信用户基本信息
     WxMpUser userWxInfo = weixinService.getUserService().userInfo(wxMessage.getFromUser(), null);
 
+
+    //准备发起HTTP请求：设置data server Authorization
+    Map<String,String> header = new HashMap<String,String>();
+    header.put("Authorization","Basic aWxpZmU6aWxpZmU=");
+    JSONObject result = null;
     if (userWxInfo != null) {
-      // TODO 可以添加关注用户到本地
+		//把微信用户薅到本地，自己先留着
+		JSONObject user = JSONObject.parseObject(userWxInfo.toString());
+		user.put("_key", userWxInfo.getOpenId());//重要：使用openId作为key
+		result = HttpClientHelper.getInstance().post(ilifeConfig.getRegisterUserUrl(), user,header);    	
     }
 
     WxMpXmlOutMessage responseResult = null;
@@ -59,9 +67,6 @@ public class SubscribeHandler extends AbstractHandler {
       return responseResult;
     }
 
-    //设置data server Authorization
-    Map<String,String> header = new HashMap<String,String>();
-    header.put("Authorization","Basic aWxpZmU6aWxpZmU=");
     
     if(userWxInfo.getQrSceneStr().trim().length()>0) {
     		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -70,10 +75,6 @@ public class SubscribeHandler extends AbstractHandler {
     		if(params.length<2) {//如果无识别标识，不做任何处理
     			logger.error("Wrong scene str.[str]"+userWxInfo.getQrSceneStr());
     		}else if("User".equalsIgnoreCase(params[0])) {//如果是用户邀请则发送
-    			//注册新用户，并建立新用户与推荐用的关联
-    			JSONObject user = JSONObject.parseObject(userWxInfo.toString());
-    			user.put("_key", userWxInfo.getOpenId());//重要：使用openId作为key
-    			JSONObject result = HttpClientHelper.getInstance().post(ilifeConfig.getRegisterUserUrl(), user,header);
     			if(result!=null && result.getString("_id")!=null) {//成功创建则继续创建关联关系
     				//建立用户关联：
     				JSONObject conn = new JSONObject();
@@ -134,7 +135,7 @@ public class SubscribeHandler extends AbstractHandler {
     			//data.put("name", "测试账户");//等待用户自己填写
     			//data.put("phone", "12345678");//等待用户自己填写
     			HttpClientHelper client = new HttpClientHelper();
-    			JSONObject result = client.post(url, data);
+    			result = client.post(url, data);
     			String redirectUrl = ilifeConfig.getUpdateBrokerUrl();
     			if(result.get("data")!=null) {//创建成功，则返回修改界面
 	    			data = (JSONObject)result.get("data");
@@ -180,6 +181,7 @@ public class SubscribeHandler extends AbstractHandler {
     return null;
   }
 
+  
   /**
    * 处理特殊请求，比如如果是扫码进来的，可以做相应处理
    */
