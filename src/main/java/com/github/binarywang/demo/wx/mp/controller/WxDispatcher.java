@@ -88,7 +88,7 @@ public class WxDispatcher {
 		Map<String, Object> result = Maps.newHashMap();
 		logger.debug("try to generate QRcode for broker.[id]"+brokerId);
 		//用户同意授权后，通过code获得access token，其中也包含openid
-		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateLastTicket(brokerId);
+		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateLastTicket("Broker::"+brokerId);
 		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
 		logger.debug("Got QRcode URL. [URL]",url);
 		Map<String, Object> data = Maps.newHashMap();
@@ -100,6 +100,27 @@ public class WxDispatcher {
 		return result;
 	}
 	
+	/**
+	 * 生成用户特定的临时二维码。分享后可以关注用户
+	 */
+	@RequestMapping("/tempQRcode")
+	@ResponseBody
+	public Map<String, Object> generateUserQRCode(@RequestParam("userId")String userId) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.debug("try to generate temp QRcode for user.[id]"+userId);
+		//用户同意授权后，通过code获得access token，其中也包含openid
+		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket("User::"+userId,2592000);//有效期30天
+		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
+		logger.debug("Got QRcode URL. [URL]",url);
+		Map<String, Object> data = Maps.newHashMap();
+		data.put("id", userId);
+		data.put("url", url);
+		result.put("status",true);
+		result.put("data",data);
+		result.put("description","User Temp QRCode created successfully");
+		return result;
+	}	
+	
 	@RequestMapping(value = "/notify", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> sendTemplateMessage(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
@@ -109,6 +130,13 @@ public class WxDispatcher {
 		SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		
    	 	//发送通知信息给上级达人
+		/**
+{{first.DATA}}
+注册用户：{{keyword1.DATA}}
+注册时间：{{keyword2.DATA}}
+注册来源：{{keyword3.DATA}}
+{{remark.DATA}}
+		 */
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
       	      .toUser(params.get("parentBorkerOpenId"))//注意：场景值存放的是上级达人的openid
       	      .templateId("hj3ZcC37s4IRo5iJO_TUwJ7ID-VkJ3XQLBMJQeEYNrE")
@@ -119,7 +147,7 @@ public class WxDispatcher {
   	    		.addData(new WxMpTemplateData("keyword1", params.get("name")))
   	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
   	    		.addData(new WxMpTemplateData("keyword3", "微信"))
-  	    		.addData(new WxMpTemplateData("remark", "新用户已经完成注册，还需要你的帮助才能完成设置并开始推荐。请保持关注并做必要的示范，让团队变的更强大。\n姓名："+params.get("name")+"\n电话："+params.get("phone")));
+  	    		.addData(new WxMpTemplateData("remark", "你有新用户已经完成注册，还需要你的帮助才能完成设置并开始推荐。请保持关注并做必要的示范，让团队变的更强大。\n姓名："+params.get("name")+"\n电话："+params.get("phone")));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
   	     
   	     result.put("status", true);
