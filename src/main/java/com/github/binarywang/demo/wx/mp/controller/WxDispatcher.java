@@ -140,7 +140,7 @@ public class WxDispatcher {
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
       	      .toUser(params.get("parentBorkerOpenId"))//注意：场景值存放的是上级达人的openid
       	      .templateId("hj3ZcC37s4IRo5iJO_TUwJ7ID-VkJ3XQLBMJQeEYNrE")
-      	      //.url("http://www.biglistoflittlethings.com/list/")//当前不做跳转
+      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html")//跳转到团队页面
       	      .build();
 
   	    templateMessage.addData(new WxMpTemplateData("first", "新成员注册成功"))

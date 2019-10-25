@@ -1,6 +1,7 @@
 package com.github.binarywang.demo.wx.mp.helper;
 
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
@@ -18,7 +19,7 @@ public class HttpClientHelper {
 	Logger logger = LoggerFactory.getLogger(getClass());
 	
 	public static void main(String[] args) {
-		String url = "http://localhost:8080/iLife/a/mod/broker/rest/1001";
+		String url = "http://www.shouxinjk.net/ilife/a/mod/broker/rest/1001";
 		JSONObject data = new JSONObject();
 		data.put("hierarchy", "333");
 		data.put("level", "万人斩");
@@ -27,8 +28,28 @@ public class HttpClientHelper {
 		data.put("openid", "这是假的，哪来的openid");
 		data.put("name", "测试账户");
 		data.put("phone", "12345678");
-		HttpClientHelper client = new HttpClientHelper();
-		client.post(url, data,null);
+		HttpClientHelper.getInstance().post(url, data,null);
+		
+		
+		//设置data server Authorization
+		String url2 = "https://data.shouxinjk.net/_db/sea/_api/document/connections?returnNew=true";
+	    Map<String,String> header = new HashMap<String,String>();
+	    header.put("Authorization","Basic aWxpZmU6aWxpZmU=");
+	    
+		JSONObject conn = new JSONObject();
+		conn.put("_from", "user_users/o8HmJ1EdIUR8iZRwaq1T7D_nPIYc");//源是推荐者
+		conn.put("_to","user_users/oQhcg5eNMytKMgzQx-xYC2DiUu7E");//端是新加入的用户：从结果中获取
+		conn.put("name", "我关心的TA");//关系名称
+		HttpClientHelper.getInstance().post(url2, conn,header);
+	}
+	
+	private static HttpClientHelper helper = null;
+	
+	public static HttpClientHelper getInstance() {
+		if(helper == null) {
+			helper = new HttpClientHelper();
+		}
+		return helper;
 	}
 	
 	public JSONObject post(String url, JSONObject data) {
@@ -59,7 +80,7 @@ public class HttpClientHelper {
 			HttpResponse response = httpClient.execute(post);
 			int statusCode = response.getStatusLine().getStatusCode();
 			String content = EntityUtils.toString(response.getEntity(), "UTF-8");
-			httpClient.close();
+			//httpClient.close();
 			logger.debug("got status code.",statusCode);
 			logger.debug("got response content.",content);
 			return JSONObject.parseObject(content);

@@ -69,18 +69,17 @@ public class SubscribeHandler extends AbstractHandler {
     		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId
     		if(params.length<2) {//如果无识别标识，不做任何处理
     			logger.error("Wrong scene str.[str]"+userWxInfo.getQrSceneStr());
-    		}else if("User".equalsIgnoreCase(params[0])) {//如果用户邀请则发送
+    		}else if("User".equalsIgnoreCase(params[0])) {//如果是用户邀请则发送
     			//注册新用户，并建立新用户与推荐用的关联
-    			HttpClientHelper client = new HttpClientHelper();
-    			JSONObject result = client.post(ilifeConfig.getRegisterUserUrl(), JSONObject.parseObject(userWxInfo.toString()),header);
-    			if(result!=null && userWxInfo.getOpenId().equalsIgnoreCase(result.getString("_key"))) {//成功创建以OpenId为_key的用户对象，接着创建关联关系
+    			JSONObject result = HttpClientHelper.getInstance().post(ilifeConfig.getRegisterUserUrl(), JSONObject.parseObject(userWxInfo.toString()),header);
+    			if(result!=null && result.getString("_id")!=null) {//成功创建则继续创建关联关系
     				//建立用户关联：
     				JSONObject conn = new JSONObject();
     				conn.put("_from", "user_users/"+params[1]);//源是推荐者
-    				conn.put("_to", result.getString("_id"));//端是新加入的用户：从结果中获取
+    				conn.put("_to", "user_users/"+userWxInfo.getOpenId());//端是新加入的用户
     				conn.put("name", "我关心的TA");//关系名称
-    				result = client.post(ilifeConfig.getConnectUserUrl(), conn,header);
-    				if(result !=null && result.getString("_id").indexOf("/")>0) {//成功建立关联。可以发送通知了
+    				result = HttpClientHelper.getInstance().post(ilifeConfig.getConnectUserUrl(), conn,header);
+    				if(result !=null && result.get("_id") !=null) {//成功建立关联。可以发送通知了
 	    		    		//发送消息给推荐用户，让他感觉开心点
     					/**
 						{{first.DATA}}
@@ -118,12 +117,12 @@ public class SubscribeHandler extends AbstractHandler {
     	        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，欢迎关注小确幸大生活"))
     	        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
     	        	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
-    	        	    		.addData(new WxMpTemplateData("remark", "我们只做一件事，那就是用小确幸填满你的的大生活。成为您的私人生活助手是我们的目标。Life is all about having a good time. Enjoy ~~"));
+    	        	    		.addData(new WxMpTemplateData("remark", "我们只做一件事，那就是用小确幸填满你的的大生活。成为您的私人生活助手是我们的目标。\nLife is all about having a good time. \nEnjoy ~~"));
     	        	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg);      			
     		}else if("Broker".equalsIgnoreCase(params[0])) {//如果是扫描上级达人二维码关注，则发送模板消息完善达人信息
     			//注册新达人。并建立新达人与上级达人的关联
     			//String url = "http://localhost:8080/iLife/a/mod/broker/rest/"+params[1];
-    			String url = ilifeConfig.getRegisterBrokerUrl()+params[1];
+    			String url = ilifeConfig.getRegisterBrokerUrl()+params[1];//针对上级达人创建
     			JSONObject data = new JSONObject();
     			data.put("hierarchy", "9");
     			data.put("level", "推广达人");
@@ -139,6 +138,7 @@ public class SubscribeHandler extends AbstractHandler {
 	    			data = (JSONObject)result.get("data");
 	    			String brokerId = data.get("id").toString();
 	    			redirectUrl += "?brokerId="+brokerId;//根据该ID进行修改
+	    			redirectUrl += "&parentBrokerId="+params[1];//根据上级达人ID发送通知
 	    			//注意：由于未填写电话和姓名，此处不发送注册完成通知给上级达人。待填写完成后再发送
     			}else {//否则返回界面根据openId和上级brokerId创建
     				redirectUrl += "?openId="+userWxInfo.getOpenId();
