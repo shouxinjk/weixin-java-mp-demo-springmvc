@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -94,6 +95,43 @@ public class HttpClientHelper {
 		result.put("status", false);
 		return result;
 	}
+	
+	public JSONObject put(String url, JSONObject data,Map<String,String> header) {
+		JSONObject result = new JSONObject();
+		HttpPut post = new HttpPut(url);
+		
+		post.setHeader("Content-type", "application/json; charset=utf-8");
+		if(header!=null && header.size()>0) {
+			for(Map.Entry<String, String> entry: header.entrySet()) {
+				post.setHeader(entry.getKey(),entry.getValue());
+			}
+		}
+		
+		// 构建消息实体
+		StringEntity entity = new StringEntity(data.toJSONString(), Charset.forName("UTF-8"));
+		entity.setContentEncoding("UTF-8");
+		
+		// 发送json格式的数据请求
+		entity.setContentType("application/json");
+		post.setEntity(entity);
+		
+		try {
+			HttpResponse response = httpClient.execute(post);
+			int statusCode = response.getStatusLine().getStatusCode();
+			String content = EntityUtils.toString(response.getEntity(), "UTF-8");
+			post.releaseConnection();
+			//httpClient.close();
+			logger.debug("got status code.",statusCode);
+			logger.debug("got response content.",content);
+			
+			return JSONObject.parseObject(content);
+		} catch (Exception e) {
+			logger.error("Error occured while do put request to server.[url]"+url,data,e);
+			result.put("error", e);
+		}
+		result.put("status", false);
+		return result;
+	}	
 	
 	public JSONObject get(String url, Map<String,String> params,Map<String,String> header) {
 		JSONObject result = new JSONObject();

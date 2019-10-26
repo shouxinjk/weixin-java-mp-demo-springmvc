@@ -20,6 +20,20 @@ public class iLifeConfig {
   @Value("#{ilifePropertyies.connect_user_url}")
   private String connectUserUrl;
 
+  @Value("#{ilifePropertyies.data_api}")
+  private String dataApi;
+
+  @Value("#{ilifePropertyies.sx_api}")
+  private String sxApi;
+
+  public String getSxApi() {
+    return this.sxApi;
+  }
+  
+  public String getDataApi() {
+    return this.dataApi;
+  }
+  
   public String getConnectUserUrl() {
     return this.connectUserUrl;
   }
