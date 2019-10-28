@@ -62,7 +62,14 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
   header.put("Authorization","Basic aWxpZmU6aWxpZmU=");
   JSONObject result = null;
   if (userWxInfo != null) {
-		//可以处理用户数据。但实际上用户数据已经在关注时处理过，此处直接跳过，不做处理  	
+		result = HttpClientHelper.getInstance().get(ilifeConfig.getDataApi()+"/_api/document/user_users/"+userWxInfo.getOpenId(),null, header);
+		if(result!=null && result.getString("_id")!=null) {//如果查到则表示用户已经建立，不做处理
+			//do nothing
+		}else {//把微信用户薅到本地，自己先留着
+		JSONObject user = JSONObject.parseObject(userWxInfo.toString());
+		user.put("_key", userWxInfo.getOpenId());//重要：使用openId作为key
+		result = HttpClientHelper.getInstance().post(ilifeConfig.getRegisterUserUrl(), user,header);    
+	} 	
   }
 
   //根据场景值进行处理
@@ -174,7 +181,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
       				JSONObject conn = new JSONObject();
       				conn.put("_from", "user_users/"+userWxInfo.getOpenId());//端是新加入的用户
       				conn.put("_to", "user_users/"+parentBrokerJson.getJSONObject("data").getString("openid"));//源是推荐者
-      				conn.put("name", "关心我的TA");//关系名称
+      				conn.put("name", "上级达人");//关系名称
       				result = HttpClientHelper.getInstance().post(ilifeConfig.getConnectUserUrl(), conn,header);
       			}
       			
