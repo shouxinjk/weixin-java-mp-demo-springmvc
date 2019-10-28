@@ -30,6 +30,9 @@ public class WeixinService extends WxMpServiceImpl {
   protected LogHandler logHandler;
 
   @Autowired
+  protected ScanHandler scanHandler;
+  
+  @Autowired
   protected NullHandler nullHandler;
 
   @Autowired
@@ -128,7 +131,7 @@ public class WeixinService extends WxMpServiceImpl {
 
     // 扫码事件
     newRouter.rule().async(false).msgType(XmlMsgType.EVENT)
-      .event(EventType.SCAN).handler(this.nullHandler).end();
+      .event(EventType.SCAN).handler(this.scanHandler).end();
 
     // 默认
     newRouter.rule().async(false).handler(this.msgHandler).end();
