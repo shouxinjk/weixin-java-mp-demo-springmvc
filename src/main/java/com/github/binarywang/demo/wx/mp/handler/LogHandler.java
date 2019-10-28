@@ -84,9 +84,9 @@ public class LogHandler extends AbstractHandler {
     			data.put("collection", "connections");
     			data.put("example", example);
     			result = HttpClientHelper.getInstance().put(ilifeConfig.getDataApi()+"/_api/simple/by-example", data, header);
-    			if(result!=null && result.getIntValue("count")>0) {//该关联已经存在。不做任何处理。
+    			if(result!=null && result.getIntValue("count")>0) {//该关联已经存在
     				//能到这里，说明这货有段时间没来，都忘了之前已经加了好友了，这次又扫码加好友。发个消息提示一下就可以了
-    				return new TextBuilder().build("已经接受邀请了哦，赶紧点击\"我\"然后点击\"关心的人\"看看吧~~", wxMessage, weixinService);
+    				return new TextBuilder().build("已经接受邀请了哦，赶紧点击【我】然后点击【关心的人】看看吧~~", wxMessage, weixinService);
     			}else {//建立双向用户关联：
     				JSONObject conn = new JSONObject();
     				//将推荐者加为当前用户好友
@@ -116,7 +116,7 @@ public class LogHandler extends AbstractHandler {
 	    	    	        msg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+" 接受了你的邀请"))
 	    	    	        	    		.addData(new WxMpTemplateData("keyword2", userWxInfo.getNickname()))
 	    	    	        	    		.addData(new WxMpTemplateData("keyword1", dateFormatLong.format(new Date())))
-	    	    	        	    		.addData(new WxMpTemplateData("remark", "为帮助TA获得更好的推荐结果，可以到关心的人查看并完成设置，并查看到特定于TA的推荐结果哦~~"));
+	    	    	        	    		.addData(new WxMpTemplateData("remark", "为帮助TA获得更好的推荐结果，请点击【我】进入【关心的人】查看并进行设置，也可以进入【大生活】查看到特定于TA的推荐结果哦~~"));
 	    	    	        String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg);      	    
     				}
     			}
@@ -133,7 +133,7 @@ public class LogHandler extends AbstractHandler {
     			result = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerByOpenid/"+userWxInfo.getOpenId(),null, header);
     			if(result!=null && result.getBooleanValue("status")) {//已经注册达人
     				//能到这里，说明这货已经好久没来了，都忘了之前已经加入达人，但是又取消关注了。发个消息提示一下就可以了
-    				return new TextBuilder().build("已经注册达人了哦，自购省钱，分享赚钱，赶紧点击\"我\"然后点击\"进入达人后台\"看看吧~~", wxMessage, weixinService);
+    				return new TextBuilder().build("已经注册达人了哦，自购省钱，分享赚钱，赶紧点击【我】然后点击【进入达人后台】看看吧~~", wxMessage, weixinService);
     			}else {//如果不是达人，则完成注册
 	    			String url = ilifeConfig.getRegisterBrokerUrl()+params[1];//针对上级达人创建
 	    			JSONObject data = new JSONObject();
@@ -159,14 +159,25 @@ public class LogHandler extends AbstractHandler {
 	    			}
 	    			
 	    			//将推荐者加为当前用户好友：要不然这个新加入的达人就找不到TA的推荐者的么
-	    			//还是有点危险的哇，这里都不看看以前他们有没有勾搭上，可能出现重复记录
+	    			//检查用户关联是否存在:对于特殊情况，用户已经添加好友，然后取消关注，再次扫码关注后避免重复建立关系
 	    			JSONObject parentBrokerJson = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerById/"+params[1], null, header);
-    				JSONObject conn = new JSONObject();
-    				conn.put("_from", "user_users/"+userWxInfo.getOpenId());//端是新加入的用户
-    				conn.put("_to", "user_users/"+parentBrokerJson.getJSONObject("data").getString("openid"));//源是推荐者
-    				conn.put("name", "关心我的TA");//关系名称
-    				result = HttpClientHelper.getInstance().post(ilifeConfig.getConnectUserUrl(), conn,header);
-    				
+        			JSONObject example = new JSONObject();
+        			example.put("_from", "user_users/"+userWxInfo.getOpenId());
+        			example.put("_to", "user_users/"+parentBrokerJson.getJSONObject("data").getString("openid"));
+        			JSONObject query = new JSONObject();
+        			query.put("collection", "connections");
+        			query.put("example", example);
+        			result = HttpClientHelper.getInstance().put(ilifeConfig.getDataApi()+"/_api/simple/by-example", query, header);
+        			if(result!=null && result.getIntValue("count")>0) {//该关联已经存在。不做任何处理。
+        				//do nothing
+        			}else {
+        				JSONObject conn = new JSONObject();
+        				conn.put("_from", "user_users/"+userWxInfo.getOpenId());//端是新加入的用户
+        				conn.put("_to", "user_users/"+parentBrokerJson.getJSONObject("data").getString("openid"));//源是推荐者
+        				conn.put("name", "关心我的TA");//关系名称
+        				result = HttpClientHelper.getInstance().post(ilifeConfig.getConnectUserUrl(), conn,header);
+        			}
+        			
 		    		//发送消息给新注册达人，提示完成信息
 	    			/**
 					{{first.DATA}}
@@ -185,7 +196,7 @@ public class LogHandler extends AbstractHandler {
 		        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
 		        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
 		        	    		.addData(new WxMpTemplateData("keyword3", "待完善","#FF0000"))
-		        	    		.addData(new WxMpTemplateData("remark", "为完成审核，还需要填写真实姓名和电话号码，请点击完善。"));
+		        	    		.addData(new WxMpTemplateData("remark", "自购省钱，分享赚钱。为完成审核，还需要填写真实姓名和电话号码，请点击完善。"));
 		        	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg);  
     			}
     		}else {//场景错误
@@ -193,7 +204,7 @@ public class LogHandler extends AbstractHandler {
     		}  
     }else {//如果是不带参数扫描则作为用户反馈信息：
 	    try {
-	      return new TextBuilder().build("感谢关注。我们用小确幸充满你的大生活。", wxMessage, weixinService);
+	      return new TextBuilder().build("Life is all about having a good time.\n\n我们的目标是成为您的私人生活助手，用全面的数据做出合理的消费决策，用小确幸丰富你的的大生活。 \n\nEnjoy ~~", wxMessage, weixinService);
 	    } catch (Exception e) {
 	      this.logger.error(e.getMessage(), e);
 	    }
