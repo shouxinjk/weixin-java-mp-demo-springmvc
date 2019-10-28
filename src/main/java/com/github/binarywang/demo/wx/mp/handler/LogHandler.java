@@ -85,9 +85,16 @@ public class LogHandler extends AbstractHandler {
     			data.put("example", example);
     			result = HttpClientHelper.getInstance().put(ilifeConfig.getDataApi()+"/_api/simple/by-example", data, header);
     			if(result!=null && result.getIntValue("count")>0) {//该关联已经存在。不做任何处理。
-    				//do nothing
-    			}else {//建立用户关联：
+    				//能到这里，说明这货有段时间没来，都忘了之前已经加了好友了，这次又扫码加好友。发个消息提示一下就可以了
+    				return new TextBuilder().build("已经接受邀请了哦，赶紧点击\"我\"然后点击\"关心的人\"看看吧~~", wxMessage, weixinService);
+    			}else {//建立双向用户关联：
     				JSONObject conn = new JSONObject();
+    				//将推荐者加为当前用户好友
+    				conn.put("_from", "user_users/"+userWxInfo.getOpenId());//端是新加入的用户
+    				conn.put("_to", "user_users/"+params[1]);//源是推荐者
+    				conn.put("name", "关心我的TA");//关系名称
+    				result = HttpClientHelper.getInstance().post(ilifeConfig.getConnectUserUrl(), conn,header);
+    				//将当前用户加为推荐者好友
     				conn.put("_from", "user_users/"+params[1]);//源是推荐者
     				conn.put("_to", "user_users/"+userWxInfo.getOpenId());//端是新加入的用户
     				conn.put("name", "我关心的TA");//关系名称
@@ -125,7 +132,8 @@ public class LogHandler extends AbstractHandler {
     			//根据openId查找是否已经注册达人
     			result = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerByOpenid/"+userWxInfo.getOpenId(),null, header);
     			if(result!=null && result.getBooleanValue("status")) {//已经注册达人
-    				//do nothing 直接跳过
+    				//能到这里，说明这货已经好久没来了，都忘了之前已经加入达人，但是又取消关注了。发个消息提示一下就可以了
+    				return new TextBuilder().build("已经注册达人了哦，自购省钱，分享赚钱，赶紧点击\"我\"然后点击\"进入达人后台\"看看吧~~", wxMessage, weixinService);
     			}else {//如果不是达人，则完成注册
 	    			String url = ilifeConfig.getRegisterBrokerUrl()+params[1];//针对上级达人创建
 	    			JSONObject data = new JSONObject();
@@ -136,8 +144,8 @@ public class LogHandler extends AbstractHandler {
 	    			data.put("openid", userWxInfo.getOpenId());
 	    			//data.put("name", "测试账户");//等待用户自己填写
 	    			//data.put("phone", "12345678");//等待用户自己填写
-	    			HttpClientHelper client = new HttpClientHelper();
-	    			result = client.post(url, data);
+
+	    			result = HttpClientHelper.getInstance().post(url, data);
 	    			String redirectUrl = ilifeConfig.getUpdateBrokerUrl();
 	    			if(result.get("data")!=null) {//创建成功，则返回修改界面
 		    			data = (JSONObject)result.get("data");
@@ -149,6 +157,16 @@ public class LogHandler extends AbstractHandler {
 	    				redirectUrl += "?openId="+userWxInfo.getOpenId();
 	    				redirectUrl += "&parentBrokerId="+params[1];
 	    			}
+	    			
+	    			//将推荐者加为当前用户好友：要不然这个新加入的达人就找不到TA的推荐者的么
+	    			//还是有点危险的哇，这里都不看看以前他们有没有勾搭上，可能出现重复记录
+	    			JSONObject parentBrokerJson = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerById/"+params[1], null, header);
+    				JSONObject conn = new JSONObject();
+    				conn.put("_from", "user_users/"+userWxInfo.getOpenId());//端是新加入的用户
+    				conn.put("_to", "user_users/"+parentBrokerJson.getJSONObject("data").getString("openid"));//源是推荐者
+    				conn.put("name", "关心我的TA");//关系名称
+    				result = HttpClientHelper.getInstance().post(ilifeConfig.getConnectUserUrl(), conn,header);
+    				
 		    		//发送消息给新注册达人，提示完成信息
 	    			/**
 					{{first.DATA}}
