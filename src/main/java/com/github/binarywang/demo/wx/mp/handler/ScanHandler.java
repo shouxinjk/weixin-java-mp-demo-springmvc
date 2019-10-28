@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -29,6 +30,7 @@ import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
 /**
  * @author Binary Wang
  */
+@Component
 public class ScanHandler extends AbstractHandler {
 	  @Autowired
 	  private iLifeConfig ilifeConfig;
