@@ -154,5 +154,93 @@ public class WxDispatcher {
   	     result.put("msgId", msgId);
   	     return result;
 	}
+	
+
+	/**
+	 * 发送订单通知。
+	 * 消息格式：
+	 * 恭喜，你有新订单成交：
+	 * 商品名称：xxxx。 item
+	 * 订单时间：xxx。orderTime
+	 * 预估佣金：xx。commissionEstimate
+	 * 结算状态：xx。status
+	 * 
+	 * 目标用户：brokerOpenid
+	 * 
+	 * 输入参数是一个Map。
+	 */
+	@RequestMapping(value = "/order-notify", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendOrderNotificationMsg(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		
+		logger.debug("try to send order notification message.[params]",params);
+		SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(params.get("brokerOpenid"))
+      	      .templateId("hj3ZcC37s4IRo5iJO_TUwJ7ID-VkJ3XQLBMJQeEYNrE")//TODO：待确定模板编号
+      	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html")//订单通知不跳转到详情页面
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", "恭喜，有新订单成交"))
+  	    		.addData(new WxMpTemplateData("keyword1", params.get("item")))
+  	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(params.get("orderTime"))))
+  	    		.addData(new WxMpTemplateData("keyword3", params.get("commissionEstimate")))
+  	    		.addData(new WxMpTemplateData("remark", "订单状态："+params.get("status")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}
+	
+	/**
+	 * 发送绩效订单通知。是一个汇总信息
+	 * 消息格式：
+	 * 绩效{日报/周报/月报}：type:daily/weekly/monthly
+	 * 分享数：xxxx。 shares
+	 * 浏览数：xxx。views
+	 * 意向数：xx。buys
+	 * 订单数：xx。orders
+	 * 
+	 * 附加信息：xxx。msg
+	 * 
+	 * 目标用户：brokerOpenid、brokerName
+	 * 
+	 * 输入参数是一个Map。
+	 */
+	@RequestMapping(value = "/performance-notify", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendPerformanceNotificationMsg(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, String> titles = Maps.newHashMap();
+		titles.put("daily", "这是今天的推广效果哦");
+		titles.put("weekly", "本周的绩效汇总来了");
+		titles.put("monthly", "上月的绩效汇总来了");
+		titles.put("yearly", "这是今年的绩效汇总");
+		
+		
+		Map<String, Object> result = Maps.newHashMap();
+		logger.debug("try to send performance notification message.[params]",params);
+		SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(params.get("brokerOpenid"))
+      	      .templateId("hj3ZcC37s4IRo5iJO_TUwJ7ID-VkJ3XQLBMJQeEYNrE")//TODO：待确定模板编号
+      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/money.html")//订单汇总通知需要跳转到绩效界面
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", params.get("brokerName")+"，"+titles.get(params.get("brokerName"))))
+  	    		.addData(new WxMpTemplateData("keyword1", params.get("shares")))
+  	    		.addData(new WxMpTemplateData("keyword2", params.get("views")))
+  	    		.addData(new WxMpTemplateData("keyword3", params.get("buys")))
+  	    		.addData(new WxMpTemplateData("remark", "订单数："+params.get("orders")+
+  	    				(params.get("msg")!=null&&params.get("msg").toString().trim().length()>0?("\n备注："+params.get("msg")):"")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}	
 
 }
