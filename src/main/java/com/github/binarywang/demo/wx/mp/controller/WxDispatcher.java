@@ -157,7 +157,12 @@ public class WxDispatcher {
 	
 
 	/**
-	 * 发送订单通知。
+	 * 根据清分结果发送通知。需要根据beneficiary区分不同的消息类型：
+	 * 店返：beneficiary=broker
+	 * 团返：beneficiary=grandpa 或 beneficiary = parent
+	 * 积分：beneficiary = credit
+	 * 意向：beneficiary = buy
+	 * 
 	 * 消息格式：
 	 * 恭喜，你有新订单成交：
 	 * 商品名称：xxxx。 item
@@ -169,13 +174,37 @@ public class WxDispatcher {
 	 * 
 	 * 输入参数是一个Map。
 	 */
-	@RequestMapping(value = "/order-notify", method = RequestMethod.POST)
+	@RequestMapping(value = "/clearing-notify", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> sendOrderNotificationMsg(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
 		Map<String, Object> result = Maps.newHashMap();
+		if(params.get("")==null) {//如果没有openid则直接跳过
+			logger.error("send notification msg faild without openid.[params]",params);
+	  	     result.put("status", false);
+	  	     return result;
+		}
+		
+		Map<String, String> titles = Maps.newHashMap();
+		titles.put("broker", "店返");
+		titles.put("parent", "团返");
+		titles.put("grandpa", "团返");
+		titles.put("buy", "平台激励");
+		titles.put("credit", "平台激励");
+		
+		Map<String, String> statusTitles = Maps.newHashMap();
+		statusTitles.put("locked", "锁定：团队达标后结算");
+		statusTitles.put("cleared", "待结算");
+		
+		SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		String remark = "";
+		remark+=params.get("item")!=null?"商品名称："+params.get("item"):"";
+		remark+=params.get("platform")!=null?"\n来源平台："+params.get("platform"):"";
+		remark+=params.get("orderTime")!=null?"\n订单时间："+dateFormatLong.format(params.get("orderTime")):"";
+		remark+=params.get("seller")!=null?"\n团队成员："+params.get("seller"):"";
+		
+		if(remark.trim().length()==0)remark = "贡献越大，收益越多哦~~";
 		
 		logger.debug("try to send order notification message.[params]",params);
-		SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
       	      .toUser(params.get("brokerOpenid"))
@@ -184,10 +213,10 @@ public class WxDispatcher {
       	      .build();
 
   	    templateMessage.addData(new WxMpTemplateData("first", "恭喜，有新订单成交"))
-  	    		.addData(new WxMpTemplateData("keyword1", params.get("item")))
-  	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(params.get("orderTime"))))
-  	    		.addData(new WxMpTemplateData("keyword3", params.get("commissionEstimate")))
-  	    		.addData(new WxMpTemplateData("remark", "订单状态："+params.get("status")));
+  	    		.addData(new WxMpTemplateData("keyword1", titles.get(params.get("beneficiary"))))//收益类别
+  	    		.addData(new WxMpTemplateData("keyword2", params.get("amountProfit")))//收益金额
+  	    		.addData(new WxMpTemplateData("keyword3", statusTitles.get(params.get("status"))))//清分状态
+  	    		.addData(new WxMpTemplateData("remark", remark));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
   	     
   	     result.put("status", true);
