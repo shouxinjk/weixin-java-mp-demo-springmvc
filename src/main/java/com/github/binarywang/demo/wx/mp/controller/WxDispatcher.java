@@ -178,12 +178,12 @@ public class WxDispatcher {
 	@ResponseBody
 	public Map<String, Object> sendOrderNotificationMsg(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
 		Map<String, Object> result = Maps.newHashMap();
-		if(params.get("")==null) {//如果没有openid则直接跳过
-			logger.error("send notification msg faild without openid.[params]",params);
+		if(params.get("brokerOpenid")==null || params.get("brokerOpenid").toString().trim().length()==0) {//如果没有openid则直接跳过
+			logger.error("cannot send clearing notification msg without openid.[params]",params);
 	  	     result.put("status", false);
 	  	     return result;
 		}
-		
+		logger.info("start send clearing notification msg.[params]",params);
 		Map<String, String> titles = Maps.newHashMap();
 		titles.put("broker", "店返");
 		titles.put("parent", "团返");
@@ -242,15 +242,20 @@ public class WxDispatcher {
 	@RequestMapping(value = "/performance-notify", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> sendPerformanceNotificationMsg(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		if(params.get("brokerOpenid")==null || params.get("brokerOpenid").toString().trim().length()==0) {//如果没有openid则直接跳过
+			logger.error("cannot send performance notification msg without openid.[params]",params);
+	  	     result.put("status", false);
+	  	     return result;
+		}
+		
 		Map<String, String> titles = Maps.newHashMap();
 		titles.put("daily", "这是今天的推广效果哦");
 		titles.put("weekly", "本周的绩效汇总来了");
 		titles.put("monthly", "上月的绩效汇总来了");
 		titles.put("yearly", "这是今年的绩效汇总");
 		
-		
-		Map<String, Object> result = Maps.newHashMap();
-		logger.debug("try to send performance notification message.[params]",params);
+		logger.info("start send performance notification message.[params]",params);
 		SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
