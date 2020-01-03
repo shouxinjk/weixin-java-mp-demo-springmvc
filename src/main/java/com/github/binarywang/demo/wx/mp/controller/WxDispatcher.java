@@ -195,11 +195,10 @@ public class WxDispatcher {
 		statusTitles.put("locked", "锁定：团队达标后结算");
 		statusTitles.put("cleared", "待结算");
 		
-		SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String remark = "";
 		remark+=params.get("item")!=null?"商品名称："+params.get("item"):"";
 		remark+=params.get("platform")!=null?"\n来源平台："+params.get("platform"):"";
-		remark+=params.get("orderTime")!=null?"\n订单时间："+dateFormatLong.format(params.get("orderTime")):"";
+		remark+=params.get("orderTime")!=null?"\n订单时间："+params.get("orderTime"):"";
 		remark+=params.get("seller")!=null?"\n团队成员："+params.get("seller"):"";
 		
 		if(remark.trim().length()==0)remark = "贡献越大，收益越多哦~~";
@@ -256,7 +255,6 @@ public class WxDispatcher {
 		titles.put("yearly", "这是今年的绩效汇总");
 		
 		logger.info("start send performance notification message.[params]",params);
-		SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
       	      .toUser(params.get("brokerOpenid"))
