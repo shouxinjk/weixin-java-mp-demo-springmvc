@@ -275,4 +275,43 @@ public class WxDispatcher {
   	     return result;
 	}	
 
+	
+	/**
+	 * 发送导购数据同步消息：
+新的数据同步任务完成。
+会员昵称：淘宝数据同步
+注册时间：2017-4-21 18:36
+XXXX
+	 * 
+	 * 输入参数是一个Map。
+	 */
+	@RequestMapping(value = "/data-sync-notify", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendCpsSyncMsg(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		if(params.get("openid")==null || params.get("openid").toString().trim().length()==0) {//如果没有openid则直接跳过
+			logger.error("cannot send data sync msg without openid.[params]",params);
+	  	     result.put("status", false);
+	  	     return result;
+		}
+		
+		logger.info("start send data sync message.[params]",params);
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(params.get("openid"))
+      	      .templateId("ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI")//TODO：待确定模板编号
+      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/index.html")
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", params.get("task")))
+  	    		.addData(new WxMpTemplateData("keyword2", params.get("time")))
+  	    		.addData(new WxMpTemplateData("remark", params.get("remark"),params.get("color")==null?"#cccccc":params.get("color").toString()));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}
+	
 }
