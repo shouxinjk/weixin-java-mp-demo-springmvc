@@ -26,17 +26,17 @@ public class iLifeConfig {
   @Value("#{ilifePropertyies.sx_api}")
   private String sxApi;
   
-  @Value("#{ilifePropertyies.template.subscribe}")
+  @Value("#{ilifePropertyies.template_subscribe}")
   private String msgIdSubscribe;
-  @Value("#{ilifePropertyies.template.order}")
+  @Value("#{ilifePropertyies.template_order}")
   private String msgIdOrder;
-  @Value("#{ilifePropertyies.template.task}")
+  @Value("#{ilifePropertyies.template_task}")
   private String msgIdTask;
-  @Value("#{ilifePropertyies.template.report}")
+  @Value("#{ilifePropertyies.template_report}")
   private String msgIdReport;
-  @Value("#{ilifePropertyies.template.broker}")
+  @Value("#{ilifePropertyies.template_broker}")
   private String msgIdBroker;
-  @Value("#{ilifePropertyies.template.connect}")
+  @Value("#{ilifePropertyies.template_connect}")
   private String msgIdConnect;
   
   public String getSxApi() {
