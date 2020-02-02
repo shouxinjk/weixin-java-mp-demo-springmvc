@@ -114,7 +114,7 @@ public class SubscribeHandler extends AbstractHandler {
 	    					 */
 		    	    	        WxMpTemplateMessage msg = WxMpTemplateMessage.builder()
 		    	    	        	      .toUser(params[1])//推荐者openId
-		    	    	        	      .templateId("FL1WVQzCmL5_1bOsPlu5QV_mdeeZJv6WO57pQ5FGjnA")
+		    	    	        	      .templateId(ilifeConfig.getMsgIdConnect())//FL1WVQzCmL5_1bOsPlu5QV_mdeeZJv6WO57pQ5FGjnA
 		    	    	        	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/connection.html")//跳转到好友查看界面
 		    	    	        	      .build();
 		    	    	
@@ -136,7 +136,7 @@ public class SubscribeHandler extends AbstractHandler {
     			 */
     	        WxMpTemplateMessage welcomeMsg = WxMpTemplateMessage.builder()
     	        	      .toUser(userWxInfo.getOpenId())
-    	        	      .templateId("ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI")
+    	        	      .templateId(ilifeConfig.getMsgIdBroker())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
     	        	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/user-register.html?fromUserOpenId="+userWxInfo.getOpenId()+"&toUserOpenId="+params[1])
     	        	      .build();
     	
@@ -207,15 +207,14 @@ public class SubscribeHandler extends AbstractHandler {
 	    			 */
 		        WxMpTemplateMessage welcomeMsg = WxMpTemplateMessage.builder()
 		        	      .toUser(userWxInfo.getOpenId())
-		        	      .templateId("oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk")
+		        	      .templateId(ilifeConfig.getMsgIdBroker())//oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk
 		        	      .url(redirectUrl)
 		        	      .build();
 		
 		        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，您已成功注册达人"))
 		        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
 		        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
-		        	    		.addData(new WxMpTemplateData("keyword3", "待完善","#FF0000"))
-		        	    		.addData(new WxMpTemplateData("remark", "自购省钱，分享赚钱。为完成审核，还需要填写真实姓名和电话号码，请点击完善。"));
+		        	    		.addData(new WxMpTemplateData("remark", "自购省钱，分享赚钱。为完成审核，还需要填写真实姓名和电话号码，请点击完善。","#FF0000"));
 		        	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg);  
     			}
     		}else {//场景错误

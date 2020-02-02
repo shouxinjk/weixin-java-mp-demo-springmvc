@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.binarywang.demo.wx.mp.config.iLifeConfig;
 import com.github.binarywang.demo.wx.mp.service.WeixinService;
 import com.google.common.collect.Maps;
 
@@ -34,7 +35,8 @@ public class WxDispatcher {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	@Autowired
 	private WxMpService wxMpService;
-
+	  @Autowired
+	  private iLifeConfig ilifeConfig;
 	/**
 	 * 接收从菜单入口传入的code和state值，并且使用code获取access token
 	 * @param response
@@ -132,21 +134,19 @@ public class WxDispatcher {
    	 	//发送通知信息给上级达人
 		/**
 {{first.DATA}}
-注册用户：{{keyword1.DATA}}
+会员昵称：{{keyword1.DATA}}
 注册时间：{{keyword2.DATA}}
-注册来源：{{keyword3.DATA}}
 {{remark.DATA}}
 		 */
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
       	      .toUser(params.get("parentBorkerOpenId"))//注意：场景值存放的是上级达人的openid
-      	      .templateId("hj3ZcC37s4IRo5iJO_TUwJ7ID-VkJ3XQLBMJQeEYNrE")
+      	      .templateId(ilifeConfig.getMsgIdBroker())
       	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html")//跳转到团队页面
       	      .build();
 
-  	    templateMessage.addData(new WxMpTemplateData("first", "新成员注册成功"))
+  	    templateMessage.addData(new WxMpTemplateData("first", "有新成员注册成功"))
   	    		.addData(new WxMpTemplateData("keyword1", params.get("name")))
   	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
-  	    		.addData(new WxMpTemplateData("keyword3", "微信"))
   	    		.addData(new WxMpTemplateData("remark", "你有新用户已经完成注册，还需要你的帮助才能完成设置并开始推荐。请保持关注并做必要的示范，让团队变的更强大。\n姓名："+params.get("name")+"\n电话："+params.get("phone")));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
   	     
@@ -196,25 +196,37 @@ public class WxDispatcher {
 		statusTitles.put("cleared", "待结算");
 		
 		String remark = "";
-		remark+=params.get("item")!=null?"商品名称："+params.get("item"):"";
+		//remark+=params.get("item")!=null?"商品名称："+params.get("item"):"";
+		remark+=params.get("")!=null?"\n收益类别："+titles.get(params.get("beneficiary")):"";
 		remark+=params.get("platform")!=null?"\n来源平台："+params.get("platform"):"";
 		remark+=params.get("orderTime")!=null?"\n订单时间："+params.get("orderTime"):"";
 		remark+=params.get("seller")!=null?"\n团队成员："+params.get("seller"):"";
+		remark+=params.get("seller")!=null?"\n结算状态："+statusTitles.get(params.get("status")):"";
 		
 		if(remark.trim().length()==0)remark = "贡献越大，收益越多哦~~";
 		
 		logger.debug("try to send order notification message.[params]",params);
 		
+		/**
+你好，你已分销商品成功。
+商品信息：日本贝亲旋转尼龙奶瓶刷
+商品单价：11.00元
+商品佣金：2.00元
+分销时间：2015年7月21日 18:36
+感谢你的使用。
+		 */
+		
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
       	      .toUser(params.get("brokerOpenid"))
-      	      .templateId("hj3ZcC37s4IRo5iJO_TUwJ7ID-VkJ3XQLBMJQeEYNrE")//TODO：待确定模板编号
+      	      .templateId(ilifeConfig.getMsgIdOrder())
       	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html")//订单通知不跳转到详情页面
       	      .build();
 
-  	    templateMessage.addData(new WxMpTemplateData("first", "恭喜，有新订单成交"))
-  	    		.addData(new WxMpTemplateData("keyword1", titles.get(params.get("beneficiary"))))//收益类别
-  	    		.addData(new WxMpTemplateData("keyword2", params.get("amountProfit")))//收益金额
-  	    		.addData(new WxMpTemplateData("keyword3", statusTitles.get(params.get("status"))))//清分状态
+  	    templateMessage.addData(new WxMpTemplateData("first", "恭喜恭喜，有新订单成交"))
+  	    		.addData(new WxMpTemplateData("keyword1", params.get("item")))//商品信息
+  	    		.addData(new WxMpTemplateData("keyword2", params.get("amountOrder")))//订单金额
+  	    		.addData(new WxMpTemplateData("keyword3", params.get("amountProfit")))//收益金额
+  	    		.addData(new WxMpTemplateData("keyword4", params.get("orderTime")))//订单成交时间
   	    		.addData(new WxMpTemplateData("remark", remark));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
   	     
@@ -254,20 +266,40 @@ public class WxDispatcher {
 		titles.put("monthly", "上月的绩效汇总来了");
 		titles.put("yearly", "这是今年的绩效汇总");
 		
+		Map<String, String> types = Maps.newHashMap();
+		types.put("daily", "日报");
+		types.put("weekly", "周报");
+		types.put("montyly", "月报");
+		types.put("yearly", "年报");
+		
+		String remark = "";
+		remark += "\n浏览数："+params.get("views");
+		remark += "\n分享数："+params.get("shares");
+		remark += "\n意向数："+params.get("buys");
+		remark += "\n订单数："+params.get("orders");
+		remark += "\n团队人数："+params.get("members");
+		remark += params.get("msg")!=null&&params.get("msg").toString().trim().length()>0?("\n"+params.get("msg")):"";
+		
 		logger.info("start send performance notification message.[params]",params);
+		/**
+{{title}}
+结算类型：日报
+结算时间：2016-05-30 12:00:00
+结算金额：20元
+感谢你的使用，请查看你的钱包
+		 */
 		
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
       	      .toUser(params.get("brokerOpenid"))
-      	      .templateId("hj3ZcC37s4IRo5iJO_TUwJ7ID-VkJ3XQLBMJQeEYNrE")//TODO：待确定模板编号
+      	      .templateId(ilifeConfig.getMsgIdReport())
       	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/money.html")//订单汇总通知需要跳转到绩效界面
       	      .build();
 
   	    templateMessage.addData(new WxMpTemplateData("first", params.get("brokerName")+"，"+titles.get(params.get("brokerName"))))
-  	    		.addData(new WxMpTemplateData("keyword1", params.get("shares")))
-  	    		.addData(new WxMpTemplateData("keyword2", params.get("views")))
-  	    		.addData(new WxMpTemplateData("keyword3", params.get("buys")))
-  	    		.addData(new WxMpTemplateData("remark", "订单数："+params.get("orders")+
-  	    				(params.get("msg")!=null&&params.get("msg").toString().trim().length()>0?("\n备注："+params.get("msg")):"")));
+  	    		.addData(new WxMpTemplateData("keyword1", types.get(params.get("taskType")).toString()))
+  	    		.addData(new WxMpTemplateData("keyword2", params.get("date")))
+  	    		.addData(new WxMpTemplateData("keyword3", params.get("amount")))
+  	    		.addData(new WxMpTemplateData("remark", remark));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
   	     
   	     result.put("status", true);
@@ -299,14 +331,14 @@ XXXX
 		
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
       	      .toUser(params.get("openid"))
-      	      .templateId("ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI")//TODO：待确定模板编号
+      	      .templateId(ilifeConfig.getMsgIdTask())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
       	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/index.html")
       	      .build();
 
   	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
   	    		.addData(new WxMpTemplateData("keyword1", params.get("task")))
   	    		.addData(new WxMpTemplateData("keyword2", params.get("time")))
-  	    		.addData(new WxMpTemplateData("remark", params.get("remark"),params.get("color")==null?"#cccccc":params.get("color").toString()));
+  	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
   	     
   	     result.put("status", true);

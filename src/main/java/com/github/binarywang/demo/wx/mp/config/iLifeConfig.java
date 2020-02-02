@@ -25,7 +25,20 @@ public class iLifeConfig {
 
   @Value("#{ilifePropertyies.sx_api}")
   private String sxApi;
-
+  
+  @Value("#{ilifePropertyies.template.subscribe}")
+  private String msgIdSubscribe;
+  @Value("#{ilifePropertyies.template.order}")
+  private String msgIdOrder;
+  @Value("#{ilifePropertyies.template.task}")
+  private String msgIdTask;
+  @Value("#{ilifePropertyies.template.report}")
+  private String msgIdReport;
+  @Value("#{ilifePropertyies.template.broker}")
+  private String msgIdBroker;
+  @Value("#{ilifePropertyies.template.connect}")
+  private String msgIdConnect;
+  
   public String getSxApi() {
     return this.sxApi;
   }
@@ -49,5 +62,53 @@ public class iLifeConfig {
   public String getRegisterUserUrl() {
     return this.registerUserUrl;
   }
+
+public String getMsgIdSubscribe() {
+	return msgIdSubscribe;
+}
+
+public void setMsgIdSubscribe(String msgIdSubscribe) {
+	this.msgIdSubscribe = msgIdSubscribe;
+}
+
+public String getMsgIdOrder() {
+	return msgIdOrder;
+}
+
+public void setMsgIdOrder(String msgIdOrder) {
+	this.msgIdOrder = msgIdOrder;
+}
+
+public String getMsgIdTask() {
+	return msgIdTask;
+}
+
+public void setMsgIdTask(String msgIdTask) {
+	this.msgIdTask = msgIdTask;
+}
+
+public String getMsgIdReport() {
+	return msgIdReport;
+}
+
+public void setMsgIdReport(String msgIdReport) {
+	this.msgIdReport = msgIdReport;
+}
+
+public String getMsgIdBroker() {
+	return msgIdBroker;
+}
+
+public void setMsgIdBroker(String msgIdBroker) {
+	this.msgIdBroker = msgIdBroker;
+}
+
+public String getMsgIdConnect() {
+	return msgIdConnect;
+}
+
+public void setMsgIdConnect(String msgIdConnect) {
+	this.msgIdConnect = msgIdConnect;
+}
 
 }
