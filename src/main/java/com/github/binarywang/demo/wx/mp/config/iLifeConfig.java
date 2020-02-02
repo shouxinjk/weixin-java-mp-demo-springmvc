@@ -28,14 +28,19 @@ public class iLifeConfig {
   
   @Value("#{ilifePropertyies.template_subscribe}")
   private String msgIdSubscribe;
+  
   @Value("#{ilifePropertyies.template_order}")
   private String msgIdOrder;
+  
   @Value("#{ilifePropertyies.template_task}")
   private String msgIdTask;
+  
   @Value("#{ilifePropertyies.template_report}")
   private String msgIdReport;
+  
   @Value("#{ilifePropertyies.template_broker}")
   private String msgIdBroker;
+  
   @Value("#{ilifePropertyies.template_connect}")
   private String msgIdConnect;
   
