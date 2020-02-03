@@ -144,10 +144,10 @@ public class WxDispatcher {
       	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html")//跳转到团队页面
       	      .build();
 
-  	    templateMessage.addData(new WxMpTemplateData("first", "有新成员注册成功"))
+  	    templateMessage.addData(new WxMpTemplateData("first", "有新成员加入团队"))
   	    		.addData(new WxMpTemplateData("keyword1", params.get("name")))
   	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
-  	    		.addData(new WxMpTemplateData("remark", "请协助且完成设置并开始推荐，让团队变的更强大。\n姓名："+params.get("name")+"\n电话："+params.get("phone")));
+  	    		.addData(new WxMpTemplateData("remark", "为让团队变的更强大，请协助TA完成设置并开始推荐。\n\n姓名："+params.get("name")+"\n电话："+params.get("phone")));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
   	     
   	     result.put("status", true);
@@ -192,13 +192,25 @@ public class WxDispatcher {
 		titles.put("credit", "平台激励");
 		
 		Map<String, String> statusTitles = Maps.newHashMap();
-		statusTitles.put("locked", "锁定：团队达标后结算");
+		statusTitles.put("locked", "锁定");
 		statusTitles.put("cleared", "待结算");
+		
+		Map<String, String> platforms = Maps.newHashMap();
+		platforms.put("taobao", "淘宝");
+		platforms.put("tmall", "天猫");
+		platforms.put("fliggy", "飞猪");
+		platforms.put("lvmama", "驴妈妈");
+		platforms.put("tongcheng", "同程旅行");
+		platforms.put("ctrip", "携程");
+		platforms.put("jd", "京东");
+		platforms.put("dangdang", "当当网");
+		platforms.put("dhc", "DHC");
+		platforms.put("amazon", "亚马逊");
 		
 		String remark = "";
 		//remark+=params.get("item")!=null?"商品名称："+params.get("item"):"";
-		remark+=params.get("")!=null?"\n收益类别："+titles.get(params.get("beneficiary")):"";
-		remark+=params.get("platform")!=null?"\n来源平台："+params.get("platform"):"";
+		remark+=params.get("beneficiary")!=null?"\n收益类别："+titles.get(params.get("beneficiary")):"";
+		remark+=params.get("platform")!=null?"\n来源平台："+titles.get(params.get("platform")):"";
 		remark+=params.get("orderTime")!=null?"\n订单时间："+params.get("orderTime"):"";
 		remark+=params.get("seller")!=null?"\n团队成员："+params.get("seller"):"";
 		remark+=params.get("seller")!=null?"\n结算状态："+statusTitles.get(params.get("status")):"";
@@ -224,8 +236,8 @@ public class WxDispatcher {
 
   	    templateMessage.addData(new WxMpTemplateData("first", "恭喜恭喜，有新订单成交"))
   	    		.addData(new WxMpTemplateData("keyword1", params.get("item")))//商品信息
-  	    		.addData(new WxMpTemplateData("keyword2", params.get("amountOrder")))//订单金额
-  	    		.addData(new WxMpTemplateData("keyword3", params.get("amountProfit")))//收益金额
+  	    		.addData(new WxMpTemplateData("keyword2", ""+params.get("amountOrder")))//订单金额
+  	    		.addData(new WxMpTemplateData("keyword3", ""+params.get("amountProfit")))//收益金额
   	    		.addData(new WxMpTemplateData("keyword4", params.get("orderTime")))//订单成交时间
   	    		.addData(new WxMpTemplateData("remark", remark));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  

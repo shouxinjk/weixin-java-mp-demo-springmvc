@@ -121,7 +121,7 @@ public class SubscribeHandler extends AbstractHandler {
 		    	    	        msg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+" 已添加你为关心的人"))
 		    	    	        	    		.addData(new WxMpTemplateData("keyword2", userWxInfo.getNickname()))
 		    	    	        	    		.addData(new WxMpTemplateData("keyword1", dateFormatLong.format(new Date())))
-		    	    	        	    		.addData(new WxMpTemplateData("remark", "可以进入【大生活】查看特定于TA的推荐，也可以进入【关心的人】查看并进行设置获得更好的推荐结果哦~~ \n\nEnjoy ~~"));
+		    	    	        	    		.addData(new WxMpTemplateData("remark", "可以看到或设置特定于TA的推荐：\n\n查看:从底部进入【大生活】\n设置：进入【我-关心的人】 \n\nEnjoy ~~"));
 		    	    	        	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg);       					
 	    				}
         			}
@@ -143,7 +143,7 @@ public class SubscribeHandler extends AbstractHandler {
     	        welcomeMsg.addData(new WxMpTemplateData("first", "成功添加你关心的人"))
     	        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
     	        	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
-    	        	    		.addData(new WxMpTemplateData("remark", "可以进入【大生活】查看特定于TA的推荐，也可以进入【关心的人】查看并进行设置获得更好的推荐结果哦~~ \n\nEnjoy ~~"));
+    	        	    		.addData(new WxMpTemplateData("remark", "可以看到或设置特定于TA的推荐：\n\n查看:从底部进入【大生活】\n设置：进入【我-关心的人】 \n\nEnjoy ~~"));
     	        	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg);      			
     		}else if("Broker".equalsIgnoreCase(params[0])) {//如果是扫描上级达人二维码关注，则发送模板消息完善达人信息。Broker::brokerId
     			//根据openId查找是否已经注册达人
