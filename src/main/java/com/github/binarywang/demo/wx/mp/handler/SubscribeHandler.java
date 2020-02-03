@@ -78,7 +78,7 @@ public class SubscribeHandler extends AbstractHandler {
     		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId
     		if(params.length<2) {//如果无识别标识，不做任何处理
     			logger.error("Wrong scene str.[str]"+userWxInfo.getQrSceneStr());
-    		}else if("User".equalsIgnoreCase(params[0])) {//如果是用户邀请则发送
+    		}else if("User".equalsIgnoreCase(params[0])) {//如果是用户邀请则发送。User::openId
     			if(result!=null && result.getString("_id")!=null) {//成功创建则继续创建关联关系
         			//检查用户关联是否存在:对于特殊情况，用户已经添加好友，然后取消关注，再次扫码关注后避免重复建立关系
         			JSONObject example = new JSONObject();
@@ -90,7 +90,7 @@ public class SubscribeHandler extends AbstractHandler {
         			result = HttpClientHelper.getInstance().put(ilifeConfig.getDataApi()+"/_api/simple/by-example", data, header);
         			if(result!=null && result.getIntValue("count")>0) {//该关联已经存在。不做任何处理。
         				//能到这里，说明这货之前已经加了好友了，但是又取消关注了。发个消息提示一下就可以了
-        				return new TextBuilder().build("已经接受邀请了哦，赶紧点击【我】然后点击【关心的人】看看吧~~", wxMessage, weixinService);
+        				return new TextBuilder().build("已经添加为关心的人了哦，点击【我】然后点击【关心的人】看看吧~~", wxMessage, weixinService);
         			}else {//建立用户关联：
 	    				//建立双向用户关联：
 	    				JSONObject conn = new JSONObject();
@@ -118,10 +118,10 @@ public class SubscribeHandler extends AbstractHandler {
 		    	    	        	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/connection.html")//跳转到好友查看界面
 		    	    	        	      .build();
 		    	    	
-		    	    	        msg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+" 接受了你的邀请"))
+		    	    	        msg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+" 已添加你为关心的人"))
 		    	    	        	    		.addData(new WxMpTemplateData("keyword2", userWxInfo.getNickname()))
 		    	    	        	    		.addData(new WxMpTemplateData("keyword1", dateFormatLong.format(new Date())))
-		    	    	        	    		.addData(new WxMpTemplateData("remark", "为帮助TA获得更好的推荐结果，请点击【我】进入【关心的人】查看并进行设置，也可以进入【大生活】查看到特定于TA的推荐结果哦~~"));
+		    	    	        	    		.addData(new WxMpTemplateData("remark", "可以进入【大生活】查看特定于TA的推荐，也可以进入【关心的人】查看并进行设置获得更好的推荐结果哦~~ \n\nEnjoy ~~"));
 		    	    	        	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg);       					
 	    				}
         			}
@@ -140,12 +140,12 @@ public class SubscribeHandler extends AbstractHandler {
     	        	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/user-register.html?fromUserOpenId="+userWxInfo.getOpenId()+"&toUserOpenId="+params[1])
     	        	      .build();
     	
-    	        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，欢迎关注小确幸大生活"))
+    	        welcomeMsg.addData(new WxMpTemplateData("first", "成功添加你关心的人"))
     	        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
     	        	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
-    	        	    		.addData(new WxMpTemplateData("remark", "Life is all about having a good time.\n\n我们的目标是成为您的私人生活助手，用全面的数据做出合理的消费决策，用小确幸丰富你的的大生活。 \n\nEnjoy ~~"));
+    	        	    		.addData(new WxMpTemplateData("remark", "可以进入【大生活】查看特定于TA的推荐，也可以进入【关心的人】查看并进行设置获得更好的推荐结果哦~~ \n\nEnjoy ~~"));
     	        	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg);      			
-    		}else if("Broker".equalsIgnoreCase(params[0])) {//如果是扫描上级达人二维码关注，则发送模板消息完善达人信息
+    		}else if("Broker".equalsIgnoreCase(params[0])) {//如果是扫描上级达人二维码关注，则发送模板消息完善达人信息。Broker::brokerId
     			//根据openId查找是否已经注册达人
     			result = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerByOpenid/"+userWxInfo.getOpenId(),null, header);
     			if(result!=null && result.getBooleanValue("status")) {//特殊情况：已经注册打人后取消关注，再次扫码关注时还是保留原来的达人信息，不另外新建记录
@@ -222,7 +222,9 @@ public class SubscribeHandler extends AbstractHandler {
     		}  
     }else {//如果是不带参数扫描则作为用户反馈信息：
 	    try {
-	      return new TextBuilder().build("Life is all about having a good time.\n\n我们的目标是成为您的私人生活助手，用全面的数据做出合理的消费决策，用小确幸丰富你的的大生活。 \n\nEnjoy ~~", wxMessage, weixinService);
+	      return new TextBuilder().build("Life is all about having a good time."
+	      		+ "\n\n我们的目标是成为您的私人生活助手，用全面的数据做出合理的消费决策，用小确幸丰富你的的大生活。 "
+	      		+ "\n\nEnjoy ~~", wxMessage, weixinService);
 	    } catch (Exception e) {
 	      this.logger.error(e.getMessage(), e);
 	    }
