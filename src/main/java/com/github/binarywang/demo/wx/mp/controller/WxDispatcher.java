@@ -214,7 +214,7 @@ public class WxDispatcher {
 		remark+=params.get("platform")!=null?"\n来源平台："+platforms.get(params.get("platform")):"";
 		//remark+=params.get("orderTime")!=null?"\n订单时间："+params.get("orderTime"):"";
 		remark+=params.get("seller")!=null?"\n团队成员："+params.get("seller"):"";
-		remark+=params.get("seller")!=null?"\n结算状态："+statusTitles.get(params.get("status")):"";
+		remark+=params.get("status")!=null?"\n结算状态："+statusTitles.get(params.get("status")):"";
 		
 		if(remark.trim().length()==0)remark = "贡献越大，收益越多哦~~";
 		
@@ -240,8 +240,8 @@ public class WxDispatcher {
 
   	    templateMessage.addData(new WxMpTemplateData("first", "恭喜恭喜，有新订单成交"))
   	    		.addData(new WxMpTemplateData("keyword1", params.get("item")))//商品信息
-  	    		.addData(new WxMpTemplateData("keyword2", decimalFmt.format(params.get("amountOrder"))))//订单金额
-  	    		.addData(new WxMpTemplateData("keyword3", decimalFmt.format(params.get("amountProfit"))))//收益金额
+  	    		.addData(new WxMpTemplateData("keyword2", decimalFmt.format(Double.parseDouble(""+params.get("amountOrder")))))//订单金额
+  	    		.addData(new WxMpTemplateData("keyword3", decimalFmt.format(Double.parseDouble(""+params.get("amountProfit")))))//收益金额
   	    		.addData(new WxMpTemplateData("keyword4", params.get("orderTime")))//订单成交时间
   	    		.addData(new WxMpTemplateData("remark", remark));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
