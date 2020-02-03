@@ -193,7 +193,7 @@ public class WxDispatcher {
 		titles.put("credit", "平台激励");
 		
 		Map<String, String> statusTitles = Maps.newHashMap();
-		statusTitles.put("locked", "锁定");
+		statusTitles.put("locked", "锁定-未达标");
 		statusTitles.put("cleared", "待结算");
 		
 		Map<String, String> platforms = Maps.newHashMap();
@@ -210,7 +210,7 @@ public class WxDispatcher {
 		
 		String remark = "";
 		//remark+=params.get("item")!=null?"商品名称："+params.get("item"):"";
-		remark+=params.get("beneficiary")!=null?"\n收益类别："+titles.get(params.get("beneficiary")):"";
+		remark+=params.get("beneficiary")!=null?"收益类别："+titles.get(params.get("beneficiary")):"";
 		remark+=params.get("platform")!=null?"\n来源平台："+platforms.get(params.get("platform")):"";
 		//remark+=params.get("orderTime")!=null?"\n订单时间："+params.get("orderTime"):"";
 		remark+=params.get("seller")!=null?"\n团队成员："+params.get("seller"):"";
