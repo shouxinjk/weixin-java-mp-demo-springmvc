@@ -382,7 +382,7 @@ XXXX
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
       	      .toUser(params.get("openid"))
       	      .templateId(ilifeConfig.getMsgIdTask())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
-      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/boards.html?fitler=all")
+      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/boards.html?filter=all")
       	      .build();
 
   	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
