@@ -362,4 +362,38 @@ XXXX
   	     return result;
 	}
 	
+	/**
+	 * 发送清单推送消息
+	 * 
+	 * 输入参数是一个Map。
+	 */
+	@RequestMapping(value = "/board-list-notify", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> boardListBroadcast(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		if(params.get("openid")==null || params.get("openid").toString().trim().length()==0) {//如果没有openid则直接跳过
+			logger.error("cannot send data sync msg without openid.[params]",params);
+	  	     result.put("status", false);
+	  	     return result;
+		}
+		
+		logger.info("start send data sync message.[params]",params);
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(params.get("openid"))
+      	      .templateId(ilifeConfig.getMsgIdTask())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
+      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/boards.html?fitler=all")
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", params.get("task")))
+  	    		.addData(new WxMpTemplateData("keyword2", params.get("time")))
+  	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}
+	
 }
