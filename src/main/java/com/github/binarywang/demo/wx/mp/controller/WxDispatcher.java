@@ -77,7 +77,25 @@ public class WxDispatcher {
 		logger.debug("Got userInfo",wxMpUser);
 		return wxMpUser;
 	}
-	  
+
+	/**
+	 * 生成短连接，便于二维码识别
+	 */
+	@RequestMapping(value ="/short-url", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> shortUrl(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		String longUrl = params.get("longUrl");
+		logger.debug("try to generate short url for long url.[url]"+longUrl);
+		String url = wxMpService.shortUrl(longUrl);
+		logger.debug("Got QRcode URL. [URL]",url);
+		Map<String, Object> data = Maps.newHashMap();
+		data.put("url", url);
+		result.put("status",true);
+		result.put("data",data);
+		result.put("description","short url created successfully");
+		return result;
+	}
 	
 	/**
 	 * 生成达人推广二维码。需要通过前端完成，操作逻辑为：
