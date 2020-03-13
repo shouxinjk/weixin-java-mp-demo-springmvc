@@ -400,7 +400,8 @@ XXXX
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
       	      .toUser(params.get("openid"))
       	      .templateId(ilifeConfig.getMsgIdTask())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
-      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/boards.html?filter=all")
+      	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/boards.html?filter=all")
+      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/share.html?origin=board-all&filter=all")//需要通过微信中转，否则从模板消息进入无法获取达人信息和清单
       	      .build();
 
   	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
