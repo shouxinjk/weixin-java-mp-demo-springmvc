@@ -484,17 +484,23 @@ XXXX
 		}
 		
 		logger.info("start send broker seed notify message.[params]",params);
-		//发送一条文字消息
+		//发送一条文字消息告知
 		WxMpKefuMessage msg = WxMpKefuMessage
 		  .TEXT()
 		  .toUser(params.get("openid").toString())
 		  .content("亲，没找到需要的商品，可以直接输入文字搜索试试看哦~~")
 		  .build();
-		
 		wxMpService.getKefuService().sendKefuMessage(msg);
 
-		//TODO：推送一条消息给客服，需要关注该商品
-
+		//推送一条消息给客服，需要关注该商品
+		logger.info("start send operator seed fail notify message.[params]",params);
+		msg = WxMpKefuMessage
+		  .TEXT()
+		  .toUser("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc")//指定发送
+		  .content("有商品未能成功上架，请查看。\n"+params.get("text"))
+		  .build();
+		wxMpService.getKefuService().sendKefuMessage(msg);
+		
   	     result.put("status", true);
   	     //result.put("msgId", msgId);
   	     return result;
