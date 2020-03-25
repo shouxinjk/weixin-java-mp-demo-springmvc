@@ -60,11 +60,15 @@ public class SxHelper {
 	   */
 	  public boolean isTaobaoToken(String text) {
 	         String pattern = "([\\p{Sc}])\\w{8,12}([\\p{Sc}])";
-	         Pattern r = Pattern.compile(pattern);
-	         Matcher m = r.matcher(text);
-	         if (m.find()) {
-	             logger.debug("match: " + m.group());
-	             return true;
+	         try {
+		         Pattern r = Pattern.compile(pattern);
+		         Matcher m = r.matcher(text);
+		         if (m.find()) {
+		             logger.debug("match: " + m.group());
+		             return true;
+		         }
+	         }catch(Exception ex) {//不知道什么鬼，这里竟然会报NullPointerException
+	        	 	logger.error("Failed to match taobao token.",ex);
 	         }
 	         return false;
 	  }
