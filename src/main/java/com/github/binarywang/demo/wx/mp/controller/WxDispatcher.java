@@ -35,6 +35,7 @@ import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
 @RequestMapping("/wechat/ilife")
 public class WxDispatcher {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	@Autowired
 	private WxMpService wxMpService;
 	  @Autowired
@@ -149,7 +150,6 @@ public class WxDispatcher {
 		Map<String, Object> result = Maps.newHashMap();
 		
 		logger.debug("try to send notification message.[params]",params);
-		SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		
    	 	//发送通知信息给上级达人
 		/**
@@ -436,7 +436,7 @@ XXXX
 		WxMpKefuMessage msg = WxMpKefuMessage
 		  .TEXT()
 		  .toUser(params.get("openid").toString())
-		  .content("亲，你要的宝贝已经准备好了"+(Double.parseDouble(params.get("profitOrder").toString())>0?"，店返￥"+params.get("profitOrder"):"")+"，可以直接发送淘口令或者进入详情页分享哦~~")
+		  .content("亲，这个宝贝已经准备好了"+(Double.parseDouble(params.get("profitOrder").toString())>0?"，店返￥"+params.get("profitOrder"):"")+"，可以直接发送淘口令或者进入详情页分享，自购也省钱哦~~")
 		  .build();
 		wxMpService.getKefuService().sendKefuMessage(msg);
 		
@@ -444,7 +444,7 @@ XXXX
 		msg = WxMpKefuMessage
 		  .TEXT()
 		  .toUser(params.get("openid").toString())
-		  .content(params.get("token")+"，复制这段文字进入淘宝或天猫就可以购买哦~~")
+		  .content(params.get("token")+"，复制这段文字购买 "+params.get("title")+" ~~")
 		  .build();
 		wxMpService.getKefuService().sendKefuMessage(msg);
 		
@@ -457,9 +457,9 @@ XXXX
       	      .build();
 
   	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
-  	    		.addData(new WxMpTemplateData("keyword1", "你发送的商品已经上架"))
-  	    		.addData(new WxMpTemplateData("keyword2", Double.parseDouble(params.get("profitOrder").toString())>0?"店返￥"+params.get("profitOrder"):"商家没有优惠"))
-  	    		.addData(new WxMpTemplateData("remark", "进入详情可生成海报哦~~"));
+  	    		.addData(new WxMpTemplateData("keyword1", "商品已经上架"))
+  	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
+  	    		.addData(new WxMpTemplateData("remark", (Double.parseDouble(params.get("profitOrder").toString())>0?"店返￥"+params.get("profitOrder"):"")+" 进入详情可生成海报哦~~"));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
 
   	     result.put("status", true);

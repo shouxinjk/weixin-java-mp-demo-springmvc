@@ -76,7 +76,7 @@ public class MsgHandler extends AbstractHandler {
     		helper.insertBrokerSeedByText(openid, wxMessage.getContent());
     		//发送消息告知不要着急，我正在找
 	    try {
-	      return new TextBuilder().build("收到淘口令，正在转换，请稍等哦亲~~", wxMessage, weixinService);
+	      return new TextBuilder().build("收到淘口令，正在转换，请稍等。也可以直接输入文字直接查找哦~~", wxMessage, weixinService);
 	    } catch (Exception e) {
 	      this.logger.error(e.getMessage(), e);
 	    }
