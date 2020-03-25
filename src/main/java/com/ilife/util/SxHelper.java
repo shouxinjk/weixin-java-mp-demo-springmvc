@@ -79,8 +79,10 @@ public class SxHelper {
 			BaseDocument doc = new BaseDocument();
 			Map<String,Object> statusNode = new HashMap<String,Object>();
 			statusNode.put("parse", false);
+			statusNode.put("collect", false);
 			statusNode.put("cps", false);
 			statusNode.put("profit", false);
+			statusNode.put("notify", false);
 			Map<String,Object> timestampNode = new HashMap<String,Object>();
 			timestampNode.put("create", new Date());	
 			

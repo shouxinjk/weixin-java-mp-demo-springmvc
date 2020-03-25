@@ -24,6 +24,7 @@ import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.error.WxErrorException;
 
 import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.kefu.WxMpKefuMessage;
 import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
 import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
@@ -415,4 +416,87 @@ XXXX
   	     return result;
 	}
 	
+	/**
+	 * 发送Broker seed通知：在成功生成淘口令后发送。
+	 * 
+	 * 输入参数是一个Map。
+	 */
+	@RequestMapping(value = "/broker-seed-success-notify", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendBrokerSeedSuccessNotification(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		if(params.get("openid")==null || params.get("openid").toString().trim().length()==0) {//如果没有openid则直接跳过
+			logger.error("cannot send data sync msg without openid.[params]",params);
+	  	     result.put("status", false);
+	  	     return result;
+		}
+		
+		logger.info("start send broker seed notify message.[params]",params);
+		//发送一条文字消息，包含转换后的淘口令
+		WxMpKefuMessage msg = WxMpKefuMessage
+		  .TEXT()
+		  .toUser(params.get("openid").toString())
+		  .content("亲，你要的宝贝已经准备好了"+(Double.parseDouble(params.get("profitOrder").toString())>0?"，店返￥"+params.get("profitOrder"):"")+"，可以直接发送淘口令或者进入详情页分享哦~~")
+		  .build();
+		wxMpService.getKefuService().sendKefuMessage(msg);
+		
+		//发送第二条文字消息：淘口令
+		msg = WxMpKefuMessage
+		  .TEXT()
+		  .toUser(params.get("openid").toString())
+		  .content(params.get("token")+"，复制这段文字进入淘宝或天猫就可以购买哦~~")
+		  .build();
+		wxMpService.getKefuService().sendKefuMessage(msg);
+		
+		//推送一条模板消息，能够进入详情页生成海报
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(params.get("openid"))
+      	      .templateId(ilifeConfig.getMsgIdTask())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
+      	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/boards.html?filter=all")
+      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/share.html?origin=info2&id="+params.get("itemKey"))//需要通过微信中转，否则从模板消息进入无法获取达人信息和清单
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", "你发送的商品已经上架"))
+  	    		.addData(new WxMpTemplateData("keyword2", Double.parseDouble(params.get("profitOrder").toString())>0?"店返￥"+params.get("profitOrder"):"商家没有优惠"))
+  	    		.addData(new WxMpTemplateData("remark", "进入详情可生成海报哦~~"));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}
+	
+
+	/**
+	 * 发送Broker seed通知：超过3分钟，但仍未生成淘口令，则发送失败消息
+	 * 
+	 * 输入参数是一个Map。
+	 */
+	@RequestMapping(value = "/broker-seed-fail-notify", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendBrokerSeedFailureNotification(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		if(params.get("openid")==null || params.get("openid").toString().trim().length()==0) {//如果没有openid则直接跳过
+			logger.error("cannot send data sync msg without openid.[params]",params);
+	  	     result.put("status", false);
+	  	     return result;
+		}
+		
+		logger.info("start send broker seed notify message.[params]",params);
+		//发送一条文字消息
+		WxMpKefuMessage msg = WxMpKefuMessage
+		  .TEXT()
+		  .toUser(params.get("openid").toString())
+		  .content("亲，没找到对应的商品哦，麻烦看看是否正确")
+		  .build();
+		
+		wxMpService.getKefuService().sendKefuMessage(msg);
+
+		//TODO：推送一条消息给客服，需要关注该商品
+
+  	     result.put("status", true);
+  	     //result.put("msgId", msgId);
+  	     return result;
+	}
 }
