@@ -488,7 +488,7 @@ XXXX
 		WxMpKefuMessage msg = WxMpKefuMessage
 		  .TEXT()
 		  .toUser(params.get("openid").toString())
-		  .content("亲，没找到对应的商品哦，麻烦看看是否正确")
+		  .content("亲，没找到需要的商品，可以直接输入文字搜索试试看哦~~")
 		  .build();
 		
 		wxMpService.getKefuService().sendKefuMessage(msg);
