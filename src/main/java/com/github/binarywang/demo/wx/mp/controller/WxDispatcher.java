@@ -472,7 +472,7 @@ XXXX
   	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
   	    		.addData(new WxMpTemplateData("keyword1", "商品已经上架"))
   	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
-  	    		.addData(new WxMpTemplateData("remark", (Double.parseDouble(params.get("profitOrder").toString())>0?"店返￥"+params.get("profitOrder"):"")+" 进入详情可生成海报哦~~"));
+  	    		.addData(new WxMpTemplateData("remark", (profitOrder>0?"店返￥"+params.get("profitOrder"):"")+" 进入详情可生成海报哦~~"));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
 
   	     result.put("status", true);
