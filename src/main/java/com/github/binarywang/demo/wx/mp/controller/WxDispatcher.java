@@ -16,15 +16,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.binarywang.demo.wx.mp.config.iLifeConfig;
 import com.github.binarywang.demo.wx.mp.service.WeixinService;
 import com.google.common.collect.Maps;
+import com.ilife.util.SxHelper;
+import com.thoughtworks.xstream.XStream;
 
 import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.error.WxErrorException;
 
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.kefu.WxMpKefuMessage;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlOutNewsMessage;
 import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
 import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
@@ -40,6 +45,8 @@ public class WxDispatcher {
 	private WxMpService wxMpService;
 	  @Autowired
 	  private iLifeConfig ilifeConfig;
+	  @Autowired
+	  private SxHelper helper;
 	/**
 	 * 接收从菜单入口传入的code和state值，并且使用code获取access token
 	 * @param response
@@ -482,22 +489,22 @@ XXXX
 	  	     result.put("status", false);
 	  	     return result;
 		}
-		
-		logger.info("start send broker seed notify message.[params]",params);
-		//发送一条文字消息告知
+
+		//发送一条文字消息告知：你发的啥玩意我找不到：取消发送。找都找不到了~也别发消息了~
+		/**
 		WxMpKefuMessage msg = WxMpKefuMessage
 		  .TEXT()
 		  .toUser(params.get("openid").toString())
-		  .content("亲，没找到需要的商品，可以直接输入文字搜索试试看哦~~")
+		  .content("亲，这个淘口令对应的可能是下面的商品，也可以直接输入文字搜索试试看哦~~")
 		  .build();
 		wxMpService.getKefuService().sendKefuMessage(msg);
-
+		//**/
 		//推送一条消息给客服，需要关注该商品
 		logger.info("start send operator seed fail notify message.[params]",params);
-		msg = WxMpKefuMessage
+		WxMpKefuMessage msg = WxMpKefuMessage
 		  .TEXT()
 		  .toUser("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc")//指定发送
-		  .content("有商品未能成功上架，请查看。\n"+params.get("text"))
+		  .content("商品未能成功上架，请查看。【淘口令】\n"+params.get("text")==null?"无":params.get("text"))
 		  .build();
 		wxMpService.getKefuService().sendKefuMessage(msg);
 		

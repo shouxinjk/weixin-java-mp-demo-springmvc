@@ -72,6 +72,33 @@ public class SxHelper {
 	         }
 	         return false;
 	  }
+	  
+	  /**
+	   * 从淘口令字符串解析得到商品详情。
+	   * 规则为：如果淘口令内包含有【】则取其中间内容
+	   * 否则将淘口令替换掉返回
+	   * @param text
+	   * @return
+	   */
+	  public String getKeywordFromTaobaoToken(String text) {
+	         String pattern = "([\\p{Sc}])\\w{8,12}([\\p{Sc}])";
+	         String keyword = text.replaceAll(pattern, "").replaceAll("\\n", " ");
+	         if(keyword.indexOf("【")>-1 && keyword.indexOf("】")>-1 ) {
+	        	 	pattern = "(【[^】]+】)";
+		         try {
+			         Pattern r = Pattern.compile(pattern);
+			         Matcher m = r.matcher(text);
+			         if (m.find()) {
+			        	 	 keyword = m.group().replace("【", "").replace("】", "");
+			             logger.debug("match: " + m.group());
+			         }
+		         }catch(Exception ex) {
+		        	 	logger.error("Failed to match taobao token.",ex);
+		         }
+	         }
+	         logger.debug("got keyword."+keyword);
+	         return keyword;
+	  }
 
 	  /**
 	   * 将包含有淘口令的字符串作为达人种子URL写入
@@ -114,6 +141,8 @@ public class SxHelper {
 			 </item>";
 	   */
 	  private String item(String title,String description,String picUrl,String url) {
+		  if(description == null || description.trim().length() == 0)
+			  description = "Life is all about having a good time.";
 		  StringBuffer sb = new StringBuffer();
 		  sb.append("<item>");
 		  sb.append("<title>"+title+"</title>");
@@ -133,7 +162,7 @@ public class SxHelper {
 	  public String searchMatchedItem(String keyword) throws UnknownHostException {
 		  JSONObject json = searchByKeyword(keyword);
 		  //获取返回结果
-		  String result = loadDefaultItem();
+		  String result = null;
 		  JSONArray hits = json.getJSONObject("hits").getJSONArray("hits");
 			if(hits.size()>0) {
 				JSONObject hit = hits.getJSONObject(0).getJSONObject("_source");
@@ -150,12 +179,16 @@ public class SxHelper {
 	   * 装载默认返回条目
 	   * @return
 	   */
-	  public String loadDefaultItem() {
+	  public String loadDefaultItem(String keyword) {
+		if(keyword == null)keyword = "";
 		String title = "小确幸，大生活";
 		String description = "Life is all about having a good time.";
 		String picUrl = getDefaultImage();
-		String url = "http://www.biglistoflittlethings.com/ilife-web-wx";
+		String url = "http://www.biglistoflittlethings.com/ilife-web-wx/index.html?keyword="+keyword;
 		return item(title,description,picUrl,url);
+	  }
+	  public String loadDefaultItem() {
+		  return loadDefaultItem(null);
 	  }
 	  
 	  /**

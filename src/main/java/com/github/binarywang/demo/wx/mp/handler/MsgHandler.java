@@ -62,6 +62,8 @@ public class MsgHandler extends AbstractHandler {
       //TODO 可以选择将消息保存到本地
     }
 
+    String keyword = wxMessage.getContent();//获取消息内容作为关键词
+    
     //当用户输入关键词如“你好”，“客服”等，并且有客服在线时，把消息转发给在线客服
     if (StringUtils.startsWithAny(wxMessage.getContent(), "你好", "客服")
       && weixinService.hasKefuOnline()) {
@@ -74,23 +76,27 @@ public class MsgHandler extends AbstractHandler {
     if(helper.isTaobaoToken(wxMessage.getContent())) {
     		//提交到broker-seed等待采集
     		helper.insertBrokerSeedByText(openid, wxMessage.getContent());
-    		//发送消息告知不要着急，我正在找
+    		//先直接搜索一个发过去，然后等到淘口令入库后再发送
+    		keyword = helper.getKeywordFromTaobaoToken(wxMessage.getContent());
+    		/**
 	    try {
 	      return new TextBuilder().build("收到淘口令，正在转换，请稍等。也可以直接输入文字直接查找哦~~", wxMessage, weixinService);
 	    } catch (Exception e) {
 	      this.logger.error(e.getMessage(), e);
 	    }
+	    //**/
     }
 
     
-    //否则，根据关键词搜索符合内容
-    String keyword = wxMessage.getContent();
-    String xml = helper.loadDefaultItem();
+    //根据关键词搜索符合内容
+    String xml = null;
     try {
     		xml = helper.searchMatchedItem(keyword);
     }catch(Exception ex) {
     		logger.error("Error occured while search items.[keyword]"+keyword,ex);
     }
+    if(xml == null || xml.trim().length() == 0)
+    		xml = helper.loadDefaultItem();
     XStream xstream = new XStream();
     xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
 	WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(xml);
