@@ -446,20 +446,27 @@ XXXX
 		}catch(Exception ex) {
 			//do nothing
 		}
+		StringBuffer sb = new StringBuffer();
+		sb.append("亲，你的专属淘口令也准备好了哦，");
+		sb.append(params.get("token") + params.get("title"));
+		sb.append(profitOrder>0?"，店返￥"+params.get("profitOrder"):"");
+		sb.append(",赶快分享吧~~");
 		WxMpKefuMessage msg = WxMpKefuMessage
 		  .TEXT()
 		  .toUser(params.get("openid").toString())
-		  .content("亲，这个宝贝已经准备好了"+(profitOrder>0?"，店返￥"+params.get("profitOrder"):"")+"，可以直接发送淘口令或者进入详情页分享，自购也省钱哦~~")
+		  .content(sb.toString())
 		  .build();
 		wxMpService.getKefuService().sendKefuMessage(msg);
 		
-		//发送第二条文字消息：淘口令
+		//发送第二条文字消息：淘口令：大兄嘚，就别发那么多消息了，微信连续发20条就会停止发送了
+		/**
 		msg = WxMpKefuMessage
 		  .TEXT()
 		  .toUser(params.get("openid").toString())
 		  .content(params.get("token")+"，复制这段文字购买 "+params.get("title")+" ~~")
 		  .build();
 		wxMpService.getKefuService().sendKefuMessage(msg);
+		//**/
 		
 		//推送一条模板消息，能够进入详情页生成海报
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
@@ -505,17 +512,32 @@ XXXX
 		  .build();
 		wxMpService.getKefuService().sendKefuMessage(msg);
 		//**/
-		//推送一条消息给客服，需要关注该商品
+		//推送一条消息给客服，需要关注该商品：不行啊，客服消息连续20条就会堵死的，改发送模板消息吧
 		logger.info("start send operator seed fail notify message.[params]",params);
+		/**
 		WxMpKefuMessage msg = WxMpKefuMessage
 		  .TEXT()
 		  .toUser("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc")//指定发送
 		  .content("商品未能成功上架，请查看。【淘口令】\n"+params.get("text")==null?"无":params.get("text"))
 		  .build();
 		wxMpService.getKefuService().sendKefuMessage(msg);
+		//**/
+		//推送一条模板消息，能够进入详情页生成海报
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(params.get("openid"))
+      	      .templateId(ilifeConfig.getMsgIdTask())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
+      	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/boards.html?filter=all")
+      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/share.html?origin=info2&id="+params.get("itemKey"))//需要通过微信中转，否则从模板消息进入无法获取达人信息和清单
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", params.get("broker")+"尝试从微信查询商品"))
+  	    		.addData(new WxMpTemplateData("keyword1", "达人商品上架失败"))
+  	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
+  	    		.addData(new WxMpTemplateData("remark", params.get("text")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
 		
   	     result.put("status", true);
-  	     //result.put("msgId", msgId);
+  	     result.put("msgId", msgId);
   	     return result;
 	}
 }
