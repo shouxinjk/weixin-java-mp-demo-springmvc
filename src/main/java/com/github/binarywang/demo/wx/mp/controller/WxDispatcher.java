@@ -440,10 +440,16 @@ XXXX
 		
 		logger.info("start send broker seed notify message.[params]",params);
 		//发送一条文字消息，包含转换后的淘口令
+		double profitOrder = 0;
+		try {
+			profitOrder = Double.parseDouble(params.get("profitOrder").toString());
+		}catch(Exception ex) {
+			//do nothing
+		}
 		WxMpKefuMessage msg = WxMpKefuMessage
 		  .TEXT()
 		  .toUser(params.get("openid").toString())
-		  .content("亲，这个宝贝已经准备好了"+(Double.parseDouble(params.get("profitOrder").toString())>0?"，店返￥"+params.get("profitOrder"):"")+"，可以直接发送淘口令或者进入详情页分享，自购也省钱哦~~")
+		  .content("亲，这个宝贝已经准备好了"+(profitOrder>0?"，店返￥"+params.get("profitOrder"):"")+"，可以直接发送淘口令或者进入详情页分享，自购也省钱哦~~")
 		  .build();
 		wxMpService.getKefuService().sendKefuMessage(msg);
 		
