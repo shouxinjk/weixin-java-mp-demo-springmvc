@@ -482,6 +482,19 @@ XXXX
   	    		.addData(new WxMpTemplateData("remark", (profitOrder>0?"店返￥"+params.get("profitOrder"):"")+" 进入详情可生成海报哦~~"));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
 
+ 		//推送一条模板消息给管理员，通知上架成功
+         templateMessage = WxMpTemplateMessage.builder()
+       	      .toUser("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc")//指定发送
+       	      .templateId(ilifeConfig.getMsgIdTask())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
+       	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/share.html?origin=info2&id="+params.get("itemKey"))//需要通过微信中转，否则从模板消息进入无法获取达人信息和清单
+       	      .build();
+
+   	    templateMessage.addData(new WxMpTemplateData("first", "从微信新增商品："+params.get("title")))
+   	    		.addData(new WxMpTemplateData("keyword1", "达人商品上架成功"))
+   	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
+   	    		.addData(new WxMpTemplateData("remark", "店返："+profitOrder));
+   	     msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
   	     result.put("status", true);
   	     result.put("msgId", msgId);
   	     return result;
@@ -522,15 +535,14 @@ XXXX
 		  .build();
 		wxMpService.getKefuService().sendKefuMessage(msg);
 		//**/
-		//推送一条模板消息，能够进入详情页生成海报
+		//推送一条模板消息给管理员，通知上架失败
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
-      	      .toUser(params.get("openid"))
+      	      .toUser("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc")//指定发送
       	      .templateId(ilifeConfig.getMsgIdTask())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
-      	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/boards.html?filter=all")
-      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/share.html?origin=info2&id="+params.get("itemKey"))//需要通过微信中转，否则从模板消息进入无法获取达人信息和清单
+      	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/share.html?origin=info2&id="+params.get("itemKey"))//由于失败，没有itemKey
       	      .build();
 
-  	    templateMessage.addData(new WxMpTemplateData("first", params.get("broker")+"尝试从微信查询商品"))
+  	    templateMessage.addData(new WxMpTemplateData("first", params.get("broker")+" 尝试从微信查询商品"))
   	    		.addData(new WxMpTemplateData("keyword1", "达人商品上架失败"))
   	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
   	    		.addData(new WxMpTemplateData("remark", params.get("text")));
