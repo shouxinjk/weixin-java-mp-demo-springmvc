@@ -75,11 +75,24 @@ public class SubscribeHandler extends AbstractHandler {
     if(userWxInfo.getQrSceneStr().trim().length()>0) {
     		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     		SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-    		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId
+    		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
     		if(params.length<2) {//如果无识别标识，不做任何处理
     			logger.error("Wrong scene str.[str]"+userWxInfo.getQrSceneStr());
     		}else if("User".equalsIgnoreCase(params[0])) {//如果是用户邀请则发送。User::openId
     			if(result!=null && result.getString("_id")!=null) {//成功创建则继续创建关联关系
+    				
+      				//如果有shadowUserId则使用shadowUser更新当前用户
+      				if(params.length>2) {
+      					logger.debug("Try to update user by shadowUser settings.");
+      					//查询得到shadowUser信息
+      					JSONObject shadowUser = HttpClientHelper.getInstance().get(ilifeConfig.getDataApi()+"/_api/document/user_users/"+params[2],null, header);
+      					//更新当前用户
+      					if(shadowUser!=null && shadowUser.getString("_id")!=null) {//如果查到虚拟用户则更新吧
+      						JSONObject newUser = HttpClientHelper.getInstance().post(ilifeConfig.getDataApi()+"/_api/document/user_users/"+userWxInfo.getOpenId(),shadowUser, header);
+      						logger.debug("Target user updated by shadowUser.[result]",newUser);
+      					}
+      				}
+    				
         			//检查用户关联是否存在:对于特殊情况，用户已经添加好友，然后取消关注，再次扫码关注后避免重复建立关系
         			JSONObject example = new JSONObject();
         			example.put("_from", "user_users/"+params[1]);
@@ -87,7 +100,8 @@ public class SubscribeHandler extends AbstractHandler {
         			JSONObject data = new JSONObject();
         			data.put("collection", "connections");
         			data.put("example", example);
-        			result = HttpClientHelper.getInstance().put(ilifeConfig.getDataApi()+"/_api/simple/by-example", data, header);
+      				//更新用户关系，如果已经建立则忽略
+      				result = HttpClientHelper.getInstance().put(ilifeConfig.getDataApi()+"/_api/simple/by-example", data, header);
         			if(result!=null && result.getIntValue("count")>0) {//该关联已经存在。不做任何处理。
         				//能到这里，说明这货之前已经加了好友了，但是又取消关注了。发个消息提示一下就可以了
         				return new TextBuilder().build("已经添加为关心的人了哦，点击【我】然后点击【关心的人】看看吧~~", wxMessage, weixinService);

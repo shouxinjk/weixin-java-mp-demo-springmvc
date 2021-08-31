@@ -48,7 +48,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
                                 Map<String, Object> context, WxMpService wxMpService,
                                 WxSessionManager sessionManager) throws WxErrorException {
   try {
-    this.logger.info("\n\n===============Scan receive wechat msg.=====================\n\n", JSON.writeValueAsString(wxMessage));
+    this.logger.debug("\n\n===============Scan receive wechat msg.=====================\n\n", JSON.writeValueAsString(wxMessage));
   } catch (JsonProcessingException e) {
     e.printStackTrace();
   }
@@ -84,6 +84,17 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
   		if(params.length<2) {//如果无识别标识，不做任何处理
   			logger.error("Wrong scene str.[str]"+userWxInfo.getQrSceneStr());
   		}else if("User".equalsIgnoreCase(params[0])) {//如果是用户邀请则检查关联是否存在
+			//如果有shadowUserId则使用shadowUser更新当前用户：每扫一次都更新一次
+			if(params.length>2) {
+				logger.debug("Try to update user by shadowUser settings.");
+				//查询得到shadowUser信息
+				JSONObject shadowUser = HttpClientHelper.getInstance().get(ilifeConfig.getDataApi()+"/_api/document/user_users/"+params[2],null, header);
+				//更新当前用户
+				if(shadowUser!=null && shadowUser.getString("_id")!=null) {//如果查到虚拟用户则更新吧
+					JSONObject newUser = HttpClientHelper.getInstance().post(ilifeConfig.getDataApi()+"/_api/document/user_users/"+userWxInfo.getOpenId(),shadowUser, header);
+					logger.debug("Target user updated by shadowUser.[result]",newUser);
+				}
+			}
   			//检查用户关联是否存在
   			JSONObject example = new JSONObject();
   			example.put("_from", "user_users/"+params[1]);
@@ -107,17 +118,6 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
   				conn.put("_to", "user_users/"+userWxInfo.getOpenId());//端是新加入的用户
   				conn.put("name", "我关心的TA");//关系名称
   				result = HttpClientHelper.getInstance().post(ilifeConfig.getConnectUserUrl(), conn,header);
-  				//如果有shadowUserId则使用shadowUser更新当前用户
-  				if(params.length>2) {
-  					logger.debug("Try to update user by shadowUser settings.");
-  					//查询得到shadowUser信息
-  					JSONObject shadowUser = HttpClientHelper.getInstance().get(ilifeConfig.getDataApi()+"/_api/document/user_users/"+params[2],null, header);
-  					//更新当前用户
-  					if(shadowUser!=null && shadowUser.getString("_id")!=null) {//如果查到虚拟用户则更新吧
-  						JSONObject newUser = HttpClientHelper.getInstance().post(ilifeConfig.getDataApi()+"/_api/document/user_users/"+userWxInfo.getOpenId(),shadowUser, header);
-  						logger.debug("Target user updated by shadowUser.[result]",newUser);
-  					}
-  				}
   				if(result !=null && result.get("_id") !=null) {//成功建立关联。可以发送通知了
 	    		    		//发送消息给推荐用户，让他感觉开心点
   					/**
