@@ -145,8 +145,8 @@ public class WxDispatcher {
 		if(shadowUserId!=null && shadowUserId.trim().length()>0) {
 			shadowParams = "::"+shadowUserId.trim();
 		}
-//		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket("User::"+userId+shadowParams,2592000);//有效期30天
-		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateLastTicket("User::"+userId+shadowParams);//！！！注意：临时二维码不支持scene_str，当前使用永久二维码生成
+		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket("User::"+userId+shadowParams,2592000);//有效期30天
+//		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateLastTicket("User::"+userId+shadowParams);//！！！注意：临时二维码不支持scene_str，当前使用永久二维码生成
 		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
 		logger.debug("Got QRcode URL. [URL]",url);
 		Map<String, Object> data = Maps.newHashMap();
