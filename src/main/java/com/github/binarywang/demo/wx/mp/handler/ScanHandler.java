@@ -67,10 +67,10 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 		if(result!=null && result.getString("_id")!=null) {//如果查到则表示用户已经建立，不做处理
 			//do nothing
 		}else {//把微信用户薅到本地，自己先留着
-		JSONObject user = JSONObject.parseObject(userWxInfo.toString());
-		user.put("_key", userWxInfo.getOpenId());//重要：使用openId作为key
-		result = HttpClientHelper.getInstance().post(ilifeConfig.getRegisterUserUrl(), user,header);    
-	} 	
+			JSONObject user = JSONObject.parseObject(userWxInfo.toString());
+			user.put("_key", userWxInfo.getOpenId());//重要：使用openId作为key
+			result = HttpClientHelper.getInstance().post(ilifeConfig.getRegisterUserUrl(), user,header);    
+		} 	
   }
 
   //根据场景值进行处理
@@ -80,7 +80,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
   if(userWxInfo.getQrSceneStr().trim().length()>0) {
   		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
   		SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-  		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId
+  		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
   		if(params.length<2) {//如果无识别标识，不做任何处理
   			logger.error("Wrong scene str.[str]"+userWxInfo.getQrSceneStr());
   		}else if("User".equalsIgnoreCase(params[0])) {//如果是用户邀请则检查关联是否存在
@@ -107,6 +107,17 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
   				conn.put("_to", "user_users/"+userWxInfo.getOpenId());//端是新加入的用户
   				conn.put("name", "我关心的TA");//关系名称
   				result = HttpClientHelper.getInstance().post(ilifeConfig.getConnectUserUrl(), conn,header);
+  				//如果有shadowUserId则使用shadowUser更新当前用户
+  				if(params.length>2) {
+  					logger.debug("Try to update user by shadowUser settings.");
+  					//查询得到shadowUser信息
+  					JSONObject shadowUser = HttpClientHelper.getInstance().get(ilifeConfig.getDataApi()+"/_api/document/user_users/"+params[2],null, header);
+  					//更新当前用户
+  					if(shadowUser!=null && shadowUser.getString("_id")!=null) {//如果查到虚拟用户则更新吧
+  						JSONObject newUser = HttpClientHelper.getInstance().post(ilifeConfig.getDataApi()+"/_api/document/user_users/"+userWxInfo.getOpenId(),shadowUser, header);
+  						logger.debug("Target user updated by shadowUser.[result]",newUser);
+  					}
+  				}
   				if(result !=null && result.get("_id") !=null) {//成功建立关联。可以发送通知了
 	    		    		//发送消息给推荐用户，让他感觉开心点
   					/**

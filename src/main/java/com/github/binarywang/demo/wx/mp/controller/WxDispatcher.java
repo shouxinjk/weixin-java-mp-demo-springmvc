@@ -132,18 +132,25 @@ public class WxDispatcher {
 	
 	/**
 	 * 生成用户特定的临时二维码。分享后可以关注用户
+	 * userId：发起邀请的用户ID，为其openId
+	 * shadowUserId：为建立的虚拟用户ID，非openId。可以为空
 	 */
 	@RequestMapping("/tempQRcode")
 	@ResponseBody
-	public Map<String, Object> generateUserQRCode(@RequestParam("userId")String userId) throws WxErrorException, IOException {
+	public Map<String, Object> generateUserQRCode(@RequestParam("userId")String userId,@RequestParam("shadowUserId")String shadowUserId) throws WxErrorException, IOException {
 		Map<String, Object> result = Maps.newHashMap();
 		logger.debug("try to generate temp QRcode for user.[id]"+userId);
 		//用户同意授权后，通过code获得access token，其中也包含openid
-		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket("User::"+userId,2592000);//有效期30天
+		String shadowParams = "";
+		if(shadowUserId!=null && shadowUserId.trim().length()>0) {
+			shadowParams = "::"+shadowUserId.trim();
+		}
+		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket("User::"+userId+shadowParams,2592000);//有效期30天
 		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
 		logger.debug("Got QRcode URL. [URL]",url);
 		Map<String, Object> data = Maps.newHashMap();
 		data.put("id", userId);
+		data.put("shadowId", shadowUserId);
 		data.put("url", url);
 		result.put("status",true);
 		result.put("data",data);
