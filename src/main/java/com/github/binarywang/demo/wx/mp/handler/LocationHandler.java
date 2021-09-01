@@ -33,15 +33,15 @@ public class LocationHandler extends AbstractHandler {
     	//TODO 接收处理用户发送的地理位置消息
         //上报地理位置事件
         this.logger.info("\n上报地理位置 。。。 ");
-        this.logger.info("\n纬度 : " + wxMessage.getLatitude());
-        this.logger.info("\n经度 : " + wxMessage.getLongitude());
+        this.logger.info("\n纬度 : " + wxMessage.getLocationX());
+        this.logger.info("\n经度 : " + wxMessage.getLocationY());
         this.logger.info("\n精度 : " + String.valueOf(wxMessage.getPrecision()));
         //根据地理位置搜索附近的商品
         String xml = null;
         try {
-        	xml = helper.searchByLocation(wxMessage.getLatitude(),wxMessage.getLongitude());
+        	xml = helper.searchByLocation(wxMessage.getLocationX(),wxMessage.getLocationY());
         }catch(Exception ex) {
-        	logger.error("Error occured while search items.[location]lat:"+wxMessage.getLatitude()+" lon:"+wxMessage.getLongitude(),ex);
+        	logger.error("Error occured while search items.[location]lat:"+wxMessage.getLocationX()+" lon:"+wxMessage.getLocationY(),ex);
         }
         if(xml == null || xml.trim().length() == 0) {//如果没找到合适的则提示更换位置发送
         	return new TextBuilder().build("发送的位置5公里内没找到合适的内容，重新试试看呢~", wxMessage, null);
