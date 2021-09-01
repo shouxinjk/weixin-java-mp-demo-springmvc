@@ -65,6 +65,11 @@ public class MsgHandler extends AbstractHandler {
 
     String keyword = wxMessage.getContent();//获取消息内容作为关键词
     
+    //不知道为啥会收到null字符串，如果为空则直接返回，不处理了
+    if(keyword==null || keyword.trim().length()==0) {
+    	return null;
+    }
+    
     //当用户输入关键词如“你好”，“客服”等，并且有客服在线时，把消息转发给在线客服
     if (StringUtils.startsWithAny(wxMessage.getContent(), "你好", "客服")
       && weixinService.hasKefuOnline()) {
