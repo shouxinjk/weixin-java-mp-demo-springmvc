@@ -27,7 +27,7 @@ public class UnsubscribeHandler extends AbstractHandler {
     this.logger.info("取消关注用户 OPENID: " + openId);
     // TODO 可以更新本地数据库为取消关注状态
     try {
-	      return new TextBuilder().build("非常伤心你不再关注我们。\n\nLife is all about having a good time.\n\n我们的目标是成为您的私人生活助手，用全面的数据做出合理的消费决策，用小确幸丰富你的的大生活。 \n\n欢迎随时回来 ~~", wxMessage, weixinService);
+	      return new TextBuilder().build("\n\nLife is all about having a good time.\n\n感谢厚爱，我们致力于用小确幸填满你的的大生活。 \n\n欢迎随时回来 ~~", wxMessage, weixinService);
 	    } catch (Exception e) {
 	      this.logger.error(e.getMessage(), e);
 	    }

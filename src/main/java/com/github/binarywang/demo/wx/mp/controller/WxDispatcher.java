@@ -181,7 +181,7 @@ public class WxDispatcher {
   	    templateMessage.addData(new WxMpTemplateData("first", "有新成员加入团队"))
   	    		.addData(new WxMpTemplateData("keyword1", params.get("name")))
   	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
-  	    		.addData(new WxMpTemplateData("remark", "为让团队变的更强大，请协助TA完成设置并开始推荐。\n\n姓名："+params.get("name")+"\n电话："+params.get("phone")));
+  	    		.addData(new WxMpTemplateData("remark", "为让团队变的更强大，点击协助TA完成设置并开始推荐。\n\n姓名："+params.get("name")+"\n电话："+params.get("phone")));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
   	     
   	     result.put("status", true);

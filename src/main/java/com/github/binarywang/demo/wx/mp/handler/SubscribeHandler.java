@@ -135,7 +135,7 @@ public class SubscribeHandler extends AbstractHandler {
 		    	    	        msg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+" 已添加你为关心的人"))
 		    	    	        	    		.addData(new WxMpTemplateData("keyword2", userWxInfo.getNickname()))
 		    	    	        	    		.addData(new WxMpTemplateData("keyword1", dateFormatLong.format(new Date())))
-		    	    	        	    		.addData(new WxMpTemplateData("remark", "可以看到或设置特定于TA的推荐：\n\n查看:从底部进入【大生活】\n设置：进入【我-关心的人】 \n\nEnjoy ~~"));
+		    	    	        	    		.addData(new WxMpTemplateData("remark", "点击查看详情"));
 		    	    	        	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg);       					
 	    				}
         			}

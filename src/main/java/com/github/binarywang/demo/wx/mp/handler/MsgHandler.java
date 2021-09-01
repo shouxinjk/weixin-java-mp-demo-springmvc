@@ -2,6 +2,7 @@ package com.github.binarywang.demo.wx.mp.handler;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.arangodb.entity.BaseDocument;
 import com.github.binarywang.demo.wx.mp.builder.TextBuilder;
 import com.github.binarywang.demo.wx.mp.service.WeixinService;
 import com.ilife.util.SxHelper;
@@ -72,23 +73,59 @@ public class MsgHandler extends AbstractHandler {
         .toUser(wxMessage.getFromUser()).build();
     }
     
-    //如果检测到内容里有淘口令，则提交数据到broker-seeds，并返回信息“正在查找对应的商品，请稍等”
-    if(helper.isTaobaoToken(wxMessage.getContent())) {
-    		//提交到broker-seed等待采集
-    		helper.insertBrokerSeedByText(openid, wxMessage.getContent());
-    		//先直接搜索一个发过去，然后等到淘口令入库后再发送
-    		keyword = helper.getKeywordFromTaobaoToken(wxMessage.getContent());
-    		/**
-	    try {
-	      return new TextBuilder().build("收到淘口令，正在转换，请稍等。也可以直接输入文字直接查找哦~~", wxMessage, weixinService);
-	    } catch (Exception e) {
-	      this.logger.error(e.getMessage(), e);
-	    }
-	    //**/
+    //处理逻辑：
+    
+    //TODO 匹配指令：需要特殊处理
+    
+    //匹配URL，仅对于已经支持的URL进行过滤，
+    //如果在不支持的范围，则过滤掉URL，当成文字处理
+    //如果再支持范围内，则转换为标准URL格式直接搜索标准URL，如果已经入库则直接返回
+    String url = helper.getUrl(keyword);
+    if(url.trim().length()>0) {
+    	//检查URL是否在支持范围内
+    	String supportedUrl = helper.getSupportUrl(url);
+    	if(supportedUrl.trim().length()==0) {//是不支持的URL，看看还有没有其他内容可用
+    		//把url信息从文本中去掉
+    		keyword = keyword.replace(url, "").trim();
+    		if(keyword.length()==0) {//如果没有其他内容了，直接返回吧，说不知道是个啥
+    			return new TextBuilder().build("还不支持这个URL哈，重新输入看看呢。", wxMessage, weixinService);
+    		}else {//表示还有其他内容，口令啊，文字之类的，等着后面处理就是了
+    			//do nothing
+    		}
+    	}else {//是支持的URL，查找是否已经入库，已经入库则返回，否则等待采集后返回
+    		String docXml = helper.queryDocByUrl(supportedUrl);
+    		if(docXml!=null) {//查询到了，直接返回指定内容
+    		    XStream xstream = new XStream();
+    		    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
+    			WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(docXml);
+    			return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
+    			        .toUser(wxMessage.getFromUser()).build();
+    		}else {//提交到broker_seed库，等待采集。并发送 安抚消息
+    			helper.insertBrokerSeed(openid,"url",supportedUrl, wxMessage.getContent());
+        		//先发个消息安抚一下
+    		    try {
+    		    	return new TextBuilder().build("商品URL收到，正在转换，请稍等~", wxMessage, weixinService);
+    		    } catch (Exception e) {
+    		    	this.logger.error(e.getMessage(), e);
+    		    }
+    		}
+    	}
     }
 
-    
-    //根据关键词搜索符合内容
+    //匹配口令，当前支持淘口令 [a-zA-Z0-9]{11} 写入broker_seeds，等待采集入库，采集脚本将自动触发通知，并返回信息“正在查找对应的商品，请稍等”
+    String token = helper.parseTaobaoToken(wxMessage.getContent());
+    if(token != null) { //提交到broker-seed等待采集
+    		helper.insertBrokerSeed(openid,"taobaoToken",token, wxMessage.getContent());
+    		keyword = helper.getKeywordFromTaobaoToken(wxMessage.getContent());
+    		//先发个消息安抚一下
+		    try {
+		    	return new TextBuilder().build("收到淘口令，正在转换，请稍等~", wxMessage, weixinService);
+		    } catch (Exception e) {
+		    	this.logger.error(e.getMessage(), e);
+		    }
+    }
+
+    //如果keyword还有内容的话直接搜索，则根据关键词搜索符合内容
     String xml = null;
     try {
     		xml = helper.searchMatchedItem(keyword);
