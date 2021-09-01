@@ -11,17 +11,21 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.arangodb.entity.BaseDocument;
+import com.github.binarywang.demo.wx.mp.config.iLifeConfig;
 import com.google.common.collect.Maps;
 @Service
 public class SxHelper {
 		private Logger logger = LoggerFactory.getLogger(getClass());
-		
+		  @Autowired
+		  private iLifeConfig ilifeConfig;
+		  
 		@Value("#{extProps['es.url']}") String esUrl;
 		@Value("#{extProps['es.query']}") String esQuery;
 		@Value("#{extProps['es.queryByDistance']}") String esQueryByDistance;
@@ -97,10 +101,18 @@ public class SxHelper {
 	  }
 	  
 	  //根据输入URL判定是否是支持范围，并且转换为标准URL
-	  //对于不支持的情况，返回
-	  public String getSupportUrl(String url) {
+	  //对于不支持的情况，返回空值
+	  public String convertUrl(String url) {
 		  //TODO 调用远端服务检查是否支持
-		  return url;
+		  String remote = ilifeConfig.getSxApi()+"/mod/linkTemplate/rest/convert";
+		  Map<String,String> params = Maps.newHashMap();
+		  params.put("url", url);
+		  JSONObject result = HttpClientHelper.getInstance().get(remote, params,null);
+		  logger.error("got result.",result);
+		  if(result.getBooleanValue("success")) {
+			  return result.getString("url");
+		  }
+		  return "";
 	  }
 	  
 	  /**

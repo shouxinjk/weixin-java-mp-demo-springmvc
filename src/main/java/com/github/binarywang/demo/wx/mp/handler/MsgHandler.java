@@ -88,8 +88,8 @@ public class MsgHandler extends AbstractHandler {
     String url = helper.getUrl(keyword);
     if(url.trim().length()>0) {
     	//检查URL是否在支持范围内
-    	String supportedUrl = helper.getSupportUrl(url);
-    	if(supportedUrl.trim().length()==0) {//是不支持的URL，看看还有没有其他内容可用
+    	String targetUrl = helper.convertUrl(url);
+    	if(targetUrl.trim().length()==0) {//是不支持的URL，看看还有没有其他内容可用
     		//把url信息从文本中去掉
     		keyword = keyword.replace(url, "").trim();
     		if(keyword.length()==0) {//如果没有其他内容了，直接返回吧，说不知道是个啥
@@ -98,7 +98,7 @@ public class MsgHandler extends AbstractHandler {
     			//do nothing
     		}
     	}else {//是支持的URL，查找是否已经入库，已经入库则返回，否则等待采集后返回
-    		String docXml = helper.queryDocByUrl(supportedUrl);
+    		String docXml = helper.queryDocByUrl(targetUrl);
     		if(docXml!=null) {//查询到了，直接返回指定内容
     		    XStream xstream = new XStream();
     		    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
@@ -106,7 +106,7 @@ public class MsgHandler extends AbstractHandler {
     			return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
     			        .toUser(wxMessage.getFromUser()).build();
     		}else {//提交到broker_seed库，等待采集。并发送 安抚消息
-    			helper.insertBrokerSeed(openid,"url",supportedUrl, wxMessage.getContent());
+    			helper.insertBrokerSeed(openid,"url",targetUrl, wxMessage.getContent());
         		//先发个消息安抚一下
     		    try {
     		    	return new TextBuilder().build("商品URL收到，正在转换，请稍等~", wxMessage, weixinService);

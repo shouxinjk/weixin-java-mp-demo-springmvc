@@ -141,9 +141,9 @@ public class HttpClientHelper {
 		if(params!=null && params.size()>0) {
 			for(Map.Entry<String, String> entry: params.entrySet()) {
 				if(i==0)
-					url += "?"+entry.getKey()+""+entry.getValue();
+					url += "?"+entry.getKey()+"="+entry.getValue();
 				else
-					url += "&"+entry.getKey()+""+entry.getValue();
+					url += "&"+entry.getKey()+"="+entry.getValue();
 				i++;
 			}
 		}		

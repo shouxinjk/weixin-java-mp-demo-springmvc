@@ -36,6 +36,13 @@ public class SxHelperTest {
 	}
 	
 	@Test
+	public void convertUrl() {
+		System.err.println( helper.convertUrl("http://item.jd.com/5089253.html?cpslink=0%26test=2"));
+		System.err.println( helper.convertUrl("https://item.jd.com/5089253.html?cpslink=0%26test=2"));
+		System.err.println( helper.convertUrl("http://cps.item.jd.com/5089253.html?cpslink=0%26test=2"));
+	}
+	
+	@Test
 	public void matchUrl() {
 		assert helper.getUrl("https://mobile.yangkeduo.com/comm_comment_report.html?_t_timestamp=internal_goods&_x_no_login_launch=1&r=donot").trim().length()>0;
 		assert helper.getUrl("3👈微WsWEXoYLDiZ哈 https://m.tb.cn/h.fcPT0o5?sm=b18b7f  Versace/范思哲刺绣字母logo男士全棉短袖POLO衫21年秋冬新款").trim().length()>0;
