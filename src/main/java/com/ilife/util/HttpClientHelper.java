@@ -15,6 +15,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 public class HttpClientHelper {
@@ -173,6 +174,48 @@ public class HttpClientHelper {
 			result.put("error", e);
 		}
 		result.put("status", false);
+		return result;
+	}
+	
+	//获取列表对象
+	public JSONArray getList(String url, Map<String,String> params,Map<String,String> header) {
+		JSONArray result = new JSONArray();
+		
+		//组装参数
+		int i=0;
+		if(params!=null && params.size()>0) {
+			for(Map.Entry<String, String> entry: params.entrySet()) {
+				if(i==0)
+					url += "?"+entry.getKey()+"="+entry.getValue();
+				else
+					url += "&"+entry.getKey()+"="+entry.getValue();
+				i++;
+			}
+		}		
+		
+		HttpGet get = new HttpGet(url);
+		
+		//设置请求头
+		get.setHeader("Content-type", "application/json; charset=utf-8");
+		if(header!=null && header.size()>0) {
+			for(Map.Entry<String, String> entry: header.entrySet()) {
+				get.setHeader(entry.getKey(),entry.getValue());
+			}
+		}
+		
+		try {
+			HttpResponse response = httpClient.execute(get);
+			int statusCode = response.getStatusLine().getStatusCode();
+			String content = EntityUtils.toString(response.getEntity(), "UTF-8");
+			get.releaseConnection();
+			//httpClient.close();
+			logger.debug("got status code.",statusCode);
+			logger.debug("got response content.",content);
+			
+			return JSONObject.parseArray(content);
+		} catch (Exception e) {
+			logger.error("Error occured while do get request to server.[url]"+url,params,e);
+		}
 		return result;
 	}
 }

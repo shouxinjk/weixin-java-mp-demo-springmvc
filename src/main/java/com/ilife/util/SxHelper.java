@@ -29,7 +29,7 @@ public class SxHelper {
 		@Value("#{extProps['es.url']}") String esUrl;
 		@Value("#{extProps['es.query']}") String esQuery;
 		@Value("#{extProps['es.queryByDistance']}") String esQueryByDistance;
-		@Value("#{extProps['msg.item.url.prefix']}") String itemUrlPrefix;
+		@Value("#{extProps['mp.msg.url.prefix']}") String ilifeUrlPrefix;
 		
 	    ArangoDbClient arangoClient;
 	    
@@ -49,6 +49,30 @@ public class SxHelper {
 		private void closeArangoClient() {
 			arangoClient.close();
 		}
+		
+		  //查询得到Board
+		  public JSONObject getBoardById(String id) {
+			  String remote = ilifeConfig.getSxApi()+"/mod/board/rest/"+id;
+			  JSONObject result = HttpClientHelper.getInstance().get(remote, null,null);
+			  logger.error("got result.",result);
+			  return result;
+		  }
+		  
+		  //查询得到Occasion
+		  public JSONObject getOccasionById(String id) {
+			  String remote = ilifeConfig.getSxApi()+"/mod/occasion/rest/"+id;
+			  JSONObject result = HttpClientHelper.getInstance().get(remote, null,null);
+			  logger.error("got result.",result);
+			  return result;
+		  }
+		  
+		  //查询得到Occasion关联的所有motivation
+		  public JSONArray getOccasionRelatedNeeds(String occasionId) {
+			  String remote = ilifeConfig.getSxApi()+"/mod/motivation/rest/byOccasion/"+occasionId;
+			  JSONArray result = HttpClientHelper.getInstance().getList(remote, null,null);
+			  logger.error("got result.",result);
+			  return result;
+		  }		
 		
 	/**
 	 * 向ElasticSearch发起搜索。并返回hits
@@ -223,6 +247,15 @@ public class SxHelper {
 //			arangoClient.close();
 	  }
 	  
+	  public Map<String,Object> getItemById(String id) {
+		  getArangoClient(); 
+		  BaseDocument doc = arangoClient.find("my_stuff", id);
+//			arangoClient.close();
+		  if(doc!=null)
+			  return doc.getProperties();
+		  return null;
+	  }
+	  
 	  private Map<String,Object> createNode(String key, Object value){
 			Map<String,Object> node = new HashMap<String,Object>();
 			node.put(key,value);
@@ -267,7 +300,7 @@ public class SxHelper {
 				result = item(hit.getString("title"),
 						hit.getString("summary"),
 						hit.getJSONArray("images").getString(0),
-						itemUrlPrefix+hit.getString("_key"));
+						ilifeUrlPrefix+"/info2.html?id="+hit.getString("_key"));
 			}
 			logger.debug("Hit matched item and try to send msg."+result);
 		  return result;
@@ -284,7 +317,7 @@ public class SxHelper {
 				result = item(hit.getString("title"),
 						hit.getString("summary"),
 						hit.getJSONArray("images").getString(0),
-						itemUrlPrefix+hit.getString("_key"));
+						ilifeUrlPrefix+"/info2.html?id="+hit.getString("_key"));
 			}
 			logger.debug("Hit locate matched item and try to send msg."+result);
 		  return result;
@@ -334,7 +367,7 @@ public class SxHelper {
 		String title = "小确幸，大生活";
 		String description = "Life is all about having a good time.";
 		String picUrl = getDefaultImage();
-		String url = "http://www.biglistoflittlethings.com/ilife-web-wx/index.html?keyword="+keyword;
+		String url = ilifeUrlPrefix+"/index.html?keyword="+keyword;
 		return item(title,description,picUrl,url);
 	  }
 	  public String loadDefaultItem() {

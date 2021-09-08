@@ -3,6 +3,8 @@ package com.github.binarywang.demo.wx.mp.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import jdk.nashorn.internal.objects.annotations.Getter;
+
 /**
  * @author Binary Wang
  */
@@ -34,6 +36,9 @@ public class iLifeConfig {
   
   @Value("#{ilifePropertyies.template_task}")
   private String msgIdTask;
+  
+  @Value("#{ilifePropertyies.template_guide}")
+  private String msgIdGuide;
   
   @Value("#{ilifePropertyies.template_report}")
   private String msgIdReport;
@@ -90,6 +95,14 @@ public String getMsgIdTask() {
 
 public void setMsgIdTask(String msgIdTask) {
 	this.msgIdTask = msgIdTask;
+}
+
+public String getMsgIdGuide() {
+	return msgIdGuide;
+}
+
+public void setMsgIdGuide(String msgIdGuide) {
+	this.msgIdGuide = msgIdGuide;
 }
 
 public String getMsgIdReport() {

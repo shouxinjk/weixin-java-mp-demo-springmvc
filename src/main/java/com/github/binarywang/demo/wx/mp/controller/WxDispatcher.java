@@ -9,6 +9,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.binarywang.demo.wx.mp.config.iLifeConfig;
 import com.github.binarywang.demo.wx.mp.service.WeixinService;
@@ -41,6 +44,9 @@ import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
 public class WxDispatcher {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	
+	@Value("#{extProps['mp.msg.url.prefix']}") String ilifeUrlPrefix;
+	
 	@Autowired
 	private WxMpService wxMpService;
 	  @Autowired
@@ -559,4 +565,130 @@ XXXX
   	     result.put("msgId", msgId);
   	     return result;
 	}
+	
+	
+	/**
+	 * 通过公众号向所有关注用户发送模板消息。
+	 * 注意：需要谨慎使用，可能会导致模板消息被封 
+	 * 输入参数：
+        {
+            type:item/list/board,//支持单个商品、搜索链接、board，当前仅支持前两种。根据关键字搜索得到后返回
+            format:text/image/url,//预留：能够选择模板类型，当前仅提供固定模板消息
+            id:xxx,//ID：仅对于item或board生效，如果传递则直接获取对应内容
+            title:xxx,//标题：作为通知模板标题
+            remark:xxx,//详情：作为模板消息备注
+            keywords:"",//搜索关键字，用于搜索：不执行搜索
+        }
+      * 消息模板：
+			{{first.DATA}}
+			项目名称：{{keyword1.DATA}}
+			工单类型：{{keyword2.DATA}}
+			工作内容：{{keyword3.DATA}}
+			日期时间：{{keyword4.DATA}}
+			{{remark.DATA}}
+	 */
+	@RequestMapping(value = "/notify-mp-company", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendMpTemplateMessageCompany(@RequestBody JSONObject json) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.debug("try to send occasion notification message.[action]"+json.toJSONString(),json);
+		//根据具体action类型组装消息并发送：公众号只有模板消息，根据关键词搜索后得到推送
+		String first = json.getString("title");
+		String remark = json.getString("remark");
+		String url = ilifeUrlPrefix+"/index.html";
+		String keyword1="",keyword2="",keyword3="",keyword4 = "";
+		boolean valid = false;
+		if("item".equals(json.getString("type"))) {//是单条发送
+			if(json.getString("id")!=null&&json.getString("id").trim().length()>0) {//是指定条目
+				//查询arangodb得到条目内容并组装消息
+				Map<String,Object> props = helper.getItemById(json.getString("id"));
+				if(props != null) {//如果为空不做任何处理
+					keyword1 = ""+props.get("title");
+					keyword2 = "来源："+props.get("source");
+					keyword3 = "分享到适合的客户或关心的人";
+					keyword4 = "越快越好，手慢无";
+					url = ilifeUrlPrefix+"/info2.html?id="+json.getString("id");
+					valid = true;
+				}
+			}else {//使用关键字搜索，取第一条组装消息
+				JSONObject items = helper.searchByKeyword(json.getString("keyword")==null?"":json.getString("keyword"));
+				if(items.getJSONObject("hits").getJSONArray("hits").size()>0) {
+					JSONObject item = items.getJSONObject("hits").getJSONArray("hits").getJSONObject(0);
+					keyword1 = item.getString("title");
+					keyword2 = "来源："+item.getString("source");
+					keyword3 = "分享到适合的客户或关心的人";
+					keyword4 = "越快越好，手慢无";
+					url = ilifeUrlPrefix+"/info2.html?id="+json.getString("id");
+					valid = true;
+				}
+			}
+		}else if("board".equals(json.getString("type"))) {//发送清单
+			//查询得到清单，并组织消息
+			if(json.getString("id")!=null&&json.getString("id").trim().length()>0) {//是指定条目
+				JSONObject board = helper.getBoardById(json.getString("id"));
+				if(board != null ) {
+					keyword1 = board.getString("title");
+					keyword2 = "精选清单";
+					keyword3 = "分享到适合的客户或关心的人";
+					keyword4 = "长期有效，还可以定制自己的清单哦~~";
+					url = ilifeUrlPrefix+"/board2.html?id="+json.getString("id");
+					valid = true;
+				}
+			}
+		}else if(json.getString("keyword")!=null) {//只要有keyword就直接返回列表
+			keyword1 = "新商品上架";
+			keyword2 = "来源于天猫、淘宝、京东、拼多多等多个";
+			keyword3 = "进入查看并分享到适合的客户或关心的人";
+			keyword4 = "越快越好，手慢无";
+			url = ilifeUrlPrefix+"/index.html?keyword="+json.getString("keyword");
+			valid = true;
+		}
+		
+		//仅对查询信息的结果发送消息
+		if(valid) {
+			//推送一条模板消息给管理员，通知上架失败
+	        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+	      	      .toUser("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc")//TODO：当前测试阶段，仅指定发送
+	      	      .templateId(ilifeConfig.getMsgIdGuide())
+	      	      .url(url)
+	      	      .build();
+
+	  	    templateMessage.addData(new WxMpTemplateData("first", first))
+	  	    		.addData(new WxMpTemplateData("keyword1", keyword1))
+	  	    		.addData(new WxMpTemplateData("keyword2", keyword2))
+	  	    		.addData(new WxMpTemplateData("keyword3", keyword3))
+	  	    		.addData(new WxMpTemplateData("keyword4", dateFormatLong.format(new Date())))
+	  	    		.addData(new WxMpTemplateData("remark", remark));
+	  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+			
+			result.put("status", true);
+			result.put("msgId", msgId);
+		}else {
+			result.put("status", false);
+			result.put("msg", "无法按照指令发送模板消息，请检查参数是否正确。");
+		}
+
+		return result;
+	}
+	
+	@RequestMapping(value = "/notify-mp-broker", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendMpTemplateMessageBroker(@RequestBody JSONObject json) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.debug("try to send occasion notification message.[action]",json);
+		result.put("status", false);
+		result.put("msg", "TBC");
+		return result;
+	}
+	
+	@RequestMapping(value = "/notify-mp-customer", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendMpTemplateMessageCustomer(@RequestBody JSONObject json) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.debug("try to send occasion notification message.[action]",json);
+		result.put("status", false);
+		result.put("msg", "TBC");
+		return result;
+	}
+	
 }
