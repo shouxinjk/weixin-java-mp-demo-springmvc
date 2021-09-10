@@ -80,4 +80,14 @@ public class SxHelperTest {
 		helper.insertBrokerSeed("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc","taobaoToken","axBdXo1mIOk","5👈 xixi:/哈axBdXo1mIOk信  ECCO爱步男士真皮休闲鞋2021年秋季新款耐磨低帮板鞋 柔酷X420734");
 		helper.insertBrokerSeed("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc","taobaoToken","wUd9Xo25bEl","0.0 xixi:/嘻wUd9Xo25bEl，  Brooks Brothers/布克兄弟男21夏新罗纹网眼条纹Logo款短袖Polo衫");
 	}
+	
+	@Test
+	public void createDefaultConnections() {
+		helper.createDefaultConnections("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc");
+	}
+	
+	@Test
+	public void createDefaultPersonas() {
+		helper.createDefaultPersonas("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc");
+	}
 }

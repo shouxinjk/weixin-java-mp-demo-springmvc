@@ -6,6 +6,7 @@ import com.github.binarywang.demo.wx.mp.config.iLifeConfig;
 import com.github.binarywang.demo.wx.mp.helper.HttpClientHelper;
 import com.github.binarywang.demo.wx.mp.service.WeixinService;
 import com.google.common.collect.Maps;
+import com.ilife.util.SxHelper;
 
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.session.WxSessionManager;
@@ -30,8 +31,10 @@ import java.util.Map;
  */
 @Component
 public class SubscribeHandler extends AbstractHandler {
-	  @Autowired
-	  private iLifeConfig ilifeConfig;	
+  @Autowired
+  private iLifeConfig ilifeConfig;	
+  @Autowired
+  private SxHelper sxHelper;
 	  
   @Override
   public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage, Map<String, Object> context, WxMpService wxMpService,
@@ -54,9 +57,11 @@ public class SubscribeHandler extends AbstractHandler {
     		if(result!=null && result.getString("_id")!=null) {//如果查到则表示用户已经建立，不做处理
     			//do nothing
     		}else {//把微信用户薅到本地，自己先留着
-			JSONObject user = JSONObject.parseObject(userWxInfo.toString());
-			user.put("_key", userWxInfo.getOpenId());//重要：使用openId作为key
-			result = HttpClientHelper.getInstance().post(ilifeConfig.getRegisterUserUrl(), user,header);    
+				JSONObject user = JSONObject.parseObject(userWxInfo.toString());
+				user.put("_key", userWxInfo.getOpenId());//重要：使用openId作为key
+				result = HttpClientHelper.getInstance().post(ilifeConfig.getRegisterUserUrl(), user,header);    
+				//建立关心的人
+				sxHelper.createDefaultConnections(userWxInfo.getOpenId());
 		}	
     }
 
@@ -237,7 +242,7 @@ public class SubscribeHandler extends AbstractHandler {
     }else {//如果是不带参数扫描则作为用户反馈信息：
 	    try {
 	      return new TextBuilder().build("Life is all about having a good time."
-	      		+ "\n\n我们的目标是成为您的私人生活助手，用全面的数据做出合理的消费决策，用小确幸丰富你的的大生活。 "
+	      		+ "\n\n我们的目标是成为你的专属生活助手，辅助理性消费决策，用小确幸丰富你的的大生活。 "
 	      		+ "\n\nEnjoy ~~", wxMessage, weixinService);
 	    } catch (Exception e) {
 	      this.logger.error(e.getMessage(), e);

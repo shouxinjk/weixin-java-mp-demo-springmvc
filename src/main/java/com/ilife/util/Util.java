@@ -12,6 +12,11 @@ public class Util {
 		return md5(source.getBytes());
 	}
 	
+	//取中间16位作为短码
+	public static String md5_short(String source) {
+		return md5(source.getBytes()).substring(8, 24);
+	}
+	
     public static String md5(byte[] source) {  
         String s = null;  
         char hexDigits[] = { // 用来将字节转换成 16 进制表示的字符  

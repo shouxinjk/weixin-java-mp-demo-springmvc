@@ -384,4 +384,70 @@ public class SxHelper {
 		  return img;
 	  }
 	  
+	  //给新加入用户添加关心的人：将 sxType=seed的用户添加到关心的人，如果已经存在则不再重新建立
+	  public void createDefaultConnections(String openId) {
+		  logger.debug("try to create default connections for user.[openId]"+openId);
+		  //查找sxType=seed的用户
+		  Map<String,Object> params = Maps.newHashMap();
+		  params.put("sxType", "seed");
+		  getArangoClient(); 
+		  String aql = "for doc in user_users filter doc.sxType==\"seed\" return doc";
+		  List<BaseDocument> seeds = arangoClient.query(aql, null, BaseDocument.class);
+		  if(seeds.size()==0) {
+			  logger.debug("no seed user found.");
+		  }
+		 for(BaseDocument doc:seeds) {
+			 logger.debug("create default user connections for user.[name]"+doc.getProperties().get("name"),doc);
+			 //创建一个伪用户
+			 String key = Util.md5_short(openId+doc.getKey());//以当前用户openId及种子用户Id计算MD5，取16位
+			 doc.setKey(key);
+			 doc.getProperties().remove("sxType");//一定要将sxType去掉
+			 try {//如果创建失败则不再执行关系建立
+				 arangoClient.insert("user_users", doc);
+				 //建立和指定用户的关联
+				 BaseDocument conn = new BaseDocument();
+				 conn.setKey(Util.md5_short(openId+key));//同一个用户对伪用户仅能有一个连接
+				 conn.addAttribute("_from", "user_users/"+openId);
+				 conn.addAttribute("_to", "user_users/"+key);
+				 conn.getProperties().put("name", doc.getProperties().get("relationship")==null?"我关心的TA":""+doc.getProperties().get("relationship"));
+				 arangoClient.insert("connections", conn);
+			 }catch(Exception ex) {
+				 logger.error("error occured while creating default personas.",ex);
+			 }
+		 }
+	  }
+	  
+	  //给新注册的达人添加默认画像：将 broker=system&sxType=seed的画像添加到达人，如果已经存在则不再重新建立
+	  //注意：通过达人的openId建立关系
+	  public void createDefaultPersonas(String openId) {
+		  logger.debug("try to create default connections for user.[openId]"+openId);
+		  //查找sxType=seed的画像
+		  Map<String,Object> params = Maps.newHashMap();
+		  params.put("sxType", "seed");
+		  getArangoClient(); 
+		  String aql = "for doc in persona_personas filter doc.sxType==\"seed\" and doc.broker==\"system\" return doc";
+		  List<BaseDocument> seeds = arangoClient.query(aql, null, BaseDocument.class);
+		  if(seeds.size()==0) {
+			  logger.debug("no seed persona found.");
+		  }
+		 for(BaseDocument doc:seeds) {
+			 logger.debug("create default persona connections for broker.[name]"+doc.getProperties().get("name"),doc);
+			 //创建一个画像，实际是复制
+			 String key = Util.md5_short(openId+doc.getKey());//以当前用户openId及种子用户Id计算MD5，取16位
+			 doc.setKey(key);
+			 doc.getProperties().put("broker", openId);
+			 doc.getProperties().remove("sxType");//一定要将sxType去掉
+			 try {//如果创建失败则不再执行关系建立
+				 arangoClient.insert("persona_personas", doc);
+				 //建立达人和画像的关联
+				 BaseDocument conn = new BaseDocument();
+				 conn.setKey(Util.md5_short(openId+key));//同一个用户对伪用户仅能有一个连接
+				 conn.addAttribute("_from", "user_users/"+openId);
+				 conn.addAttribute("_to", "persona_personas/"+key);
+				 arangoClient.insert("user_persona", conn);
+			 }catch(Exception ex) {
+				 logger.error("error occured while creating default personas.",ex);
+			 }
+		 }		  
+	  }
 }

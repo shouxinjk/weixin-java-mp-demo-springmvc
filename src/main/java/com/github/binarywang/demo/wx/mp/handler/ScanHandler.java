@@ -18,6 +18,7 @@ import com.github.binarywang.demo.wx.mp.builder.TextBuilder;
 import com.github.binarywang.demo.wx.mp.config.iLifeConfig;
 import com.github.binarywang.demo.wx.mp.helper.HttpClientHelper;
 import com.github.binarywang.demo.wx.mp.service.WeixinService;
+import com.ilife.util.SxHelper;
 
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.session.WxSessionManager;
@@ -33,9 +34,11 @@ import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
  */
 @Component
 public class ScanHandler extends AbstractHandler {
-	  @Autowired
-	  private iLifeConfig ilifeConfig;
-	  
+  @Autowired
+  private iLifeConfig ilifeConfig;
+  @Autowired
+  private SxHelper sxHelper;
+  
 private static final ObjectMapper JSON = new ObjectMapper();
 
 static {
@@ -69,7 +72,9 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 		}else {//把微信用户薅到本地，自己先留着
 			JSONObject user = JSONObject.parseObject(userWxInfo.toString());
 			user.put("_key", userWxInfo.getOpenId());//重要：使用openId作为key
-			result = HttpClientHelper.getInstance().post(ilifeConfig.getRegisterUserUrl(), user,header);    
+			result = HttpClientHelper.getInstance().post(ilifeConfig.getRegisterUserUrl(), user,header);   
+			//建立关心的人：对于直接通过关心的人添加，也需要添加默认connection
+			sxHelper.createDefaultConnections(userWxInfo.getOpenId());
 		} 	
   }
 
@@ -171,6 +176,8 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 		    			String brokerId = data.get("id").toString();
 		    			redirectUrl += "?brokerId="+brokerId;//根据该ID进行修改
 		    			redirectUrl += "&parentBrokerId="+params[1];//根据上级达人ID发送通知
+		    			//建立默认的客群画像便于推广
+						sxHelper.createDefaultPersonas(brokerId);
 		    			//注意：由于未填写电话和姓名，此处不发送注册完成通知给上级达人。待填写完成后再发送
 	    			}else {//否则返回界面根据openId和上级brokerId创建
 	    				redirectUrl += "?openId="+userWxInfo.getOpenId();
