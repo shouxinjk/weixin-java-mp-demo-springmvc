@@ -177,7 +177,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 		    			redirectUrl += "?brokerId="+brokerId;//根据该ID进行修改
 		    			redirectUrl += "&parentBrokerId="+params[1];//根据上级达人ID发送通知
 		    			//建立默认的客群画像便于推广
-						sxHelper.createDefaultPersonas(brokerId);
+						sxHelper.createDefaultPersonas(userWxInfo.getOpenId());//注意：根据openid建立客群关系，而不是brokerId
 		    			//注意：由于未填写电话和姓名，此处不发送注册完成通知给上级达人。待填写完成后再发送
 	    			}else {//否则返回界面根据openId和上级brokerId创建
 	    				redirectUrl += "?openId="+userWxInfo.getOpenId();
