@@ -640,19 +640,21 @@ XXXX
 				if(items.getJSONObject("hits").getJSONArray("hits").size()>0) {
 					//新建一个board
 					JSONObject board = helper.createNewBoard(json.getString("title"),json.getString("keyword"));
-					//获取10条结果
-					JSONArray itemArray = items.getJSONObject("hits").getJSONArray("hits");
-					for(int k=0;k<10&&k<itemArray.size();k++) {
-						JSONObject item = itemArray.getJSONObject(k);
-						//新建boardItem
-						helper.addBoardItem(board, item.getString("_key"), item.getString("title"), item.getString("summary"));
+					if( board!=null && board.getString("id")!=null) {//仅在board创建成功后再开始
+						//获取10条结果
+						JSONArray itemArray = items.getJSONObject("hits").getJSONArray("hits");
+						for(int k=0;k<10&&k<itemArray.size();k++) {
+							JSONObject item = itemArray.getJSONObject(k);
+							//新建boardItem
+							helper.addBoardItem(board, item.getString("_id"), item.getString("title"), item.getString("summary"));
+						}
+						keyword1 = board.getString("title");
+						keyword2 = "新建精选清单";
+						keyword3 = "根据内容分享到适合的客户或关心的人";
+						keyword4 = "已经为你准备好，关于 "+json.getString("keyword")+" 的清单，可以直接分享，也可以继续定制哦~~";
+						url = ilifeUrlPrefix+"/board2-waterfall.html?id="+board.getString("id");
+						valid = true;
 					}
-					keyword1 = board.getString("title");
-					keyword2 = "新建精选清单";
-					keyword3 = "根据内容分享到适合的客户或关心的人";
-					keyword4 = "已经为你准备好，关于 "+json.getString("keyword")+" 的清单，可以直接分享，也可以继续定制哦~~";
-					url = ilifeUrlPrefix+"/board2-waterfall.html?id="+board.getString("id");
-					valid = true;
 				}
 			}
 		}else if(json.getString("keyword")!=null) {//只要有keyword就直接返回列表

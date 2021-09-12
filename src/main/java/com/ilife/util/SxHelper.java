@@ -58,7 +58,7 @@ public class SxHelper {
 			  broker.put("id", "system");//固定为系统达人
 			  JSONObject board = new JSONObject();
 			  String boardId = Util.get32UUID();
-			  board.put("id", boardId);
+//			  board.put("id", boardId);//新建清单不能预先提供ID
 			  board.put("title", "确幸君 的推荐清单");//固定的标题
 			  board.put("keywords", keywords);//设置关键字
 			  board.put("tags", keywords);//设置tags与关键字完全相同
