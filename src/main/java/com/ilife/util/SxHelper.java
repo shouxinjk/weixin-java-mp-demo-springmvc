@@ -50,6 +50,53 @@ public class SxHelper {
 			arangoClient.close();
 		}
 		
+		  //新建Board
+		  public JSONObject createNewBoard(String title, String keywords) {
+			  String remote = ilifeConfig.getSxApi()+"/mod/board/rest/board";
+			  JSONObject broker = new JSONObject();
+			  broker.put("id", "system");//固定为系统达人
+			  JSONObject board = new JSONObject();
+			  String boardId = Util.get32UUID();
+			  board.put("id", boardId);
+			  board.put("title", "确幸君 的推荐清单");//固定的标题
+			  board.put("keywords", keywords);//设置关键字
+			  board.put("tags", keywords);//设置tags与关键字完全相同
+			  board.put("description", "关于 "+keywords+" 的最新清单，我们已经为你准备好了");//设置关键字
+			  board.put("broker", broker);
+			  JSONObject result = HttpClientHelper.getInstance().post(remote, board,null);
+			  logger.error("got result.",result);
+			  return result;
+		  }
+		  
+		  //新建BoardItem
+		  public JSONObject addBoardItem(String boardId,String itemId, String title,String description) {
+			  String remote = ilifeConfig.getSxApi()+"/mod/boardItem/rest/board-item";
+			  JSONObject board = new JSONObject();
+			  board.put("id", boardId);
+			  JSONObject boardItem = new JSONObject();
+			  boardItem.put("board", board);
+			  boardItem.put("item", itemId);
+			  boardItem.put("title", title);
+			  boardItem.put("description", description);
+			  boardItem.put("id", Util.md5(boardId+itemId));//以boardId+itemId为组合生成新的ID
+			  JSONObject result = HttpClientHelper.getInstance().get(remote, null,null);
+			  logger.error("got result.",result);
+			  return result;
+		  }
+		  //新建BoardItem
+		  public JSONObject addBoardItem(JSONObject board,String itemId, String title,String description) {
+			  String remote = ilifeConfig.getSxApi()+"/mod/boardItem/rest/board-item";
+			  JSONObject boardItem = new JSONObject();
+			  boardItem.put("board", board);
+			  boardItem.put("item", itemId);
+			  boardItem.put("title", title);
+			  boardItem.put("description", description);
+			  boardItem.put("id", Util.md5(board.getString("id")+itemId));//以boardId+itemId为组合生成新的ID
+			  JSONObject result = HttpClientHelper.getInstance().get(remote, null,null);
+			  logger.error("got result.",result);
+			  return result;
+		  }
+		  
 		  //查询得到Board
 		  public JSONObject getBoardById(String id) {
 			  String remote = ilifeConfig.getSxApi()+"/mod/board/rest/"+id;

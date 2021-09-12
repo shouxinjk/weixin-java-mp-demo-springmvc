@@ -631,7 +631,27 @@ XXXX
 					keyword2 = "精选清单";
 					keyword3 = "分享到适合的客户或关心的人";
 					keyword4 = "长期有效，还可以定制自己的清单哦~~";
-					url = ilifeUrlPrefix+"/board2.html?id="+json.getString("id");
+					url = ilifeUrlPrefix+"/board2-waterfall.html?id="+json.getString("id");
+					valid = true;
+				}
+			}else {//否则根据关键字生成新的清单：以关键字前10条为item添加到列表
+				//首先查出10条符合的结果
+				JSONObject items = helper.searchByKeyword(json.getString("keyword")==null?"":json.getString("keyword"));
+				if(items.getJSONObject("hits").getJSONArray("hits").size()>0) {
+					//新建一个board
+					JSONObject board = helper.createNewBoard(json.getString("title"),json.getString("keyword"));
+					//获取10条结果
+					JSONArray itemArray = items.getJSONObject("hits").getJSONArray("hits");
+					for(int k=0;k<10&&k<itemArray.size();k++) {
+						JSONObject item = itemArray.getJSONObject(k);
+						//新建boardItem
+						helper.addBoardItem(board, item.getString("_key"), item.getString("title"), item.getString("summary"));
+					}
+					keyword1 = board.getString("title");
+					keyword2 = "新建精选清单";
+					keyword3 = "根据内容分享到适合的客户或关心的人";
+					keyword4 = "已经为你准备好，关于 "+json.getString("keyword")+" 的清单，可以直接分享，也可以继续定制哦~~";
+					url = ilifeUrlPrefix+"/board2-waterfall.html?id="+board.getString("id");
 					valid = true;
 				}
 			}
