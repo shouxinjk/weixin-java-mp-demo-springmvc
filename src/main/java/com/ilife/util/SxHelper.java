@@ -80,7 +80,7 @@ public class SxHelper {
 			  boardItem.put("item", itemId);
 			  boardItem.put("title", title);
 			  boardItem.put("description", description);
-			  boardItem.put("id", Util.md5(boardId+itemId));//以boardId+itemId为组合生成新的ID
+//			  boardItem.put("id", Util.md5(boardId+itemId));//以boardId+itemId为组合生成新的ID
 			  JSONObject result = HttpClientHelper.getInstance().post(remote, null,null);
 			  logger.debug("board item added.",result);
 			  return result;
@@ -94,7 +94,7 @@ public class SxHelper {
 			  boardItem.put("item", itemId);
 			  boardItem.put("title", title);
 			  boardItem.put("description", description);
-			  boardItem.put("id", Util.md5(board.getString("id")+itemId));//以boardId+itemId为组合生成新的ID
+//			  boardItem.put("id", Util.md5(board.getString("id")+itemId));//以boardId+itemId为组合生成新的ID
 			  JSONObject result = HttpClientHelper.getInstance().post(remote, null,null);
 			  logger.error("board item added.",result);
 			  return result;
