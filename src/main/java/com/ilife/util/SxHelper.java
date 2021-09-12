@@ -52,6 +52,7 @@ public class SxHelper {
 		
 		  //新建Board
 		  public JSONObject createNewBoard(String title, String keywords) {
+			  logger.debug("try to create new board.[title]"+title+"[keywords]"+keywords);
 			  String remote = ilifeConfig.getSxApi()+"/mod/board/rest/board";
 			  JSONObject broker = new JSONObject();
 			  broker.put("id", "system");//固定为系统达人
@@ -64,12 +65,13 @@ public class SxHelper {
 			  board.put("description", "关于 "+keywords+" 的最新清单，我们已经为你准备好了");//设置关键字
 			  board.put("broker", broker);
 			  JSONObject result = HttpClientHelper.getInstance().post(remote, board,null);
-			  logger.error("got result.",result);
+			  logger.debug("board created.",result);
 			  return result;
 		  }
 		  
 		  //新建BoardItem
 		  public JSONObject addBoardItem(String boardId,String itemId, String title,String description) {
+			  logger.debug("try to add item to board.[boardId]"+boardId+"[itemId]"+itemId);
 			  String remote = ilifeConfig.getSxApi()+"/mod/boardItem/rest/board-item";
 			  JSONObject board = new JSONObject();
 			  board.put("id", boardId);
@@ -79,12 +81,13 @@ public class SxHelper {
 			  boardItem.put("title", title);
 			  boardItem.put("description", description);
 			  boardItem.put("id", Util.md5(boardId+itemId));//以boardId+itemId为组合生成新的ID
-			  JSONObject result = HttpClientHelper.getInstance().get(remote, null,null);
-			  logger.error("got result.",result);
+			  JSONObject result = HttpClientHelper.getInstance().post(remote, null,null);
+			  logger.debug("board item added.",result);
 			  return result;
 		  }
 		  //新建BoardItem
 		  public JSONObject addBoardItem(JSONObject board,String itemId, String title,String description) {
+			  logger.debug("try to add item to board.[boardId]"+board.getString("id")+"[itemId]"+itemId);
 			  String remote = ilifeConfig.getSxApi()+"/mod/boardItem/rest/board-item";
 			  JSONObject boardItem = new JSONObject();
 			  boardItem.put("board", board);
@@ -92,8 +95,8 @@ public class SxHelper {
 			  boardItem.put("title", title);
 			  boardItem.put("description", description);
 			  boardItem.put("id", Util.md5(board.getString("id")+itemId));//以boardId+itemId为组合生成新的ID
-			  JSONObject result = HttpClientHelper.getInstance().get(remote, null,null);
-			  logger.error("got result.",result);
+			  JSONObject result = HttpClientHelper.getInstance().post(remote, null,null);
+			  logger.error("board item added.",result);
 			  return result;
 		  }
 		  
