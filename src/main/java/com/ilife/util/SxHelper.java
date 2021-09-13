@@ -129,10 +129,15 @@ public class SxHelper {
 		
 	/**
 	 * 向ElasticSearch发起搜索。并返回hits
+	 * 仅返回1条
 	 * @param keyword
 	 * @return
 	 */
 	  public JSONObject searchByKeyword(String keyword) {
+		  return searchByKeyword(keyword,1);
+	  }
+	  
+	  public JSONObject searchByKeyword(String keyword, int size) {
 		  Map<String,String> header = Maps.newHashMap();
           header.put("Content-Type","application/json");
           header.put("Authorization","Basic ZWxhc3RpYzpjaGFuZ2VtZQ==");
@@ -140,6 +145,7 @@ public class SxHelper {
           String query = esQuery.replace("__keyword", keyword);
           logger.debug("try to search by query. " + query);
 		  JSONObject data = JSONObject.parseObject(query);
+		  data.put("size", size);
 		  
 		  JSONObject result = HttpClientHelper.getInstance().post(esUrl, data,header);
 		  logger.debug("got result. " + result);

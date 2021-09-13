@@ -636,7 +636,7 @@ XXXX
 				}
 			}else {//否则根据关键字生成新的清单：以关键字前10条为item添加到列表
 				//首先查出10条符合的结果
-				JSONObject items = helper.searchByKeyword(json.getString("keyword")==null?"":json.getString("keyword"));
+				JSONObject items = helper.searchByKeyword(json.getString("keyword")==null?"":json.getString("keyword"),10);
 				if(items.getJSONObject("hits").getJSONArray("hits").size()>0) {
 					//新建一个board
 					JSONObject board = helper.createNewBoard(json.getString("title"),json.getString("keyword")).getJSONObject("data");
