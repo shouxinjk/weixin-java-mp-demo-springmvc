@@ -58,14 +58,15 @@ public class SxHelper {
 			  broker.put("id", "system");//固定为系统达人
 			  JSONObject board = new JSONObject();
 			  String boardId = Util.get32UUID();
-//			  board.put("id", boardId);//新建清单不能预先提供ID
+			  board.put("id", boardId);//指定ID，保存后需要使用该ID查询
+			  board.put("isNewRecord", true);//新建而不是更新
 			  board.put("title", "确幸君 的推荐清单");//固定的标题
 			  board.put("keywords", keywords);//设置关键字
 			  board.put("tags", keywords);//设置tags与关键字完全相同
 			  board.put("description", "关于 "+keywords+" 的最新清单，我们已经为你准备好了");//设置关键字
 			  board.put("broker", broker);
 			  JSONObject result = HttpClientHelper.getInstance().post(remote, board,null);
-			  logger.debug("board created.",result);
+			  logger.debug("board created.[id]"+result.getString("id"));
 			  return result;
 		  }
 		  
@@ -81,6 +82,7 @@ public class SxHelper {
 			  boardItem.put("title", title);
 			  boardItem.put("description", description);
 //			  boardItem.put("id", Util.md5(boardId+itemId));//以boardId+itemId为组合生成新的ID
+//			  boardItem.put("isNewRecord", true);//新建一个记录
 			  JSONObject result = HttpClientHelper.getInstance().post(remote, null,null);
 			  logger.debug("board item added.",result);
 			  return result;

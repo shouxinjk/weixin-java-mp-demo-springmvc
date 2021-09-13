@@ -242,7 +242,7 @@ public class SubscribeHandler extends AbstractHandler {
     }else {//如果是不带参数扫描则作为用户反馈信息：
 	    try {
 	      return new TextBuilder().build("Life is all about having a good time."
-	      		+ "\n\n我们的目标是成为你的专属生活助手，辅助理性消费决策，用小确幸丰富你的的大生活。 "
+	      		+ "\n\n感谢关注，小确幸大生活的目标就是，用小确幸装满你的的大生活。 "
 	      		+ "\n\nEnjoy ~~", wxMessage, weixinService);
 	    } catch (Exception e) {
 	      this.logger.error(e.getMessage(), e);
