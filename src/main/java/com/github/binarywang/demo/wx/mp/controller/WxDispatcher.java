@@ -640,7 +640,7 @@ XXXX
 				if(items.getJSONObject("hits").getJSONArray("hits").size()>0) {
 					//新建一个board
 					JSONObject board = helper.createNewBoard(json.getString("title"),json.getString("keyword"));
-					if( board!=null && board.getString("id")!=null) {//仅在board创建成功后再开始
+					if( board!=null && board.getJSONObject("data")!=null && board.getJSONObject("data").getString("id")!=null) {//仅在board创建成功后再开始
 						//获取10条结果
 						JSONArray itemArray = items.getJSONObject("hits").getJSONArray("hits");
 						for(int k=0;k<10&&k<itemArray.size();k++) {
