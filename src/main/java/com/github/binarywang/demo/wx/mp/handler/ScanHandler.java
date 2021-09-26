@@ -164,7 +164,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	    			data.put("hierarchy", "9");
 	    			data.put("level", "推广达人");
 	    			data.put("upgrade", "无");
-	    			data.put("status", "pending");
+	    			data.put("status", "ready");//默认直接设置为ready，后续接收清单推送
 	    			data.put("openid", userWxInfo.getOpenId());
 	    			//data.put("name", "测试账户");//等待用户自己填写
 	    			//data.put("phone", "12345678");//等待用户自己填写
