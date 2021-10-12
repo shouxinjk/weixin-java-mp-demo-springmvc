@@ -241,8 +241,8 @@ public class SubscribeHandler extends AbstractHandler {
     		}  
     }else {//如果是不带参数扫描则作为用户反馈信息：
 	    try {
-	      return new TextBuilder().build("Life is all about having a good time."
-	      		+ "\n\n感谢关注，小确幸大生活的目标就是，用小确幸装满你的的大生活。 "
+	      return new TextBuilder().build("感谢关注。\nLife is all about having a good time."
+	      		+ "\n\n在噪声里识别信息，消费避坑，广告祛魅，用数据智能辅助生活决策；\n在日常中建立第二收入，自购省钱，分享赚钱，个性化推荐优选商品。\n让决策更好，让生活更美。"
 	      		+ "\n\nEnjoy ~~", wxMessage, weixinService);
 	    } catch (Exception e) {
 	      this.logger.error(e.getMessage(), e);
