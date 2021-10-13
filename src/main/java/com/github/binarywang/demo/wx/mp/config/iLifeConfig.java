@@ -25,6 +25,15 @@ public class iLifeConfig {
   @Value("#{ilifePropertyies.data_api}")
   private String dataApi;
 
+  @Value("#{ilifePropertyies.auto_register_broker}")
+  private boolean autoRegisterBroker;
+  
+  @Value("#{ilifePropertyies.default_parent_broker_id}")
+  private String defaultParentBrokerId;
+  
+  @Value("#{ilifePropertyies.default_parent_broker_openid}")
+  private String defaultParentBrokerOpenid;
+  
   @Value("#{ilifePropertyies.sx_api}")
   private String sxApi;
   
@@ -57,7 +66,31 @@ public class iLifeConfig {
     return this.dataApi;
   }
   
-  public String getConnectUserUrl() {
+  public boolean isAutoRegisterBroker() {
+	return autoRegisterBroker;
+}
+
+public void setAutoRegisterBroker(boolean autoRegisterBroker) {
+	this.autoRegisterBroker = autoRegisterBroker;
+}
+
+public String getDefaultParentBrokerId() {
+	return defaultParentBrokerId;
+}
+
+public void setDefaultParentBrokerId(String defaultParentBrokerId) {
+	this.defaultParentBrokerId = defaultParentBrokerId;
+}
+
+public String getDefaultParentBrokerOpenid() {
+	return defaultParentBrokerOpenid;
+}
+
+public void setDefaultParentBrokerOpenid(String defaultParentBrokerOpenid) {
+	this.defaultParentBrokerOpenid = defaultParentBrokerOpenid;
+}
+
+public String getConnectUserUrl() {
     return this.connectUserUrl;
   }
     

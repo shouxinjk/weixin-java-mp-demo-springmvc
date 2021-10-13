@@ -184,7 +184,7 @@ public class WxDispatcher {
       	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html")//跳转到团队页面
       	      .build();
 
-  	    templateMessage.addData(new WxMpTemplateData("first", "有新成员加入团队"))
+  	    templateMessage.addData(new WxMpTemplateData("first", "新成员信息补充"))
   	    		.addData(new WxMpTemplateData("keyword1", params.get("name")))
   	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
   	    		.addData(new WxMpTemplateData("remark", "为让团队变的更强大，点击协助TA完成设置并开始推荐。\n\n姓名："+params.get("name")+"\n电话："+params.get("phone")));
@@ -246,6 +246,12 @@ public class WxDispatcher {
 		platforms.put("dangdang", "当当网");
 		platforms.put("dhc", "DHC");
 		platforms.put("amazon", "亚马逊");
+		platforms.put("pdd", "拼多多");
+		platforms.put("vip", "唯品会");
+		platforms.put("gome", "国美");
+		platforms.put("suning", "苏宁");
+		platforms.put("meituan", "美团");
+		platforms.put("kaola", "网易考拉");
 		
 		String remark = "";
 		//remark+=params.get("item")!=null?"商品名称："+params.get("item"):"";

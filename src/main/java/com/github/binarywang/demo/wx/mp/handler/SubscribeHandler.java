@@ -35,7 +35,10 @@ public class SubscribeHandler extends AbstractHandler {
   private iLifeConfig ilifeConfig;	
   @Autowired
   private SxHelper sxHelper;
-	  
+  
+	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+  
   @Override
   public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage, Map<String, Object> context, WxMpService wxMpService,
                                   WxSessionManager sessionManager) throws WxErrorException {
@@ -78,8 +81,6 @@ public class SubscribeHandler extends AbstractHandler {
 
     
     if(userWxInfo.getQrSceneStr().trim().length()>0) {
-    		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    		SimpleDateFormat dateFormatLong = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
     		if(params.length<2) {//如果无识别标识，不做任何处理
     			logger.error("Wrong scene str.[str]"+userWxInfo.getQrSceneStr());
@@ -230,23 +231,67 @@ public class SubscribeHandler extends AbstractHandler {
 		        	      .url(redirectUrl)
 		        	      .build();
 		
-		        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，您已成功注册达人"))
+		        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，恭喜成功注册达人"))
 		        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
 		        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
-		        	    		.addData(new WxMpTemplateData("remark", "自购省钱，分享赚钱。为完成审核，还需要填写真实姓名和电话号码，请点击完善。","#FF0000"));
+		        	    		.addData(new WxMpTemplateData("remark", "自购省钱，分享赚钱。为立即开始，请填写真实姓名和电话号码，请点击卡片，一步即可完善。","#FF0000"));
 		        	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg);  
+			     //发送通知信息给上级达人
+		         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+	        	      .toUser(parentBrokerJson.getJSONObject("data").getString("openid"))//上级达人的openid
+	        	      .templateId(ilifeConfig.getMsgIdBroker())
+	        	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html")//跳转到团队页面
+	        	      .build();
+	
+	    	    templateMessage.addData(new WxMpTemplateData("first", "有新成员加入团队"))
+	    	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
+	    	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
+	    	    		.addData(new WxMpTemplateData("remark", "请进入团队列表查看。","#FF0000"));
+	    	      msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
     			}
     		}else {//场景错误
     			logger.error("Unsupport scene str.[str]"+userWxInfo.getQrSceneStr());
     		}  
     }else {//如果是不带参数扫描则作为用户反馈信息：
-	    try {
-	      return new TextBuilder().build("感谢关注。\nLife is all about having a good time."
-	      		+ "\n\n在噪声里识别信息，消费避坑，广告祛魅，用数据智能辅助生活决策；\n在日常中建立第二收入，自购省钱，分享赚钱，个性化推荐优选商品。\n让决策更好，让生活更美。"
-	      		+ "\n\nEnjoy ~~", wxMessage, weixinService);
-	    } catch (Exception e) {
-	      this.logger.error(e.getMessage(), e);
-	    }
+    	if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
+			  try {
+				  //自动注册为达人
+				  String redirectUrl = registerBroker(userWxInfo.getOpenId(),userWxInfo.getNickname());
+				  //返回通知消息：给新注册达人
+			        WxMpTemplateMessage welcomeMsg = WxMpTemplateMessage.builder()
+			        	      .toUser(userWxInfo.getOpenId())
+			        	      .templateId(ilifeConfig.getMsgIdBroker())//oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk
+			        	      .url(redirectUrl)
+			        	      .build();
+			
+			        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，感谢关注"))
+			        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
+			        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
+			        	    		.addData(new WxMpTemplateData("remark", "我们同时提供了自购省钱、分享赚钱功能，点击注册就可以马上开始哦。","#FF0000"));
+			       String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg); 
+					  //返回通知消息：给新默认达人用户
+			        WxMpTemplateMessage notifymsg = WxMpTemplateMessage.builder()
+			        	      .toUser(ilifeConfig.getDefaultParentBrokerOpenid())//发送给指定达人账户：Judy胆小心不细
+			        	      .templateId(ilifeConfig.getMsgIdBroker())//oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk
+			        	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html")//跳转到团队页面
+			        	      .build();
+			
+			        notifymsg.addData(new WxMpTemplateData("first", "有新关注用户，且已经自动注册达人"))
+			        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
+			        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
+			        	    		.addData(new WxMpTemplateData("remark", "请进入团队列表查看。","#FF0000"));
+			       msgId = weixinService.getTemplateMsgService().sendTemplateMsg(notifymsg); 
+			  }catch(Exception ex) {
+				  //如果失败了，则直接返回欢迎信息
+				  return new TextBuilder().build("感谢关注。\nLife is all about having a good time."
+				      		+ "\n\n在噪声里识别信息，消费避坑，广告祛魅，用数据智能辅助生活决策；\n\n在日常中建立第二收入，自购省钱，分享赚钱，个性化推荐优选商品。\n让决策更好，让生活更美。"
+				      		+ "\nEnjoy ~~", wxMessage, weixinService);
+			  }
+		  }else {
+			      return new TextBuilder().build("感谢关注。\nLife is all about having a good time."
+				      		+ "\n\n在噪声里识别信息，消费避坑，广告祛魅，用数据智能辅助生活决策；\n\n在日常中建立第二收入，自购省钱，分享赚钱，个性化推荐优选商品。\n让决策更好，让生活更美。"
+				      		+ "\nEnjoy ~~", wxMessage, weixinService);
+		  }
     }
 
     return null;
@@ -260,5 +305,63 @@ public class SubscribeHandler extends AbstractHandler {
     //TODO
     return null;
   }
+  
+
+	private String registerBroker(String openid,String nickname) {
+		String redirectUrl = ilifeConfig.getUpdateBrokerUrl();
+		//准备发起HTTP请求：设置data server Authorization
+		Map<String,String> header = new HashMap<String,String>();
+		header.put("Authorization","Basic aWxpZmU6aWxpZmU=");
+		//根据openId查找是否已经注册达人
+		JSONObject result = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerByOpenid/"+openid,null, header);
+		if(result!=null && result.getBooleanValue("status")) {//已经注册达人
+			//do nothing
+		}else {//如果不是达人，则完成注册
+			String url = ilifeConfig.getRegisterBrokerUrl()+ilifeConfig.getDefaultParentBrokerId();//固定达人ID 
+			JSONObject data = new JSONObject();
+			data.put("hierarchy", "3");//是一个3级达人
+			data.put("level", "推广达人");
+			data.put("upgrade", "无");
+			data.put("status", "ready");//默认直接设置为ready，后续接收清单推送
+			data.put("openid", openid);
+			data.put("name", nickname);//默认用nickName
+			//data.put("phone", "12345678");//等待用户自己填写
+
+			result = HttpClientHelper.getInstance().post(url, data);
+			if(result.get("data")!=null) {//创建成功，则返回修改界面
+  			data = (JSONObject)result.get("data");
+  			String brokerId = data.get("id").toString();
+  			redirectUrl += "?brokerId="+brokerId;//根据该ID进行修改
+  			redirectUrl += "&parentBrokerId="+ilifeConfig.getDefaultParentBrokerId();//根据上级达人ID发送通知
+  			//建立默认的客群画像便于推广
+				sxHelper.createDefaultPersonas(openid);//注意：根据openid建立客群关系，而不是brokerId
+  			//注意：由于未填写电话和姓名，此处不发送注册完成通知给上级达人。待填写完成后再发送
+			}else {//否则返回界面根据openId和上级brokerId创建
+				redirectUrl += "?openId="+openid;
+				redirectUrl += "&parentBrokerId="+ilifeConfig.getDefaultParentBrokerId();
+			}
+			
+			//将推荐者加为当前用户好友：要不然这个新加入的达人就找不到TA的推荐者的么
+			//检查用户关联是否存在:对于特殊情况，用户已经添加好友，然后取消关注，再次扫码关注后避免重复建立关系
+			JSONObject parentBrokerJson = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerById/"+ilifeConfig.getDefaultParentBrokerId(), null, header);
+			JSONObject example = new JSONObject();
+			example.put("_from", "user_users/"+openid);
+			example.put("_to", "user_users/"+parentBrokerJson.getJSONObject("data").getString("openid"));
+			JSONObject query = new JSONObject();
+			query.put("collection", "connections");
+			query.put("example", example);
+			result = HttpClientHelper.getInstance().put(ilifeConfig.getDataApi()+"/_api/simple/by-example", query, header);
+			if(result!=null && result.getIntValue("count")>0) {//该关联已经存在。不做任何处理。
+				//do nothing
+			}else {
+				JSONObject conn = new JSONObject();
+				conn.put("_from", "user_users/"+openid);//端是新加入的用户
+				conn.put("_to", "user_users/"+parentBrokerJson.getJSONObject("data").getString("openid"));//源是推荐者
+				conn.put("name", "上级达人");//关系名称
+				result = HttpClientHelper.getInstance().post(ilifeConfig.getConnectUserUrl(), conn,header);
+			}
+		}
+		return redirectUrl;
+	}
 
 }
