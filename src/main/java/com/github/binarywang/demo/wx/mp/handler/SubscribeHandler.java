@@ -282,16 +282,15 @@ public class SubscribeHandler extends AbstractHandler {
 			        	    		.addData(new WxMpTemplateData("remark", "请进入团队列表查看。","#FF0000"));
 			       msgId = weixinService.getTemplateMsgService().sendTemplateMsg(notifymsg); 
 			  }catch(Exception ex) {
-				  //如果失败了，则直接返回欢迎信息
-				  return new TextBuilder().build("感谢关注。\nLife is all about having a good time."
-				      		+ "\n\n在噪声里识别信息，消费避坑，广告祛魅，用数据智能辅助生活决策；\n\n在日常中建立第二收入，自购省钱，分享赚钱，个性化推荐优选商品。\n让决策更好，让生活更美。"
-				      		+ "\nEnjoy ~~", wxMessage, weixinService);
+				  //do nothing
 			  }
 		  }else {
-			      return new TextBuilder().build("感谢关注。\nLife is all about having a good time."
-				      		+ "\n\n在噪声里识别信息，消费避坑，广告祛魅，用数据智能辅助生活决策；\n\n在日常中建立第二收入，自购省钱，分享赚钱，个性化推荐优选商品。\n让决策更好，让生活更美。"
-				      		+ "\nEnjoy ~~", wxMessage, weixinService);
+			  //否则啥也不干
 		  }
+		  //最后都要返回申明
+		  return new TextBuilder().build("感谢关注。\nLife is all about having a good time."
+		      		+ "\n\n在噪声里识别信息，消费避坑，广告祛魅，用数据智能辅助生活决策；\n\n在日常中建立第二收入，自购省钱，分享赚钱，个性化推荐优选商品。\n让决策更好，让生活更美。"
+		      		+ "\nEnjoy ~~", wxMessage, weixinService);
     }
 
     return null;
