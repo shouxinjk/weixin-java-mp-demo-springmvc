@@ -12,7 +12,10 @@ import jdk.nashorn.internal.objects.annotations.Getter;
 public class iLifeConfig {
   @Value("#{ilifePropertyies.register_broker_url}")
   private String registerBrokerUrl;
-
+  
+  @Value("#{ilifePropertyies.disable_broker_url}")
+  private String disableBrokerUrl;
+  
   @Value("#{ilifePropertyies.update_broker_url}")
   private String updateBrokerUrl;
   
@@ -66,7 +69,15 @@ public class iLifeConfig {
     return this.dataApi;
   }
   
-  public boolean isAutoRegisterBroker() {
+  public String getDisableBrokerUrl() {
+	return disableBrokerUrl;
+}
+
+public void setDisableBrokerUrl(String disableBrokerUrl) {
+	this.disableBrokerUrl = disableBrokerUrl;
+}
+
+public boolean isAutoRegisterBroker() {
 	return autoRegisterBroker;
 }
 
