@@ -1,6 +1,8 @@
 package com.github.binarywang.demo.wx.mp.controller;
 
 import com.github.binarywang.demo.wx.mp.service.WeixinService;
+import com.ilife.util.CacheSingletonUtil;
+
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import org.apache.commons.lang3.StringUtils;
@@ -57,6 +59,18 @@ public class WxMpPortalController {
     if (encType == null) {
       // 明文传输的消息
       WxMpXmlMessage inMessage = WxMpXmlMessage.fromXml(requestBody);
+      // 判断是否是达人绑定扫码事件
+      String sceneStr = ""+inMessage.getEventKey();
+      logger.info("===event key====\n"+sceneStr);
+      if(sceneStr.indexOf("Bind::")>-1) {
+    	  String[] bindInfo = sceneStr.split("::");
+    	  if(bindInfo.length>1) {
+    		  String openid = ""+inMessage.getFromUser();
+    		  logger.info("===bind account====\n"+openid);
+    		  CacheSingletonUtil.getInstance().addCacheData(bindInfo[1], openid);
+    	  }
+      }
+      // end 达人账户绑定
       WxMpXmlOutMessage outMessage = this.wxService.route(inMessage);
       if (outMessage == null) {
         return "";
@@ -68,6 +82,20 @@ public class WxMpPortalController {
       WxMpXmlMessage inMessage = WxMpXmlMessage.fromEncryptedXml(requestBody,
         this.wxService.getWxMpConfigStorage(), timestamp, nonce, msgSignature);
       this.logger.debug("\n消息解密后内容为：\n{} ", inMessage.toString());
+      
+      // 判断是否是达人绑定扫码事件
+      String sceneStr = ""+inMessage.getEventKey();
+      logger.info("===event key====\n"+sceneStr);
+      if(sceneStr.indexOf("Bind::")>-1) {
+    	  String[] bindInfo = sceneStr.split("::");
+    	  if(bindInfo.length>1) {
+    		  String openid = ""+inMessage.getFromUser();
+    		  logger.info("===bind account====\n"+openid);
+    		  CacheSingletonUtil.getInstance().addCacheData(bindInfo[1], openid);
+    	  }
+      }
+      // end 达人账户绑定
+      
       WxMpXmlOutMessage outMessage = this.wxService.route(inMessage);
       if (outMessage == null) {
         return "";
