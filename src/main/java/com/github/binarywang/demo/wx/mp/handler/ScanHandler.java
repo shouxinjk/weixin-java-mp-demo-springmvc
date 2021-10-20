@@ -89,7 +89,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	  if(userWxInfo.getQrSceneStr().trim().length()>0) {
 	  		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
 	  		if(params.length<2) {//如果无识别标识，不做任何处理
-	  			logger.error("Wrong scene str.[str]"+userWxInfo.getQrSceneStr());
+	  			logger.error("\n\nWrong scene str.[str]"+userWxInfo.getQrSceneStr());
 	  		}else if("User".equalsIgnoreCase(params[0])) {//如果是用户邀请则检查关联是否存在
 				//如果有shadowUserId则使用shadowUser更新当前用户：每扫一次都更新一次
 				if(params.length>2) {
@@ -238,7 +238,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
             	      msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
 	  			}
 	  		}else if("Bind".equalsIgnoreCase(params[0])) {//在选品工具中扫码绑定达人账号。Bind::uuid，uuid为本次扫码使用的唯一识别码
-	  			logger.debug("got Scan event.[type]Bind[Scene]"+userWxInfo.getQrSceneStr());
+	  			logger.debug("\n\ngot Scan event.[type]Bind[Scene]"+userWxInfo.getQrSceneStr());
 	  			//根据openId查找是否已经注册达人
 	  			result = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerByOpenid/"+userWxInfo.getOpenId(),null, header);
 	  			if(result!=null && result.getBooleanValue("status")) {//已经注册达人

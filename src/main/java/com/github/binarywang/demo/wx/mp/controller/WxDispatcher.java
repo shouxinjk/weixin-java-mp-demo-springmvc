@@ -177,9 +177,9 @@ public class WxDispatcher {
 	@ResponseBody
 	public Map<String, Object> generateBindQRCode() throws WxErrorException, IOException {
 		Map<String, Object> result = Maps.newHashMap();
-		String uuid = Util.get32UUID();
+		String uuid = Util.md5_short(Util.get32UUID());//使用短码，长了会导致二维码生成场景值错误
 		logger.debug("try to generate temp QRcode for binding.[uuid]"+uuid);
-		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket("Bind::"+uuid,2592000);//有效期30天，注意场景值长度不能超过64
+		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket("bind::"+uuid,2592000);//有效期30天，注意场景值长度不能超过64
 		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
 		logger.debug("Got QRcode URL. [URL]",url);
 		Map<String, Object> data = Maps.newHashMap();
