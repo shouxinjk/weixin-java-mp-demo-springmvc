@@ -23,7 +23,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.binarywang.demo.wx.mp.config.iLifeConfig;
 import com.github.binarywang.demo.wx.mp.service.WeixinService;
 import com.google.common.collect.Maps;
+import com.ilife.util.CacheSingletonUtil;
 import com.ilife.util.SxHelper;
+import com.ilife.util.Util;
 import com.thoughtworks.xstream.XStream;
 
 import me.chanjar.weixin.common.api.WxConsts;
@@ -161,6 +163,50 @@ public class WxDispatcher {
 		result.put("status",true);
 		result.put("data",data);
 		result.put("description","User Temp QRCode created successfully");
+		return result;
+	}	
+	
+
+	/**
+	 * 生成绑定账户二维码
+	 * 该二维码仅用于采集工具、选品工具。达人扫码后前端能够得到绑定的openid
+	 * 二维码格式为：Bind::UUID,
+	 * 其中UUID为当前二维码识别标志，扫码完成后前端将根据该标志查询扫码用户的openId
+	 */
+	@RequestMapping("/bind-qrcode")
+	@ResponseBody
+	public Map<String, Object> generateBindQRCode() throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		String uuid = Util.get32UUID();
+		logger.debug("try to generate temp QRcode for binding.[uuid]"+uuid);
+		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket("Bind::"+uuid,2592000);//有效期30天，注意场景值长度不能超过64
+		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
+		logger.debug("Got QRcode URL. [URL]",url);
+		Map<String, Object> data = Maps.newHashMap();
+		data.put("id", uuid);//返回前端，后续将根据该id查询扫码用户的openId
+		data.put("url", url);
+		result.put("status",true);
+		result.put("data",data);
+		result.put("description","Binding QRCode created successfully");
+		return result;
+	}	
+	
+	/**
+	 * 根据UUID查询扫码用户的openid
+	 * 用于选品工具、采集工具达人扫码绑定
+	 */
+	@RequestMapping("/bind-openid")
+	@ResponseBody
+	public Map<String, Object> getBindingBrokerOpenid(@RequestParam("uuid")String uuid) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.debug("try to get binding openid by uuid.[uuid]"+uuid);
+		Object obj = CacheSingletonUtil.getInstance().getCacheData(uuid);
+		result.put("status",obj==null?false:true);
+		result.put("openid",obj);
+		result.put("description",obj==null?"Not ready yet.":"ready");
+		if(obj!=null){//仅返回一次，查询得到后即删除
+			CacheSingletonUtil.getInstance().removeCacheData(uuid);
+		}
 		return result;
 	}	
 	
