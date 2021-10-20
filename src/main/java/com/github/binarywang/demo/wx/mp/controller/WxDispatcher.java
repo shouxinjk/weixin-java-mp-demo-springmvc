@@ -179,10 +179,9 @@ public class WxDispatcher {
 		Map<String, Object> result = Maps.newHashMap();
 		String uuid = Util.md5_short(Util.get32UUID());//使用短码，长了会导致二维码生成场景值错误
 		logger.debug("try to generate temp QRcode for binding.[uuid]"+uuid);
-		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket("bind::"+uuid,2592000);//有效期30天，注意场景值长度不能超过64
+		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket("Bind::"+uuid,2592000);//有效期30天，注意场景值长度不能超过64
 		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
 		logger.debug("Got QRcode URL. [URL]",url);
-		Map<String, Object> data = Maps.newHashMap();
 		result.put("ticket", uuid);//返回前端，后续将根据该id查询扫码用户的openId
 		result.put("url", url);
 		result.put("status",true);

@@ -64,7 +64,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	
 	  // 获取微信用户基本信息
 	  WxMpUser userWxInfo = weixinService.getUserService().userInfo(wxMessage.getFromUser(), null);
-	
+
 	  //准备发起HTTP请求：设置data server Authorization
 	  Map<String,String> header = new HashMap<String,String>();
 	  header.put("Authorization","Basic aWxpZmU6aWxpZmU=");
@@ -342,7 +342,12 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	  			logger.error("Unsupport scene str.[str]"+userWxInfo.getQrSceneStr());
 	  		}  
 	  }else {//如果是不带参数扫描则作为用户反馈信息：
-		  if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
+		  	//根据openId查找是否已经注册达人
+			result = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerByOpenid/"+userWxInfo.getOpenId(),null, header);
+			if(result!=null && result.getBooleanValue("status")) {//特殊情况：已经注册打人后取消关注，再次扫码关注时还是保留原来的达人信息，不另外新建记录
+				//能到这里，说明这货之前已经加入达人，但是又取消关注了。发个消息提示一下就可以了
+				return new TextBuilder().build("已经注册达人了哦，自购省钱，分享赚钱，赶紧点击【我】然后点击【进入达人后台】看看吧~~", wxMessage, weixinService);
+			}else if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
 			  try {
 				  //自动注册为达人
 				  String redirectUrl = registerBroker(userWxInfo.getOpenId(),userWxInfo.getNickname());

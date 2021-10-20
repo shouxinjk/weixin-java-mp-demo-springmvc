@@ -84,7 +84,7 @@ public class SubscribeHandler extends AbstractHandler {
     if(userWxInfo.getQrSceneStr().trim().length()>0) {
     		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
     		if(params.length<2) {//如果无识别标识，不做任何处理
-    			logger.error("Wrong scene str.[str]"+userWxInfo.getQrSceneStr());
+    			logger.error("====\nWrong scene str.[str]"+userWxInfo.getQrSceneStr()+"\n======");
     		}else if("User".equalsIgnoreCase(params[0])) {//如果是用户邀请则发送。User::openId
     			if(result!=null && result.getString("_id")!=null) {//成功创建则继续创建关联关系
     				
@@ -355,7 +355,12 @@ public class SubscribeHandler extends AbstractHandler {
     			logger.error("Unsupport scene str.[str]"+userWxInfo.getQrSceneStr());
     		}  
     }else {//如果是不带参数扫描则作为用户反馈信息：
-    	if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
+    	//根据openId查找是否已经注册达人
+		result = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerByOpenid/"+userWxInfo.getOpenId(),null, header);
+		if(result!=null && result.getBooleanValue("status")) {//特殊情况：已经注册打人后取消关注，再次扫码关注时还是保留原来的达人信息，不另外新建记录
+			//能到这里，说明这货之前已经加入达人，但是又取消关注了。发个消息提示一下就可以了
+			return new TextBuilder().build("已经注册达人了哦，自购省钱，分享赚钱，赶紧点击【我】然后点击【进入达人后台】看看吧~~", wxMessage, weixinService);
+		}else if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
 			  try {
 				  //自动注册为达人
 				  String redirectUrl = registerBroker(userWxInfo.getOpenId(),userWxInfo.getNickname());
@@ -404,6 +409,8 @@ public class SubscribeHandler extends AbstractHandler {
    */
   protected WxMpXmlOutMessage handleSpecial(WxMpXmlMessage wxMessage) throws Exception {
     //TODO
+	logger.info("\n\n特殊关注 \n[OPENID]\t" + wxMessage.getFromUser()+"\n[Scene]\t"+wxMessage.getScene());
+	
     return null;
   }
   
