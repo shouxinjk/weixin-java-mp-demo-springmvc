@@ -183,10 +183,9 @@ public class WxDispatcher {
 		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
 		logger.debug("Got QRcode URL. [URL]",url);
 		Map<String, Object> data = Maps.newHashMap();
-		data.put("id", uuid);//返回前端，后续将根据该id查询扫码用户的openId
-		data.put("url", url);
+		result.put("ticket", uuid);//返回前端，后续将根据该id查询扫码用户的openId
+		result.put("url", url);
 		result.put("status",true);
-		result.put("data",data);
 		result.put("description","Binding QRCode created successfully");
 		return result;
 	}	
