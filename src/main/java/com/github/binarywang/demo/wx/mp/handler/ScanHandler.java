@@ -252,17 +252,16 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	  				//直接将openId写入缓存，等待客户端查询完成绑定操作
 	  				CacheSingletonUtil.getInstance().addCacheData(params[1], userWxInfo.getOpenId());
 			        //发送通知消息
-	  				String redirectUrl = ilifeConfig.getUpdateBrokerUrl();
-			        WxMpTemplateMessage welcomeMsg = WxMpTemplateMessage.builder()
-			        	      .toUser(userWxInfo.getOpenId())
-			        	      .templateId(ilifeConfig.getMsgIdBroker())//oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk
-//			        	      .url(redirectUrl)
-			        	      .build();
-			        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，正在绑定账户"))
-			        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
-			        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
-			        	    		.addData(new WxMpTemplateData("remark", "扫码完成，正在绑定账户，请进入PC端选品工具查看。"));
-			        String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg); 
+	  		        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+	  		      	      .toUser(userWxInfo.getOpenId())
+	  		      	      .templateId(ilifeConfig.getMsgIdTask())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
+	  		      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/index.html")
+	  		      	      .build();
+	  		  	    templateMessage.addData(new WxMpTemplateData("first", "绑定达人账户"))
+	  		  	    		.addData(new WxMpTemplateData("keyword1", "扫码完成"))
+	  		  	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
+	  		  	    		.addData(new WxMpTemplateData("remark", "正在与已注册账户绑定，请返回Web端查看"));
+	  		  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage); 
 	  			}else {//如果不是达人，则先完成注册
 	  				logger.debug("The broker does not exist. try to register new one.[openid]"+userWxInfo.getOpenId());
 	    			String url = ilifeConfig.getRegisterBrokerUrl()+"system";//针对上级达人创建，上级达人默认为系统达人
@@ -323,10 +322,10 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 			        	      .url(redirectUrl)
 			        	      .build();
 			        //发送通知消息
-			        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，恭喜成功注册达人"))
+			        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，成功注册达人"))
 			        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
 			        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
-			        	    		.addData(new WxMpTemplateData("remark", "已经完成注册，正在绑定账户，请进入PC端选品工具查看。为立即开始，请填写真实姓名和电话号码，请点击卡片，一步即可完善。","#FF0000"));
+			        	    		.addData(new WxMpTemplateData("remark", "已经完成注册，正在绑定账户到选品工具，请进入PC端选品工具查看。为立即开始，请填写真实姓名和电话号码，请点击卡片，一步即可完善。","#FF0000"));
 			        String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg);  
 			     //发送通知信息给上级达人
 			         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
