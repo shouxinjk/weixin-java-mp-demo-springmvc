@@ -60,6 +60,7 @@ public class WxMpPortalController {
       // 明文传输的消息
       WxMpXmlMessage inMessage = WxMpXmlMessage.fromXml(requestBody);
       // 判断是否是达人绑定扫码事件
+      /**
       String sceneStr = ""+inMessage.getEventKey();
       logger.info("===event key====\n"+sceneStr);
       if(sceneStr.indexOf("Bind::")>-1) {
@@ -70,6 +71,7 @@ public class WxMpPortalController {
     		  CacheSingletonUtil.getInstance().addCacheData(bindInfo[1], openid);
     	  }
       }
+      //**/
       // end 达人账户绑定
       WxMpXmlOutMessage outMessage = this.wxService.route(inMessage);
       if (outMessage == null) {
@@ -84,6 +86,7 @@ public class WxMpPortalController {
       this.logger.debug("\n消息解密后内容为：\n{} ", inMessage.toString());
       
       // 判断是否是达人绑定扫码事件
+      /**
       String sceneStr = ""+inMessage.getEventKey();
       logger.info("===event key====\n"+sceneStr);
       if(sceneStr.indexOf("Bind::")>-1) {
@@ -94,6 +97,7 @@ public class WxMpPortalController {
     		  CacheSingletonUtil.getInstance().addCacheData(bindInfo[1], openid);
     	  }
       }
+      //**/
       // end 达人账户绑定
       
       WxMpXmlOutMessage outMessage = this.wxService.route(inMessage);

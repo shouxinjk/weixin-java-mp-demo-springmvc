@@ -81,9 +81,12 @@ public class SubscribeHandler extends AbstractHandler {
     }
 
     
-    if(userWxInfo.getQrSceneStr().trim().length()>0) {
-    		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
-    		if(params.length<2) {//如果无识别标识，不做任何处理
+//    if(userWxInfo.getQrSceneStr().trim().length()>0) {
+//    		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
+    //!!! 注意，不是用户场景码，而是根据Message场景码判断
+    if(wxMessage.getScene().trim().length()>0) {
+	  		String[] params = wxMessage.getScene().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
+	  		if(params.length<2) {//如果无识别标识，不做任何处理
     			logger.error("====\nWrong scene str.[str]"+userWxInfo.getQrSceneStr()+"\n======");
     		}else if("User".equalsIgnoreCase(params[0])) {//如果是用户邀请则发送。User::openId
     			if(result!=null && result.getString("_id")!=null) {//成功创建则继续创建关联关系

@@ -64,7 +64,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	
 	  // 获取微信用户基本信息
 	  WxMpUser userWxInfo = weixinService.getUserService().userInfo(wxMessage.getFromUser(), null);
-
+	  
 	  //准备发起HTTP请求：设置data server Authorization
 	  Map<String,String> header = new HashMap<String,String>();
 	  header.put("Authorization","Basic aWxpZmU6aWxpZmU=");
@@ -86,8 +86,13 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	  //进入到这里的消息表示：用户之前已经关注过，需要检查是否建立用户关联或者建立达人信息。
 	  //如果是Broker::parentBrokerId则检查是否已经是达人，如果已经是达人则返回注册成功消息，否则建立达人并返回
 	  //如果是User::fromUserOpenId则检查用户关联是否存在，如果已经存在则不做任何处理，否则建立用户关联并返回
-	  if(userWxInfo.getQrSceneStr().trim().length()>0) {
-	  		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
+	  //如果是Bind::uuid 用于将用户扫码后账户进行绑定
+//	  if(userWxInfo.getQrSceneStr().trim().length()>0) {
+//	  		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
+  	  //!!! 注意：不是用户场景码，而是Message内的场景码进行判断
+	  if(wxMessage.getScene().trim().length()>0) {
+	  		String[] params = wxMessage.getScene().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
+
 	  		if(params.length<2) {//如果无识别标识，不做任何处理
 	  			logger.error("\n\nWrong scene str.[str]"+userWxInfo.getQrSceneStr());
 	  		}else if("User".equalsIgnoreCase(params[0])) {//如果是用户邀请则检查关联是否存在
