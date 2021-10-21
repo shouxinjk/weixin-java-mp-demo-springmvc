@@ -246,6 +246,7 @@ public class WxDispatcher {
 	 * 团返：beneficiary=grandpa 或 beneficiary = parent
 	 * 积分：beneficiary = credit
 	 * 意向：beneficiary = buy
+	 * 平台收益：beneficiary = platform
 	 * 
 	 * 消息格式：
 	 * 恭喜，你有新订单成交：
@@ -274,6 +275,7 @@ public class WxDispatcher {
 		titles.put("grandpa", "团返");
 		titles.put("buy", "平台激励");
 		titles.put("credit", "平台激励");
+		titles.put("platform", "平台收益");
 		
 		Map<String, String> statusTitles = Maps.newHashMap();
 		statusTitles.put("locked", "锁定-未达标");
@@ -297,10 +299,18 @@ public class WxDispatcher {
 		platforms.put("meituan", "美团");
 		platforms.put("kaola", "网易考拉");
 		
+		String  beneficiaryType = params.get("beneficiary")!=null?params.get("beneficiary"):"无";
+		if(titles.get(params.get("beneficiary"))!=null)
+			beneficiaryType = titles.get(params.get("beneficiary"));
+		
+		String platform  = params.get("platform")!=null?params.get("platform"):"无";
+		if(platforms.get(params.get("platform"))!=null)
+			platform = platforms.get(params.get("platform"));
+		
 		String remark = "";
 		//remark+=params.get("item")!=null?"商品名称："+params.get("item"):"";
-		remark+=params.get("beneficiary")!=null?"收益类别："+titles.get(params.get("beneficiary")):"";
-		remark+=params.get("platform")!=null?"\n来源平台："+platforms.get(params.get("platform")):"";
+		remark+="收益类别："+beneficiaryType;
+		remark+="\n来源平台："+platform;
 		//remark+=params.get("orderTime")!=null?"\n订单时间："+params.get("orderTime"):"";
 		remark+=params.get("seller")!=null?"\n团队成员："+params.get("seller"):"";
 		remark+=params.get("status")!=null?"\n结算状态："+statusTitles.get(params.get("status")):"";
