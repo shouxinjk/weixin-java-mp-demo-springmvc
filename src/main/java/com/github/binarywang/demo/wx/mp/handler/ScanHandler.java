@@ -259,8 +259,8 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	  		      	      .build();
 	  		  	    templateMessage.addData(new WxMpTemplateData("first", "扫码登录成功"))
 	  		  	    		.addData(new WxMpTemplateData("keyword1", dateFormat.format(new Date())))//操作时间
-	  		  	    		.addData(new WxMpTemplateData("keyword1", "登录成功"))//登录状态
-	  		  	    		.addData(new WxMpTemplateData("keyword2", "小确幸大生活"))//登录网站
+	  		  	    		.addData(new WxMpTemplateData("keyword2", "登录成功"))//登录状态
+	  		  	    		.addData(new WxMpTemplateData("keyword3", "小确幸大生活"))//登录网站
 	  		  	    		.addData(new WxMpTemplateData("remark", "正在与已注册账户绑定，请进入Web端查看并开始后续操作"));
 	  		  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage); 
 	  			}else {//如果不是达人，则先完成注册
