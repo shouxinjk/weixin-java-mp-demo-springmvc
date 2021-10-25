@@ -265,13 +265,14 @@ public class SubscribeHandler extends AbstractHandler {
 			        //发送通知消息
 	  		        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
 		  		      	      .toUser(userWxInfo.getOpenId())
-		  		      	      .templateId(ilifeConfig.getMsgIdTask())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
+		  		      	      .templateId("G4ah8DnXccJJydrBEoz0D9XksaFifwVA44hK8o2dIog")//已经注册则直接发送登录状态提醒
 		  		      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/index.html")
 		  		      	      .build();
-	  		  	    templateMessage.addData(new WxMpTemplateData("first", "绑定达人账户"))
-	  		  	    		.addData(new WxMpTemplateData("keyword1", "扫码完成"))
-	  		  	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
-	  		  	    		.addData(new WxMpTemplateData("remark", "正在与已注册账户绑定，请返回Web端查看"));
+		  		  	    templateMessage.addData(new WxMpTemplateData("first", "扫码登录成功"))
+		  		  	    		.addData(new WxMpTemplateData("keyword1", dateFormat.format(new Date())))//操作时间
+		  		  	    		.addData(new WxMpTemplateData("keyword1", "登录成功"))//登录状态
+		  		  	    		.addData(new WxMpTemplateData("keyword2", "小确幸大生活"))//登录网站
+		  		  	    		.addData(new WxMpTemplateData("remark", "正在与已注册账户绑定，请进入Web端查看并开始后续操作"));
 	  		  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage); 
 	  			}else {//如果不是达人，则先完成注册
 	  				logger.debug("The broker does not exist. try to register new one.[openid]"+userWxInfo.getOpenId());
