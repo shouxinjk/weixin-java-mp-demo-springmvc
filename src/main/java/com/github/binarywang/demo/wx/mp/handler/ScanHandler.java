@@ -317,6 +317,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 					注册时间：{{keyword2.DATA}}
 					{{remark.DATA}}
 	    			 */
+	      			/*
 			        WxMpTemplateMessage welcomeMsg = WxMpTemplateMessage.builder()
 			        	      .toUser(userWxInfo.getOpenId())
 			        	      .templateId(ilifeConfig.getMsgIdBroker())//oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk
@@ -328,6 +329,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 			        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
 			        	    		.addData(new WxMpTemplateData("remark", "已经完成注册，正在绑定账户到选品工具，请进入PC端选品工具查看。为立即开始，请填写真实姓名和电话号码，请点击卡片，一步即可完善。","#FF0000"));
 			        String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg);  
+			        //**/
 			     //发送通知信息给上级达人
 			         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
                 	      .toUser(parentBrokerJson.getJSONObject("data").getString("openid"))//上级达人的openid
@@ -339,7 +341,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
             	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
             	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
             	    		.addData(new WxMpTemplateData("remark", "请进入团队列表查看。","#FF0000"));
-            	      msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+            	    String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
   	  				//完成注册后将openId写入缓存，等待客户端查询完成绑定操作
   	  				CacheSingletonUtil.getInstance().addCacheData(params[1], userWxInfo.getOpenId());
 	  			}
@@ -388,7 +390,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 		  }
 		  //最后都要返回申明
 		  return new TextBuilder().build("感谢关注。\nLife is all about having a good time."
-		      		+ "\n\n在噪声里识别信息，消费避坑，广告祛魅，用数据智能辅助生活决策；\n\n在日常中建立第二收入，自购省钱，分享赚钱，个性化推荐优选商品。\n让决策更好，让生活更美。"
+		      		+ "\n\n在噪声里识别信息，消费避坑，广告祛魅，用数据智能辅助生活决策；\n\n在日常中建立第二收入，自购省钱，分享赚钱，个性化推荐优选商品。\n\n让决策更好，让生活更美。"
 		      		+ "\nEnjoy ~~", wxMessage, weixinService);
 	  }
 	  

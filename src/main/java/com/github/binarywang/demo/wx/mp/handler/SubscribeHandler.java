@@ -368,6 +368,7 @@ public class SubscribeHandler extends AbstractHandler {
 				  //自动注册为达人
 				  String redirectUrl = registerBroker(userWxInfo.getOpenId(),userWxInfo.getNickname());
 				  //返回通知消息：给新注册达人
+				  /**
 			        WxMpTemplateMessage welcomeMsg = WxMpTemplateMessage.builder()
 			        	      .toUser(userWxInfo.getOpenId())
 			        	      .templateId(ilifeConfig.getMsgIdBroker())//oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk
@@ -379,6 +380,7 @@ public class SubscribeHandler extends AbstractHandler {
 			        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
 			        	    		.addData(new WxMpTemplateData("remark", "我们同时提供了自购省钱、分享赚钱功能，点击注册就可以马上开始哦。","#FF0000"));
 			       String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg); 
+			       //**/
 					  //返回通知消息：给新默认达人用户
 			        WxMpTemplateMessage notifymsg = WxMpTemplateMessage.builder()
 			        	      .toUser(ilifeConfig.getDefaultParentBrokerOpenid())//发送给指定达人账户：Judy胆小心不细
@@ -390,7 +392,7 @@ public class SubscribeHandler extends AbstractHandler {
 			        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
 			        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
 			        	    		.addData(new WxMpTemplateData("remark", "请进入团队列表查看。","#FF0000"));
-			       msgId = weixinService.getTemplateMsgService().sendTemplateMsg(notifymsg); 
+			      String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(notifymsg); 
 			  }catch(Exception ex) {
 				  //do nothing
 			  }
@@ -399,7 +401,7 @@ public class SubscribeHandler extends AbstractHandler {
 		  }
 		  //最后都要返回申明
 		  return new TextBuilder().build("感谢关注。\nLife is all about having a good time."
-		      		+ "\n\n在噪声里识别信息，消费避坑，广告祛魅，用数据智能辅助生活决策；\n\n在日常中建立第二收入，自购省钱，分享赚钱，个性化推荐优选商品。\n让决策更好，让生活更美。"
+		      		+ "\n\n在噪声里识别信息，消费避坑，广告祛魅，用数据智能辅助生活决策；\n\n在日常中建立第二收入，自购省钱，分享赚钱，个性化推荐优选商品。\n\n让决策更好，让生活更美。"
 		      		+ "\nEnjoy ~~", wxMessage, weixinService);
     }
 
