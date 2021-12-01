@@ -87,31 +87,49 @@ public class MsgHandler extends AbstractHandler {
     
     //TODO 匹配指令：需要特殊处理
     //显示达人群二维码:同时配置达人群菜单
-    if("群聊  加群 达人群  聊天群 官方群 微信群".indexOf(keyword)>-1) {
+    if("群聊  加群 达人群  聊天群 官方群 微信群 SX_GROUPCHAT".indexOf(keyword)>-1) {
     	WxMpKefuMessage kfMsg = WxMpKefuMessage
 			  .IMAGE()
 			  .toUser(userWxInfo.getOpenId())
 			  .mediaId(brokerGroupChatQrcodeMediaId)
 			  .build();
 			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+		//回复文字消息
+	    try {
+	    	return new TextBuilder().build("请扫码加入群聊，和更多的生活家们一起交流分享~~", wxMessage, weixinService);
+	    } catch (Exception e) {
+	    	this.logger.error(e.getMessage(), e);
+	    }
     }
     //显示平台达人二维码，同时配置加入达人菜单
-    if("加入 达人申请 达人注册 扫码".indexOf(keyword)>-1) {
+    if("加入 达人申请 达人注册 扫码 SX_JOIN".indexOf(keyword)>-1) {
     	WxMpKefuMessage kfMsg = WxMpKefuMessage
 			  .IMAGE()
 			  .toUser(userWxInfo.getOpenId())
 			  .mediaId(rootBrokerQrcodeMediaId)
 			  .build();
 			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+		//回复文字消息
+	    try {
+	    	return new TextBuilder().build("小确幸大生活，选出好的，分享对的，扫码即可加入，等你哦~~", wxMessage, weixinService);
+	    } catch (Exception e) {
+	    	this.logger.error(e.getMessage(), e);
+	    }
     }
     //显示平台达人二维码，同时配置加入达人菜单
-    if("咨询 了解 什么 ? 小确幸大生活 联系人 联系方式 问题 官方 公司 关于".indexOf(keyword)>-1) {
+    if("咨询 了解 什么 ? 小确幸大生活 联系人 联系方式 问题 官方 公司 关于 SX_CONTACT".indexOf(keyword)>-1) {
     	WxMpKefuMessage kfMsg = WxMpKefuMessage
 			  .IMAGE()
 			  .toUser(userWxInfo.getOpenId())
 			  .mediaId(contactQrcodeMediaId)
 			  .build();
 			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+		//回复文字消息
+	    try {
+	    	return new TextBuilder().build("关于小确幸大生活的任何问题，请扫码，我们随时解答~~", wxMessage, weixinService);
+	    } catch (Exception e) {
+	    	this.logger.error(e.getMessage(), e);
+	    }			
     }
     //匹配URL，仅对于已经支持的URL进行过滤，
     //如果在不支持的范围，则过滤掉URL，当成文字处理
