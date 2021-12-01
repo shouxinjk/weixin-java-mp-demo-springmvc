@@ -12,6 +12,7 @@ import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.session.WxSessionManager;
 import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.kefu.WxMpKefuMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutNewsMessage;
@@ -29,6 +30,7 @@ import org.elasticsearch.script.mustache.SearchTemplateRequestBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
@@ -43,6 +45,9 @@ import java.util.regex.Pattern;
  */
 @Component
 public class MsgHandler extends AbstractHandler {
+	@Value("#{extProps['mp.msg.media.brokerGroupChat']}") String brokerGroupChatQrcodeMediaId;
+	@Value("#{extProps['mp.msg.media.contact']}") String contactQrcodeMediaId;
+	@Value("#{extProps['mp.msg.media.rootBroker']}") String rootBrokerQrcodeMediaId;
   @Autowired
   private SxHelper helper;
   @Override
@@ -81,7 +86,33 @@ public class MsgHandler extends AbstractHandler {
     //处理逻辑：
     
     //TODO 匹配指令：需要特殊处理
-    
+    //显示达人群二维码:同时配置达人群菜单
+    if("群聊  加群 达人群  聊天群 官方群 微信群".indexOf(keyword)>-1) {
+    	WxMpKefuMessage kfMsg = WxMpKefuMessage
+			  .IMAGE()
+			  .toUser(userWxInfo.getOpenId())
+			  .mediaId(brokerGroupChatQrcodeMediaId)
+			  .build();
+			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+    }
+    //显示平台达人二维码，同时配置加入达人菜单
+    if("加入 达人申请 达人注册 扫码".indexOf(keyword)>-1) {
+    	WxMpKefuMessage kfMsg = WxMpKefuMessage
+			  .IMAGE()
+			  .toUser(userWxInfo.getOpenId())
+			  .mediaId(rootBrokerQrcodeMediaId)
+			  .build();
+			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+    }
+    //显示平台达人二维码，同时配置加入达人菜单
+    if("咨询 了解 什么 ? 小确幸大生活 联系人 联系方式 问题 官方 公司 关于".indexOf(keyword)>-1) {
+    	WxMpKefuMessage kfMsg = WxMpKefuMessage
+			  .IMAGE()
+			  .toUser(userWxInfo.getOpenId())
+			  .mediaId(contactQrcodeMediaId)
+			  .build();
+			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+    }
     //匹配URL，仅对于已经支持的URL进行过滤，
     //如果在不支持的范围，则过滤掉URL，当成文字处理
     //如果再支持范围内，则转换为标准URL格式直接搜索标准URL，如果已经入库则直接返回

@@ -12,6 +12,7 @@ import com.ilife.util.SxHelper;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.session.WxSessionManager;
 import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.kefu.WxMpKefuMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
@@ -20,6 +21,7 @@ import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
@@ -32,6 +34,7 @@ import java.util.Map;
  */
 @Component
 public class SubscribeHandler extends AbstractHandler {
+	@Value("#{extProps['mp.msg.media.brokerGroupChat']}") String brokerGroupChatQrcodeMediaId;
   @Autowired
   private iLifeConfig ilifeConfig;	
   @Autowired
@@ -173,7 +176,14 @@ public class SubscribeHandler extends AbstractHandler {
     			//根据openId查找是否已经注册达人
     			result = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerByOpenid/"+userWxInfo.getOpenId(),null, header);
     			if(result!=null && result.getBooleanValue("status")) {//特殊情况：已经注册打人后取消关注，再次扫码关注时还是保留原来的达人信息，不另外新建记录
-    				//能到这里，说明这货之前已经加入达人，但是又取消关注了。发个消息提示一下就可以了
+    				//能到这里，说明这货之前已经加入达人，但是又取消关注了。发个消息提示一下就可以了，同时推送加群提示，加强运营支持
+					//推送 客服消息，发送加群二维码：二维码图片需要预先上传，此处仅根据mediaId发送
+					WxMpKefuMessage kfMsg = WxMpKefuMessage
+					  .IMAGE()
+					  .toUser(userWxInfo.getOpenId())
+					  .mediaId(brokerGroupChatQrcodeMediaId)
+					  .build();
+					wxMpService.getKefuService().sendKefuMessage(kfMsg);
     				return new TextBuilder().build("已经注册达人了哦，自购省钱，分享赚钱，赶紧点击【我】然后点击【进入达人后台】看看吧~~", wxMessage, weixinService);
     			}else {//如果不是达人，则完成注册
 	    			//注册新达人。并建立新达人与上级达人的关联
@@ -240,7 +250,14 @@ public class SubscribeHandler extends AbstractHandler {
 		        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
 		        	    		.addData(new WxMpTemplateData("remark", "自购省钱，分享赚钱。为立即开始，请填写真实姓名和电话号码，请点击卡片，一步即可完善。","#FF0000"));
 		        	    String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg);  
-			     //发送通知信息给上级达人
+	        	  //推送 客服消息，发送加群二维码：二维码图片需要预先上传，此处仅根据mediaId发送
+					WxMpKefuMessage kfMsg = WxMpKefuMessage
+					  .IMAGE()
+					  .toUser(userWxInfo.getOpenId())
+					  .mediaId(brokerGroupChatQrcodeMediaId)
+					  .build();
+					wxMpService.getKefuService().sendKefuMessage(kfMsg);
+		        	    //发送通知信息给上级达人
 		         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
 	        	      .toUser(parentBrokerJson.getJSONObject("data").getString("openid"))//上级达人的openid
 	        	      .templateId(ilifeConfig.getMsgIdBroker())
@@ -339,6 +356,13 @@ public class SubscribeHandler extends AbstractHandler {
 			        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
 			        	    		.addData(new WxMpTemplateData("remark", "已经完成注册，正在绑定账户到选品工具，请进入PC端选品工具查看。为立即开始，请填写真实姓名和电话号码，请点击卡片，一步即可完善。","#FF0000"));
 			        String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg);  
+		        	  //推送 客服消息，发送加群二维码：二维码图片需要预先上传，此处仅根据mediaId发送
+						WxMpKefuMessage kfMsg = WxMpKefuMessage
+						  .IMAGE()
+						  .toUser(userWxInfo.getOpenId())
+						  .mediaId(brokerGroupChatQrcodeMediaId)
+						  .build();
+						wxMpService.getKefuService().sendKefuMessage(kfMsg);
 			     //发送通知信息给上级达人
 			         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
                 	      .toUser(parentBrokerJson.getJSONObject("data").getString("openid"))//上级达人的openid
@@ -361,7 +385,14 @@ public class SubscribeHandler extends AbstractHandler {
     	//根据openId查找是否已经注册达人
 		result = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerByOpenid/"+userWxInfo.getOpenId(),null, header);
 		if(result!=null && result.getBooleanValue("status")) {//特殊情况：已经注册打人后取消关注，再次扫码关注时还是保留原来的达人信息，不另外新建记录
-			//能到这里，说明这货之前已经加入达人，但是又取消关注了。发个消息提示一下就可以了
+			//能到这里，说明这货之前已经加入达人，但是又取消关注了。发个消息提示一下就可以了，同时发送加群消息，加强运营支持
+			//推送 客服消息，发送加群二维码：二维码图片需要预先上传，此处仅根据mediaId发送
+			WxMpKefuMessage kfMsg = WxMpKefuMessage
+			  .IMAGE()
+			  .toUser(userWxInfo.getOpenId())
+			  .mediaId(brokerGroupChatQrcodeMediaId)
+			  .build();
+			wxMpService.getKefuService().sendKefuMessage(kfMsg);
 			return new TextBuilder().build("已经注册达人了哦，自购省钱，分享赚钱，赶紧点击【我】然后点击【进入达人后台】看看吧~~", wxMessage, weixinService);
 		}else if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
 			  try {
@@ -400,9 +431,7 @@ public class SubscribeHandler extends AbstractHandler {
 			  //否则啥也不干
 		  }
 		  //最后都要返回申明
-		  return new TextBuilder().build("感谢关注。\nLife is all about having a good time."
-		      		+ "\n\n在噪声里识别信息，消费避坑，广告祛魅，用数据智能辅助生活决策；\n\n在日常中建立第二收入，自购省钱，分享赚钱，个性化推荐优选商品。\n\n让决策更好，让生活更美。"
-		      		+ "\nEnjoy ~~", wxMessage, weixinService);
+		  return new TextBuilder().build("感谢遇见。消费社会里，形形色色的商品构筑着我们的生活。选出好的，分享对的，是我们应有的生活态度。予人玫瑰手有余香，好的生活方式值得分享，分享亦会有回赠。让确幸更多，让生活更美。Enjoy ~~", wxMessage, weixinService);
     }
 
     return null;
