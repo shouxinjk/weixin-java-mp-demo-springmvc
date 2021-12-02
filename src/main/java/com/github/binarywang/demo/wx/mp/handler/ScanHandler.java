@@ -178,7 +178,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	  			}else {//如果不是达人，则完成注册
 		    			String url = ilifeConfig.getRegisterBrokerUrl()+params[1];//针对上级达人创建
 		    			JSONObject data = new JSONObject();
-		    			data.put("hierarchy", "9");
+//		    			data.put("hierarchy", "9");
 		    			data.put("level", "推广达人");
 		    			data.put("upgrade", "无");
 		    			data.put("status", "ready");//默认直接设置为ready，后续接收清单推送
@@ -284,7 +284,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	  				logger.debug("The broker does not exist. try to register new one.[openid]"+userWxInfo.getOpenId());
 	    			String url = ilifeConfig.getRegisterBrokerUrl()+"system";//针对上级达人创建，上级达人默认为系统达人
 	    			JSONObject data = new JSONObject();
-	    			data.put("hierarchy", "9");
+//	    			data.put("hierarchy", "9");
 	    			data.put("level", "推广达人");
 	    			data.put("upgrade", "无");
 	    			data.put("status", "ready");//默认直接设置为ready，后续接收清单推送
@@ -455,7 +455,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 		}else {//如果不是达人，则完成注册
 			String url = ilifeConfig.getRegisterBrokerUrl()+ilifeConfig.getDefaultParentBrokerId();//固定达人ID 
 			JSONObject data = new JSONObject();
-			data.put("hierarchy", "3");//是一个3级达人
+//			data.put("hierarchy", "3");//是一个3级达人
 			data.put("level", "推广达人");
 			data.put("upgrade", "无");
 			data.put("status", "ready");//默认直接设置为ready，后续接收清单推送
