@@ -399,8 +399,7 @@ public class SubscribeHandler extends AbstractHandler {
 			//仅用于测试
 			//否则发送三条提示文章：分别是生活专家、流量主指南、达人指南
 			  String titles[] = {"每一个人都是生活的专家",
-					  "流量主指南",
-					  "达人分享指南"};
+					  "流量主指南"};
 			  String urls[] = {"https://mp.weixin.qq.com/s?__biz=MzU2NTc3OTQ0MA==&mid=2247485093&idx=1&sn=66b0000ce1dfefdf531653c1620c3c97&chksm=fcb7c83acbc0412c35939ad3d4f2769acef590cc7bf5c721160c490aa29116739a8b73b9306c&token=711315459&lang=zh_CN#rd",
 					  "https://mp.weixin.qq.com/s?__biz=MzU2NTc3OTQ0MA==&mid=2247484495&idx=1&sn=60f598192331dffc96928bac1f82d5d9&chksm=fcb7cad0cbc043c65d0b6eaea648182982fe12a94fbe618efa4c78dc8a875477edf9efe5daa1#rd",
 					  "https://mp.weixin.qq.com/s?__biz=MzU2NTc3OTQ0MA==&mid=2247484348&idx=3&sn=c45cd6910f0df27011e4b487139bae1f&chksm=fcb7cd23cbc044359021b6ef47b77c0ccd53371a6131dfde45285dd17141942560defef74b9c&token=711315459&lang=zh_CN#rd"};
@@ -412,7 +411,7 @@ public class SubscribeHandler extends AbstractHandler {
 					  "选出好的，分享对的，用心挑选小确幸"};
 			  for(int i=0;i<titles.length;i++) {
 				  List<WxArticle> articles = Lists.newArrayList();
-				  WxArticle article = new WxArticle(titles[i],descriptions[i],images[i],urls[i]);
+				  WxArticle article = new WxArticle(titles[i],descriptions[i],urls[i],images[i]);
 				  articles.add(article);
 				   kfMsg = WxMpKefuMessage.NEWS().toUser(userWxInfo.getOpenId()).articles(articles).build();
 				  wxMpService.getKefuService().sendKefuMessage(kfMsg);
@@ -455,7 +454,7 @@ public class SubscribeHandler extends AbstractHandler {
 				  //do nothing
 			  }
 		  }else {
-			//否则发送三条提示文章：分别是生活专家、流量主指南、达人指南
+			//否则发送三条提示文章：分别是生活专家、流量主指南、达人指南。注意：客服消息下行最多3条
 			  String titles[] = {"每一个人都是生活的专家",
 					  "流量主指南",
 					  "达人分享指南"};
@@ -470,7 +469,7 @@ public class SubscribeHandler extends AbstractHandler {
 					  "选出好的，分享对的，用心挑选小确幸"};
 			  for(int i=0;i<titles.length;i++) {
 				  List<WxArticle> articles = Lists.newArrayList();
-				  WxArticle article = new WxArticle(titles[i],descriptions[i],images[i],urls[i]);
+				  WxArticle article = new WxArticle(titles[i],descriptions[i],urls[i],images[i]);
 				  articles.add(article);
 				  WxMpKefuMessage kfMsg = WxMpKefuMessage.NEWS().toUser(userWxInfo.getOpenId()).articles(articles).build();
 				  wxMpService.getKefuService().sendKefuMessage(kfMsg);
