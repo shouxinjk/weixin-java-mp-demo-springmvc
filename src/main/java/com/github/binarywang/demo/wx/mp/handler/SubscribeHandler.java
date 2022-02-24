@@ -398,7 +398,6 @@ public class SubscribeHandler extends AbstractHandler {
 			wxMpService.getKefuService().sendKefuMessage(kfMsg);
 			//仅用于测试
 			//否则发送三条提示文章：分别是生活专家、流量主指南、达人指南
-			  List<WxArticle> articles = Lists.newArrayList();
 			  String titles[] = {"每一个人都是生活的专家",
 					  "流量主指南",
 					  "达人分享指南"};
@@ -412,11 +411,12 @@ public class SubscribeHandler extends AbstractHandler {
 					  "内容带货 快速选品 流量变现 体验优化",
 					  "选出好的，分享对的，用心挑选小确幸"};
 			  for(int i=0;i<titles.length;i++) {
+				  List<WxArticle> articles = Lists.newArrayList();
 				  WxArticle article = new WxArticle(titles[i],descriptions[i],images[i],urls[i]);
 				  articles.add(article);
+				   kfMsg = WxMpKefuMessage.NEWS().toUser(userWxInfo.getOpenId()).articles(articles).build();
+				  wxMpService.getKefuService().sendKefuMessage(kfMsg);
 			  }
-			  kfMsg = WxMpKefuMessage.NEWS().toUser(userWxInfo.getOpenId()).articles(articles).build();
-			  wxMpService.getKefuService().sendKefuMessage(kfMsg);
 			//仅用于测试
 			
 			
@@ -456,7 +456,6 @@ public class SubscribeHandler extends AbstractHandler {
 			  }
 		  }else {
 			//否则发送三条提示文章：分别是生活专家、流量主指南、达人指南
-			  List<WxArticle> articles = Lists.newArrayList();
 			  String titles[] = {"每一个人都是生活的专家",
 					  "流量主指南",
 					  "达人分享指南"};
@@ -470,11 +469,12 @@ public class SubscribeHandler extends AbstractHandler {
 					  "内容带货 快速选品 流量变现 体验优化",
 					  "选出好的，分享对的，用心挑选小确幸"};
 			  for(int i=0;i<titles.length;i++) {
+				  List<WxArticle> articles = Lists.newArrayList();
 				  WxArticle article = new WxArticle(titles[i],descriptions[i],images[i],urls[i]);
 				  articles.add(article);
+				  WxMpKefuMessage kfMsg = WxMpKefuMessage.NEWS().toUser(userWxInfo.getOpenId()).articles(articles).build();
+				  wxMpService.getKefuService().sendKefuMessage(kfMsg);
 			  }
-			  WxMpKefuMessage kfMsg = WxMpKefuMessage.NEWS().toUser(userWxInfo.getOpenId()).articles(articles).build();
-			  wxMpService.getKefuService().sendKefuMessage(kfMsg);
 		  }
 		  //最后都要返回申明
 		  return new TextBuilder().build("感谢遇见。我们的生活与消费密不可分，做出好的消费决策，就能够建立更好的消费方式，也就能够在消费社会中更好的体验生活。我们一起用小确幸填满大生活 ~~~", wxMessage, weixinService);
