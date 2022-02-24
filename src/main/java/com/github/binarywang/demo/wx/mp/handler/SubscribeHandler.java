@@ -396,29 +396,6 @@ public class SubscribeHandler extends AbstractHandler {
 			  .mediaId(brokerGroupChatQrcodeMediaId)
 			  .build();
 			wxMpService.getKefuService().sendKefuMessage(kfMsg);
-			//仅用于测试
-			//否则发送三条提示文章：分别是生活专家、流量主指南、达人指南
-			  String titles[] = {"每一个人都是生活的专家",
-					  "流量主指南"};
-			  String urls[] = {"https://mp.weixin.qq.com/s?__biz=MzU2NTc3OTQ0MA==&mid=2247485093&idx=1&sn=66b0000ce1dfefdf531653c1620c3c97&chksm=fcb7c83acbc0412c35939ad3d4f2769acef590cc7bf5c721160c490aa29116739a8b73b9306c&token=711315459&lang=zh_CN#rd",
-					  "https://mp.weixin.qq.com/s?__biz=MzU2NTc3OTQ0MA==&mid=2247484495&idx=1&sn=60f598192331dffc96928bac1f82d5d9&chksm=fcb7cad0cbc043c65d0b6eaea648182982fe12a94fbe618efa4c78dc8a875477edf9efe5daa1#rd",
-					  "https://mp.weixin.qq.com/s?__biz=MzU2NTc3OTQ0MA==&mid=2247484348&idx=3&sn=c45cd6910f0df27011e4b487139bae1f&chksm=fcb7cd23cbc044359021b6ef47b77c0ccd53371a6131dfde45285dd17141942560defef74b9c&token=711315459&lang=zh_CN#rd"};
-			  String images[] = {"https://mmbiz.qpic.cn/mmbiz_jpg/wRApiaFsiakTQicDIIJ0c0d0OibWvu7EhL9sppyeMweOiaKlVspFicUkZFMuicCoIvKgicJvI8rwwoF4ktvGDoNSa8TQzw/0?wx_fmt=jpeg",
-					  "https://mmbiz.qpic.cn/mmbiz_png/wRApiaFsiakTSBVB91UnnXFovdzkBMsmBh6T99WoWaYRmUDtz6DGYoeYBicA8cOVSLYCJ7nyrAEMaicDXo0xH6DYxA/0?wx_fmt=png",
-					  "https://mmbiz.qpic.cn/mmbiz_jpg/wRApiaFsiakTTDPM4SuWibFqgnKm4cRo2zDgV1vY26dSdFtGbaCzxPWSgnklAj2PxOu4UKWzv4Xgv6Acr5DibaRbTQ/0?wx_fmt=jpeg"};
-			  String descriptions[] = {"做出好的消费决策，建立好的消费方式，成为生活的专家",
-					  "内容带货 快速选品 流量变现 体验优化",
-					  "选出好的，分享对的，用心挑选小确幸"};
-			  for(int i=0;i<titles.length;i++) {
-				  List<WxArticle> articles = Lists.newArrayList();
-				  WxArticle article = new WxArticle(titles[i],descriptions[i],urls[i],images[i]);
-				  articles.add(article);
-				   kfMsg = WxMpKefuMessage.NEWS().toUser(userWxInfo.getOpenId()).articles(articles).build();
-				  wxMpService.getKefuService().sendKefuMessage(kfMsg);
-			  }
-			//仅用于测试
-			
-			
 			return new TextBuilder().build("已经注册达人了哦，自购省钱，分享赚钱，赶紧点击【我】然后点击【进入达人后台】看看吧~~", wxMessage, weixinService);
 		}else if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
 			  try {
@@ -465,8 +442,8 @@ public class SubscribeHandler extends AbstractHandler {
 					  "https://mmbiz.qpic.cn/mmbiz_png/wRApiaFsiakTSBVB91UnnXFovdzkBMsmBh6T99WoWaYRmUDtz6DGYoeYBicA8cOVSLYCJ7nyrAEMaicDXo0xH6DYxA/0?wx_fmt=png",
 					  "https://mmbiz.qpic.cn/mmbiz_jpg/wRApiaFsiakTTDPM4SuWibFqgnKm4cRo2zDgV1vY26dSdFtGbaCzxPWSgnklAj2PxOu4UKWzv4Xgv6Acr5DibaRbTQ/0?wx_fmt=jpeg"};
 			  String descriptions[] = {"做出好的消费决策，建立好的消费方式，成为生活的专家",
-					  "内容带货 快速选品 流量变现 体验优化",
-					  "选出好的，分享对的，用心挑选小确幸"};
+					  "作为流量主，不仅要输出好内容，也要让受众所阅及所得，快速选品工具少不了",
+					  "选出好的，分享对的，用心挑选小确幸，建立自己的第二份收入"};
 			  for(int i=0;i<titles.length;i++) {
 				  List<WxArticle> articles = Lists.newArrayList();
 				  WxArticle article = new WxArticle(titles[i],descriptions[i],urls[i],images[i]);
