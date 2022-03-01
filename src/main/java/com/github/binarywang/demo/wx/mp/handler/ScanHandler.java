@@ -379,11 +379,11 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 				  //自动注册为达人
 				  String redirectUrl = registerBroker(userWxInfo.getOpenId(),userWxInfo.getNickname());
 				  //返回通知消息：给新注册达人
-				  WxMpTemplateMessage msg = buildBrokerNotifyMsg(userWxInfo.getNickname(),userWxInfo.getOpenId(),redirectUrl);
-			      String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg); 
+//				  WxMpTemplateMessage msg = buildBrokerNotifyMsg(userWxInfo.getNickname(),userWxInfo.getOpenId(),redirectUrl);
+//			      String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg); 
 			      //返回通知消息：给默认达人用户：由于是扫码绑定，默认直接归属于平台
-			      msg = buildParentBrokerNotifyMsg("有新用户自动注册达人",userWxInfo.getNickname(),ilifeConfig.getDefaultParentBrokerOpenid(),"http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html");
-			      msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg);
+				  WxMpTemplateMessage msg = buildParentBrokerNotifyMsg("有新用户自动注册达人",userWxInfo.getNickname(),ilifeConfig.getDefaultParentBrokerOpenid(),"http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html");
+				  String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg);
 					//推送 客服消息，发送加群二维码：二维码图片需要预先上传，此处仅根据mediaId发送
 					WxMpKefuMessage kfMsg = WxMpKefuMessage
 					  .IMAGE()
