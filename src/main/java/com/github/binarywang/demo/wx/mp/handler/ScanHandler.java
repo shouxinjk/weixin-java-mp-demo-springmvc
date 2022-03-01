@@ -440,7 +440,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
         msg.addData(new WxMpTemplateData("first", name+"，感谢关注"))
       	    		.addData(new WxMpTemplateData("keyword1", name))
       	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
-      	    		.addData(new WxMpTemplateData("remark", "我们同时提供了自购省钱、分享赚钱功能，点击注册就可以马上开始哦。","#FF0000"));
+      	    		.addData(new WxMpTemplateData("remark", "我们同时提供了自购省钱、分享赚钱功能，点击注册就可以马上开始，欢迎扫码进群交流哦~~","#FF0000"));
       
         return msg;
 	}

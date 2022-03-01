@@ -402,20 +402,44 @@ public class SubscribeHandler extends AbstractHandler {
 				  //自动注册为达人
 				  String redirectUrl = registerBroker(userWxInfo.getOpenId(),userWxInfo.getNickname());
 				  //返回通知消息：给新注册达人
+				  WxMpTemplateMessage msg = buildBrokerNotifyMsg(userWxInfo.getNickname(),userWxInfo.getOpenId(),redirectUrl);
+			      String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg); 
+			      //返回通知消息：给默认达人用户：由于是扫码绑定，默认直接归属于平台
+			      msg = buildParentBrokerNotifyMsg("有新用户自动注册达人",userWxInfo.getNickname(),ilifeConfig.getDefaultParentBrokerOpenid(),"http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html");
+			      msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg);
+					//推送 客服消息，发送加群二维码：二维码图片需要预先上传，此处仅根据mediaId发送
+					WxMpKefuMessage kfMsg = WxMpKefuMessage
+					  .IMAGE()
+					  .toUser(userWxInfo.getOpenId())
+					  .mediaId(brokerGroupChatQrcodeMediaId)
+					  .build();
+					wxMpService.getKefuService().sendKefuMessage(kfMsg);
+				  
 				  /**
-			        WxMpTemplateMessage welcomeMsg = WxMpTemplateMessage.builder()
+				  //自动注册为达人
+				  String redirectUrl = registerBroker(userWxInfo.getOpenId(),userWxInfo.getNickname());
+				  //返回通知消息：给新注册达人
+			      WxMpTemplateMessage welcomeMsg = WxMpTemplateMessage.builder()
 			        	      .toUser(userWxInfo.getOpenId())
 			        	      .templateId(ilifeConfig.getMsgIdBroker())//oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk
 			        	      .url(redirectUrl)
 			        	      .build();
 			
-			        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，感谢关注"))
+			      	welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，感谢关注"))
 			        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
 			        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
-			        	    		.addData(new WxMpTemplateData("remark", "我们同时提供了自购省钱、分享赚钱功能，点击注册就可以马上开始哦。","#FF0000"));
+			        	    		.addData(new WxMpTemplateData("remark", "我们同时提供了自购省钱、分享赚钱功能，点击注册就可以马上开始，欢迎扫码进群交流哦~~","#FF0000"));
 			       String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg); 
-			       //**/
-					  //返回通知消息：给新默认达人用户
+			       
+			       //发送加群二维码
+			       WxMpKefuMessage kfMsg = WxMpKefuMessage
+							  .IMAGE()
+							  .toUser(userWxInfo.getOpenId())
+							  .mediaId(brokerGroupChatQrcodeMediaId)
+							  .build();
+					wxMpService.getKefuService().sendKefuMessage(kfMsg);
+			       
+					//返回通知消息：给新默认达人用户
 			        WxMpTemplateMessage notifymsg = WxMpTemplateMessage.builder()
 			        	      .toUser(ilifeConfig.getDefaultParentBrokerOpenid())//发送给指定达人账户：Judy胆小心不细
 			        	      .templateId(ilifeConfig.getMsgIdBroker())//oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk
@@ -426,7 +450,8 @@ public class SubscribeHandler extends AbstractHandler {
 			        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
 			        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
 			        	    		.addData(new WxMpTemplateData("remark", "请进入团队列表查看。","#FF0000"));
-			      String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(notifymsg); 
+			       msgId = weixinService.getTemplateMsgService().sendTemplateMsg(notifymsg); 
+			       //**/
 			  }catch(Exception ex) {
 				  //do nothing
 			  }
@@ -471,6 +496,48 @@ public class SubscribeHandler extends AbstractHandler {
   }
   
 
+	/**
+	 * 构建新注册达人通知模板消息
+	 * @param name 达人昵称，或姓名
+	 * @param openid openid
+	 * @param url 跳转地址
+	 * @return
+	 */
+	private  WxMpTemplateMessage buildBrokerNotifyMsg(String name,String openid,String url) {
+      WxMpTemplateMessage msg = WxMpTemplateMessage.builder()
+    	      .toUser(openid)
+    	      .templateId(ilifeConfig.getMsgIdBroker())//oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk
+    	      .url(url)
+    	      .build();
+      msg.addData(new WxMpTemplateData("first", name+"，感谢关注"))
+    	    		.addData(new WxMpTemplateData("keyword1", name))
+    	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
+    	    		.addData(new WxMpTemplateData("remark", "我们同时提供了自购省钱、分享赚钱功能，点击注册就可以马上开始哦，欢迎扫码进群交流哦~~","#FF0000"));
+    
+      return msg;
+	}
+	
+	/**
+	 * 构建达人注册后，上级达人通知信息
+	 * @param name 达人昵称，或姓名
+	 * @param openid openid
+	 * @param url 跳转地址
+	 * @return
+	 */
+	private  WxMpTemplateMessage buildParentBrokerNotifyMsg(String title,String name,String openid,String url) {
+      WxMpTemplateMessage msg = WxMpTemplateMessage.builder()
+    	      .toUser(openid)
+    	      .templateId(ilifeConfig.getMsgIdBroker())//oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk
+    	      .url(url)
+    	      .build();
+      msg.addData(new WxMpTemplateData("first", title))
+    	    		.addData(new WxMpTemplateData("keyword1", name))
+    	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
+    	    		.addData(new WxMpTemplateData("remark", "请进入团队列表查看。","#FF0000"));
+    
+      return msg;
+	}
+  
 	private String registerBroker(String openid,String nickname) {
 		String redirectUrl = ilifeConfig.getUpdateBrokerUrl();
 		//准备发起HTTP请求：设置data server Authorization
