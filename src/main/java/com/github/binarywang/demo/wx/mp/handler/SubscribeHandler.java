@@ -2,6 +2,7 @@ package com.github.binarywang.demo.wx.mp.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.binarywang.demo.wx.mp.builder.TextBuilder;
+import com.github.binarywang.demo.wx.mp.config.WxMpConfig;
 import com.github.binarywang.demo.wx.mp.config.iLifeConfig;
 import com.github.binarywang.demo.wx.mp.helper.HttpClientHelper;
 import com.github.binarywang.demo.wx.mp.service.WeixinService;
@@ -40,6 +41,8 @@ public class SubscribeHandler extends AbstractHandler {
 	@Value("#{extProps['mp.msg.media.brokerGroupChat']}") String brokerGroupChatQrcodeMediaId;
   @Autowired
   private iLifeConfig ilifeConfig;	
+  @Autowired
+  private WxMpConfig wxMpConfig;
   @Autowired
   private SxHelper sxHelper;
   
@@ -404,6 +407,14 @@ public class SubscribeHandler extends AbstractHandler {
 				  //返回通知消息：给新注册达人
 //				  WxMpTemplateMessage msg = buildBrokerNotifyMsg(userWxInfo.getNickname(),userWxInfo.getOpenId(),redirectUrl);
 //			      String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg); 
+				  //返回通知消息：给新注册达人。注意通过dispatch获取授权，得到基本信息
+				  String img = "https://mmbiz.qpic.cn/mmbiz_jpg/wRApiaFsiakTTDPM4SuWibFqgnKm4cRo2zDgV1vY26dSdFtGbaCzxPWSgnklAj2PxOu4UKWzv4Xgv6Acr5DibaRbTQ/0?wx_fmt=jpeg";
+				  String url = redirectUrl + "#wechat_redirect";//经由微信OAuth授权后返回
+				  List<WxArticle> articles = Lists.newArrayList();
+				  WxArticle article = new WxArticle("成功注册达人","点此补充基本信息就可以立即开始",url,img);
+				  articles.add(article);
+				  WxMpKefuMessage kfMsg0 = WxMpKefuMessage.NEWS().toUser(userWxInfo.getOpenId()).articles(articles).build();
+				  wxMpService.getKefuService().sendKefuMessage(kfMsg0);
 			      //返回通知消息：给默认达人用户：由于是扫码绑定，默认直接归属于平台
 				  WxMpTemplateMessage msg = buildParentBrokerNotifyMsg("有新用户自动注册达人",userWxInfo.getNickname(),ilifeConfig.getDefaultParentBrokerOpenid(),"http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html");
 				  String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg);
@@ -501,7 +512,13 @@ public class SubscribeHandler extends AbstractHandler {
 	}
   
 	private String registerBroker(String openid,String nickname) {
-		String redirectUrl = ilifeConfig.getUpdateBrokerUrl();
+//		String redirectUrl = ilifeConfig.getUpdateBrokerUrl();
+		  String redirectUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid="+wxMpConfig.getAppid()
+	  		+ "&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html"
+	  		+ "&response_type=code"
+	  		+ "&scope=snsapi_userinfo"
+	  		+ "&state=broker__team-register";//前往broker/team-register.html页面
+//	  		+ "#wechat_redirect";
 		//准备发起HTTP请求：设置data server Authorization
 		Map<String,String> header = new HashMap<String,String>();
 		header.put("Authorization","Basic aWxpZmU6aWxpZmU=");
@@ -522,16 +539,20 @@ public class SubscribeHandler extends AbstractHandler {
 
 			result = HttpClientHelper.getInstance().post(url, data);
 			if(result.get("data")!=null) {//创建成功，则返回修改界面
-  			data = (JSONObject)result.get("data");
-  			String brokerId = data.get("id").toString();
-  			redirectUrl += "?brokerId="+brokerId;//根据该ID进行修改
-  			redirectUrl += "&parentBrokerId="+ilifeConfig.getDefaultParentBrokerId();//根据上级达人ID发送通知
-  			//建立默认的客群画像便于推广
+	  			data = (JSONObject)result.get("data");
+	  			String brokerId = data.get("id").toString();
+//	  			redirectUrl += "?brokerId="+brokerId;//根据该ID进行修改
+//	  			redirectUrl += "&parentBrokerId="+ilifeConfig.getDefaultParentBrokerId();//根据上级达人ID发送通知
+	  			redirectUrl += "___brokerId="+brokerId;//根据该ID进行修改
+	  			redirectUrl += "__parentBrokerId="+ilifeConfig.getDefaultParentBrokerId();//根据上级达人ID发送通知
+	  			//建立默认的客群画像便于推广
 				sxHelper.createDefaultPersonas(openid);//注意：根据openid建立客群关系，而不是brokerId
-  			//注意：由于未填写电话和姓名，此处不发送注册完成通知给上级达人。待填写完成后再发送
+				//注意：由于未填写电话和姓名，此处不发送注册完成通知给上级达人。待填写完成后再发送
 			}else {//否则返回界面根据openId和上级brokerId创建
-				redirectUrl += "?openId="+openid;
-				redirectUrl += "&parentBrokerId="+ilifeConfig.getDefaultParentBrokerId();
+//				redirectUrl += "?openId="+openid;
+//				redirectUrl += "&parentBrokerId="+ilifeConfig.getDefaultParentBrokerId();
+				redirectUrl += "___openId="+openid;
+				redirectUrl += "__parentBrokerId="+ilifeConfig.getDefaultParentBrokerId();
 			}
 			
 			//将推荐者加为当前用户好友：要不然这个新加入的达人就找不到TA的推荐者的么
