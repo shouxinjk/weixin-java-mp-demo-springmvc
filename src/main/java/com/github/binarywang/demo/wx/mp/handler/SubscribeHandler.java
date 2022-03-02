@@ -404,17 +404,19 @@ public class SubscribeHandler extends AbstractHandler {
 			  try {
 				  //自动注册为达人
 				  String redirectUrl = registerBroker(userWxInfo.getOpenId(),userWxInfo.getNickname());
+				  String url = redirectUrl + "#wechat_redirect";//经由微信OAuth授权后返回
 				  //返回通知消息：给新注册达人
-//				  WxMpTemplateMessage msg = buildBrokerNotifyMsg(userWxInfo.getNickname(),userWxInfo.getOpenId(),redirectUrl);
+//				  WxMpTemplateMessage msg = buildBrokerNotifyMsg(userWxInfo.getNickname(),userWxInfo.getOpenId(),url);
 //			      String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg); 
 				  //返回通知消息：给新注册达人。注意通过dispatch获取授权，得到基本信息
+				  /**
 				  String img = "http://www.shouxinjk.net/list/images/welcome.jpeg";
-				  String url = redirectUrl + "#wechat_redirect";//经由微信OAuth授权后返回
 				  List<WxArticle> articles = Lists.newArrayList();
 				  WxArticle article = new WxArticle("成功注册达人","点击补充基本信息",url,img);
 				  articles.add(article);
 				  WxMpKefuMessage kfMsg0 = WxMpKefuMessage.NEWS().toUser(userWxInfo.getOpenId()).articles(articles).build();
 				  wxMpService.getKefuService().sendKefuMessage(kfMsg0);
+				  //**/
 			      //返回通知消息：给默认达人用户：由于是扫码绑定，默认直接归属于平台
 				  WxMpTemplateMessage msg = buildParentBrokerNotifyMsg("有新用户自动注册达人",userWxInfo.getNickname(),ilifeConfig.getDefaultParentBrokerOpenid(),"http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html");
 				  String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg);
