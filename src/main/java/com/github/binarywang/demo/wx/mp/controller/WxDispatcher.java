@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.github.binarywang.demo.wx.mp.config.WxMpConfig;
 import com.github.binarywang.demo.wx.mp.config.iLifeConfig;
 import com.github.binarywang.demo.wx.mp.service.WeixinService;
 import com.google.common.collect.Maps;
@@ -29,13 +30,15 @@ import com.ilife.util.Util;
 import com.thoughtworks.xstream.XStream;
 
 import me.chanjar.weixin.common.api.WxConsts;
+import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
+import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
 import me.chanjar.weixin.common.error.WxErrorException;
-
+import me.chanjar.weixin.common.service.WxOAuth2Service;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.kefu.WxMpKefuMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutNewsMessage;
-import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
+//import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
 import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
@@ -54,12 +57,29 @@ public class WxDispatcher {
 	  @Autowired
 	  private iLifeConfig ilifeConfig;
 	  @Autowired
+	  private WxMpConfig wxMpConfig;
+	  @Autowired
 	  private SxHelper helper;
+	  /*
+		 * 构建用户授权URL。
+		 * 
+		 * @param redirectUrl 授权完成后的跳转地址。在该地址内接收返回code，并完成后续处理
+		 * @param state 状态标记。预留，用于控制跳转
+		 */
+		@RequestMapping("/auth-url")
+		@ResponseBody
+		public String buildAuthPage( @RequestParam("redirectUrl")String callbackUrl,@RequestParam("state")String state) throws IOException {
+			logger.debug("try to build auth url.[callbackUrl]"+callbackUrl+"[state]"+state);
+		    WxOAuth2Service oAuth2Service = wxMpService.getOAuth2Service();
+		    return oAuth2Service.buildAuthorizationUrl(callbackUrl,WxConsts.OAuth2Scope.SNSAPI_USERINFO, state);
+		}	  
+	  
 	/**
 	 * 接收从菜单入口传入的code和state值，并且使用code获取access token
 	 * @param response
 	 * @throws IOException
 	 */
+	/**
 	@RequestMapping("/auth")
 	@ResponseBody
 	public WxMpOAuth2AccessToken wxLogin( @RequestParam("code")String code) throws IOException {
@@ -67,6 +87,19 @@ public class WxDispatcher {
 		try {
 			logger.debug("try to get access token with code.[code]"+code,code);
 			wxMpOAuth2AccessToken = wxMpService.oauth2getAccessToken(code);
+		} catch (WxErrorException e) {
+			logger.error("failed to get access token.[code]"+code,e);
+		}
+		return wxMpOAuth2AccessToken;
+	}//**/
+	@RequestMapping("/auth")
+	@ResponseBody
+	public WxOAuth2AccessToken wxLogin( @RequestParam("code")String code) throws IOException {
+		WxOAuth2Service oAuth2Service = wxMpService.getOAuth2Service();
+		WxOAuth2AccessToken wxMpOAuth2AccessToken = null;
+		try {
+			logger.debug("try to get access token with code.[code]"+code,code);
+			wxMpOAuth2AccessToken = oAuth2Service.getAccessToken(code);
 		} catch (WxErrorException e) {
 			logger.error("failed to get access token.[code]"+code,e);
 		}
@@ -82,6 +115,7 @@ public class WxDispatcher {
 	 * @throws WxErrorException
 	 * @throws IOException
 	 */
+	/**
 	@RequestMapping("/login")
 	@ResponseBody
 	public WxMpUser WxRedirect(String code) throws WxErrorException, IOException {
@@ -91,6 +125,19 @@ public class WxDispatcher {
 		//获取基本信息
 		logger.debug("try to get userInfo with access_token.",wxMpOAuth2AccessToken);
 		WxMpUser wxMpUser = wxMpService.oauth2getUserInfo(wxMpOAuth2AccessToken, null);
+		logger.debug("Got userInfo",wxMpUser);
+		return wxMpUser;
+	}//**/
+	@RequestMapping("/login")
+	@ResponseBody
+	public WxOAuth2UserInfo WxRedirect(String code) throws WxErrorException, IOException {
+		logger.debug("try to get access token with code.[code]"+code,code);
+		//用户同意授权后，通过code获得access token，其中也包含openid
+		WxOAuth2Service oAuth2Service = wxMpService.getOAuth2Service();
+		WxOAuth2AccessToken accessToken = oAuth2Service.getAccessToken(code);
+		//获取基本信息
+		logger.debug("try to get userInfo with access_token.",accessToken);
+	    WxOAuth2UserInfo wxMpUser = oAuth2Service.getUserInfo(accessToken, null);
 		logger.debug("Got userInfo",wxMpUser);
 		return wxMpUser;
 	}
