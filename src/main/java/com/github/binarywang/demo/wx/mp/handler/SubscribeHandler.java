@@ -408,10 +408,10 @@ public class SubscribeHandler extends AbstractHandler {
 //				  WxMpTemplateMessage msg = buildBrokerNotifyMsg(userWxInfo.getNickname(),userWxInfo.getOpenId(),redirectUrl);
 //			      String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg); 
 				  //返回通知消息：给新注册达人。注意通过dispatch获取授权，得到基本信息
-				  String img = "https://mmbiz.qpic.cn/mmbiz_jpg/wRApiaFsiakTTDPM4SuWibFqgnKm4cRo2zDgV1vY26dSdFtGbaCzxPWSgnklAj2PxOu4UKWzv4Xgv6Acr5DibaRbTQ/0?wx_fmt=jpeg";
+				  String img = "http://www.shouxinjk.net/list/images/welcome.jpeg";
 				  String url = redirectUrl + "#wechat_redirect";//经由微信OAuth授权后返回
 				  List<WxArticle> articles = Lists.newArrayList();
-				  WxArticle article = new WxArticle("成功注册达人","点此补充基本信息就可以立即开始",url,img);
+				  WxArticle article = new WxArticle("成功注册达人","点击补充基本信息",url,img);
 				  articles.add(article);
 				  WxMpKefuMessage kfMsg0 = WxMpKefuMessage.NEWS().toUser(userWxInfo.getOpenId()).articles(articles).build();
 				  wxMpService.getKefuService().sendKefuMessage(kfMsg0);
