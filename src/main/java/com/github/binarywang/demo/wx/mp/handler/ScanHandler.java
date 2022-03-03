@@ -180,7 +180,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 					  .mediaId(brokerGroupChatQrcodeMediaId)
 					  .build();
 					wxMpService.getKefuService().sendKefuMessage(kfMsg);
-	  				return new TextBuilder().build("已经注册达人了哦，自购省钱，分享赚钱，赶紧点击【我】然后点击【进入达人后台】看看吧~~", wxMessage, weixinService);
+	  				return new TextBuilder().build("已经注册达人了哦，我们致力于通过将好的生活方式和领域知识给到更多人，并建立起第二收入，赶紧点击【我】然后点击【进入达人后台】看看吧~~", wxMessage, weixinService);
 	  			}else {//如果不是达人，则完成注册
 		    			String url = ilifeConfig.getRegisterBrokerUrl()+params[1];//针对上级达人创建
 		    			JSONObject data = new JSONObject();
@@ -242,7 +242,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 			        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，恭喜成功注册达人"))
 			        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
 			        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
-			        	    		.addData(new WxMpTemplateData("remark", "自购省钱，分享赚钱。为立即开始，请填写真实姓名和电话号码，请点击卡片，一步即可完善。","#FF0000"));
+			        	    		.addData(new WxMpTemplateData("remark", "将好的生活方式和领域知识给到更多人，并建立起第二收入。为立即开始，请填写真实姓名和电话号码，请点击卡片，一步即可完善。","#FF0000"));
 			        String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg); 
 					//推送 客服消息，发送加群二维码：二维码图片需要预先上传，此处仅根据mediaId发送
 					WxMpKefuMessage kfMsg = WxMpKefuMessage
@@ -376,7 +376,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 				  .mediaId(brokerGroupChatQrcodeMediaId)
 				  .build();
 				wxMpService.getKefuService().sendKefuMessage(kfMsg);
-				return new TextBuilder().build("已经注册达人了哦，自购省钱，分享赚钱，赶紧点击【我】然后点击【进入达人后台】看看吧~~", wxMessage, weixinService);
+				return new TextBuilder().build("已经注册达人了哦，我们致力于通过将好的生活方式和领域知识给到更多人，并建立起第二收入，赶紧点击【我】然后点击【进入达人后台】看看吧~~", wxMessage, weixinService);
 			}else if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
 			  try {
 				  //自动注册为达人
@@ -431,7 +431,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 
 		  }
 		  //最后都要返回申明
-		  return new TextBuilder().build("感谢遇见。我们的生活与消费密不可分，做出好的消费决策，就能够建立更好的消费方式，也就能够在消费社会中更好的体验生活。自购省钱，分享赚钱，我们一起用小确幸填满大生活 ~~~", wxMessage, weixinService);
+		  return new TextBuilder().build("感谢遇见。我们的生活与消费密不可分，做出好的消费决策，就能够建立更好的消费方式，也就能够在消费社会中更好的体验生活。将好的生活方式和领域知识给到更多人，还能建立起第二收入，我们一起用小确幸填满每一个人的大生活 ~~~", wxMessage, weixinService);
 	  }
 	  
 	  return null;

@@ -117,7 +117,7 @@ public class MsgHandler extends AbstractHandler {
 	    }
     }
     //显示平台达人二维码，同时配置加入达人菜单
-    if("咨询 了解 什么 ? 小确幸大生活 联系人 联系方式 问题 官方 公司 关于 SX_CONTACT".indexOf(keyword)>-1) {
+    if("咨询 了解 什么 ? ？ 小确幸大生活 联系人 联系方式 问题 官方 公司 关于 SX_CONTACT".indexOf(keyword)>-1) {
     	WxMpKefuMessage kfMsg = WxMpKefuMessage
 			  .IMAGE()
 			  .toUser(userWxInfo.getOpenId())
@@ -180,6 +180,13 @@ public class MsgHandler extends AbstractHandler {
     }
 
     //如果keyword还有内容的话直接搜索，则根据关键词搜索符合内容
+    //先返回一条提示信息
+	WxMpKefuMessage kfMsg = WxMpKefuMessage
+		  .TEXT().content("我们找到了这个结果，更多内容可以点击底部【小确幸】查看哦，还可以添加关心的人~~")
+		  .toUser(userWxInfo.getOpenId())
+		  .build();
+	wxMpService.getKefuService().sendKefuMessage(kfMsg);
+	//然后返回一条搜索结果：微信限制只能返回一条
     String xml = null;
     try {
     		xml = helper.searchMatchedItem(keyword);
