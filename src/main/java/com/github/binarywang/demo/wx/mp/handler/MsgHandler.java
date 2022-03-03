@@ -189,6 +189,9 @@ public class MsgHandler extends AbstractHandler {
     if(xml == null || xml.trim().length() == 0)
     		xml = helper.loadDefaultItem();
     XStream xstream = new XStream();
+    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
+    XStream.setupDefaultSecurity(xstream);
+    xstream.allowTypes(classes);
     xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
 	WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(xml);
 	return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
