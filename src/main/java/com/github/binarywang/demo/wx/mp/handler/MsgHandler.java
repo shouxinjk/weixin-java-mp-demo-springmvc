@@ -150,6 +150,9 @@ public class MsgHandler extends AbstractHandler {
     		String docXml = helper.queryDocByUrl(targetUrl);
     		if(docXml!=null) {//查询到了，直接返回指定内容
     		    XStream xstream = new XStream();
+    		    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
+    		    XStream.setupDefaultSecurity(xstream);
+    		    xstream.allowTypes(classes);
     		    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
     			WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(docXml);
     			return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
@@ -182,7 +185,7 @@ public class MsgHandler extends AbstractHandler {
     //如果keyword还有内容的话直接搜索，则根据关键词搜索符合内容
     //先返回一条提示信息
 	WxMpKefuMessage kfMsg = WxMpKefuMessage
-		  .TEXT().content("我们找到了这个结果，更多内容可以点击底部【小确幸】查看哦，还可以添加关心的人~~")
+		  .TEXT().content("这是与"+keyword+"相关的内容，更多内容可以点击底部【小确幸】查看推荐哦，还可以添加关心的人得到专属于TA的推荐~~")
 		  .toUser(userWxInfo.getOpenId())
 		  .build();
 	wxMpService.getKefuService().sendKefuMessage(kfMsg);
