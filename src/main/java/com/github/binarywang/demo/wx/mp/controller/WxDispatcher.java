@@ -328,31 +328,11 @@ public class WxDispatcher {
 		statusTitles.put("locked", "锁定-未达标");
 		statusTitles.put("cleared", "待结算");
 		
-		Map<String, String> platforms = Maps.newHashMap();
-		platforms.put("taobao", "淘宝");
-		platforms.put("tmall", "天猫");
-		platforms.put("fliggy", "飞猪");
-		platforms.put("lvmama", "驴妈妈");
-		platforms.put("tongcheng", "同程旅行");
-		platforms.put("ctrip", "携程");
-		platforms.put("jd", "京东");
-		platforms.put("dangdang", "当当网");
-		platforms.put("dhc", "DHC");
-		platforms.put("amazon", "亚马逊");
-		platforms.put("pdd", "拼多多");
-		platforms.put("vip", "唯品会");
-		platforms.put("gome", "国美");
-		platforms.put("suning", "苏宁");
-		platforms.put("meituan", "美团");
-		platforms.put("kaola", "网易考拉");
-		
-		String  beneficiaryType = params.get("beneficiary")!=null?params.get("beneficiary"):"无";
+		String  beneficiaryType = params.get("beneficiary")!=null?params.get("beneficiary"):"未知";
 		if(titles.get(params.get("beneficiary"))!=null)
 			beneficiaryType = titles.get(params.get("beneficiary"));
 		
-		String platform  = params.get("platform")!=null?params.get("platform"):"无";
-		if(platforms.get(params.get("platform"))!=null)
-			platform = platforms.get(params.get("platform"));
+		String platform  = params.get("platform")!=null?params.get("platform"):"保密";
 		
 		String remark = "";
 		//remark+=params.get("item")!=null?"商品名称："+params.get("item"):"";
