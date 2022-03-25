@@ -433,7 +433,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 
 		  }
 		  //最后都要返回申明
-		  return new TextBuilder().build("感谢遇见。我们的生活与消费密不可分，做出好的消费决策，就能够建立更好的消费方式，也就能够在消费社会中更好的体验生活。将好的生活方式和领域知识给到更多人，还能建立起第二收入，一起用小确幸填满每一个人的大生活 ~~~", wxMessage, weixinService);
+		  return new TextBuilder().build("感谢遇见。生活与消费密不可分，数以亿计的商品和海量信息，让选择越来越困难。我们提供基于生活方式和领域知识的选品能力，让每一个人都成为生活家，用小确幸填满大生活 ~~~", wxMessage, weixinService);
 	  }
 	  
 	  return null;
