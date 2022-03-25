@@ -421,12 +421,14 @@ public class SubscribeHandler extends AbstractHandler {
 				  WxMpTemplateMessage msg = buildParentBrokerNotifyMsg("有新用户自动注册达人",userWxInfo.getNickname(),ilifeConfig.getDefaultParentBrokerOpenid(),"http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html");
 				  String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(msg);
 					//推送 客服消息，发送加群二维码：二维码图片需要预先上传，此处仅根据mediaId发送
+				  /**
 					WxMpKefuMessage kfMsg = WxMpKefuMessage
 					  .IMAGE()
 					  .toUser(userWxInfo.getOpenId())
 					  .mediaId(brokerGroupChatQrcodeMediaId)
 					  .build();
 					wxMpService.getKefuService().sendKefuMessage(kfMsg);
+					//**/
 			  }catch(Exception ex) {
 				  //do nothing
 			  }
