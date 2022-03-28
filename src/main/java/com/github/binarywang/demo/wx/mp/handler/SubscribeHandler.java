@@ -201,6 +201,7 @@ public class SubscribeHandler extends AbstractHandler {
 	    			data.put("upgrade", "无");
 	    			data.put("status", "pending");
 	    			data.put("openid", userWxInfo.getOpenId());
+	    			data.put("nickname", userWxInfo.getNickname());//昵称
 	    			//data.put("name", "测试账户");//等待用户自己填写
 	    			//data.put("phone", "12345678");//等待用户自己填写
 	    			HttpClientHelper client = new HttpClientHelper();
@@ -306,6 +307,7 @@ public class SubscribeHandler extends AbstractHandler {
 	    			data.put("upgrade", "无");
 	    			data.put("status", "ready");//默认直接设置为ready，后续接收清单推送
 	    			data.put("openid", userWxInfo.getOpenId());
+	    			data.put("nickname", userWxInfo.getNickname());//昵称
 	    			data.put("name", userWxInfo.getNickname());//默认用昵称
 	    			//data.put("phone", "12345678");//等待用户自己填写
 
@@ -538,6 +540,7 @@ public class SubscribeHandler extends AbstractHandler {
 			data.put("upgrade", "无");
 			data.put("status", "ready");//默认直接设置为ready，后续接收清单推送
 			data.put("openid", openid);
+			data.put("nickname", nickname);//昵称
 			data.put("name", nickname);//默认用nickName
 			//data.put("phone", "12345678");//等待用户自己填写
 
