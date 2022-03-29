@@ -62,6 +62,7 @@ public class SxHelper {
 			  String articleId = Util.md5(url);
 			  article.put("id", articleId);//指定ID，同一个URL仅发布一次
 			  article.put("isNewRecord", true);//新建而不是更新
+			  article.put("url", url);
 			  article.put("title", nickname + " 发布");//固定的标题
 			  article.put("status", "active");
 			  article.put("channel", "auto");

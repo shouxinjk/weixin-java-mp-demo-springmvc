@@ -156,11 +156,11 @@ public class MsgHandler extends AbstractHandler {
 		     		  .build();
 		     	wxMpService.getKefuService().sendKefuMessage(kfMsg);
 	     	}else {//创建错误：提示重新尝试，或进入页面操作
-		     	WxMpKefuMessage kfMsg = WxMpKefuMessage
-		     		  .TEXT().content("发布微信文章失败，请检查后重试，或进入界面直接操作，如果已经存在就不用再发布了哦~~")
-		     		  .toUser(userWxInfo.getOpenId())
-		     		  .build();
-		     	wxMpService.getKefuService().sendKefuMessage(kfMsg);
+			    try {
+			    	return new TextBuilder().build("发布微信文章失败，请检查后重试，或进入界面直接操作，如果已经存在就不用再发布了哦~~", wxMessage, weixinService);
+			    } catch (Exception e) {
+			    	this.logger.error(e.getMessage(), e);
+			    }	
 	     	}
 	     }
 	 }catch(Exception ex) {
