@@ -1,5 +1,7 @@
 package com.github.binarywang.demo.wx.mp.handler;
 
+import java.io.IOException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,5 +91,15 @@ public class SxHelperTest {
 	@Test
 	public void createDefaultPersonas() {
 		helper.createDefaultPersonas("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc");
+	}
+	
+	@Test
+	public void getWxArticleInfo() {
+		try {
+			JSONObject json = helper.getWxArticleInfo("https://mp.weixin.qq.com/s/LH4eF5au4MKZY5RYKETLGg");
+			System.out.println(json);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
