@@ -1,7 +1,6 @@
 package com.ilife.util;
 
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.arangodb.entity.BaseDocument;
 import com.github.binarywang.demo.wx.mp.config.iLifeConfig;
 import com.google.common.collect.Maps;
+
 @Service
 public class SxHelper {
 		private Logger logger = LoggerFactory.getLogger(getClass());
@@ -49,6 +49,26 @@ public class SxHelper {
 		private void closeArangoClient() {
 			arangoClient.close();
 		}
+
+		
+		  //发布微信文章
+		  public JSONObject publishArticle(String openid,String nickname, String url) {
+			  logger.debug("try to public new article.[openid]"+openid+"[url]"+url);
+			  String remote = ilifeConfig.getSxApi()+"/wx/wxArticle/rest/article";
+			  JSONObject broker = new JSONObject();
+			  broker.put("openid", openid);//仅设置openid，在后端根据openid查询
+			  broker.put("nickname", nickname);//设置nickname，在新建时使用
+			  JSONObject article = new JSONObject();
+			  String articleId = Util.md5(url);
+			  article.put("id", articleId);//指定ID，同一个URL仅发布一次
+			  article.put("isNewRecord", true);//新建而不是更新
+			  article.put("title", nickname + " 发布");//固定的标题
+			  article.put("status", "active");
+			  article.put("channel", "auto");
+			  JSONObject result = HttpClientHelper.getInstance().post(remote, article,null);
+			  logger.debug("article created.[status]"+result.getBoolean("status"));
+			  return result;
+		  }
 		
 		  //新建Board
 		  public JSONObject createNewBoard(String title, String keywords) {
@@ -509,4 +529,6 @@ public class SxHelper {
 			 }
 		 }		  
 	  }
+	  
+	  
 }

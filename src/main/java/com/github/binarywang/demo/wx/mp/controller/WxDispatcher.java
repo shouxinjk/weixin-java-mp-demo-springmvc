@@ -60,6 +60,9 @@ public class WxDispatcher {
 	  private WxMpConfig wxMpConfig;
 	  @Autowired
 	  private SxHelper helper;
+	  
+	  SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	  
 	  /*
 		 * 构建用户授权URL。
 		 * 
@@ -798,6 +801,37 @@ XXXX
 		result.put("status", false);
 		result.put("msg", "TBC");
 		return result;
+	}
+	
+	/**
+	 * 达人注册后，发送上级达人通知信息。通过jsonObject传参，包括：
+	 * @param name 达人昵称，或姓名
+	 * @param openid 上级达人的openid
+	 * @param title 通知标题
+	 * @return
+	 * @throws WxErrorException 
+	 * buildParentBrokerNotifyMsg(,userWxInfo.getNickname(),ilifeConfig.getDefaultParentBrokerOpenid(),"")
+	 */
+	@RequestMapping(value = "/notify-parent-broker", method = RequestMethod.POST)
+	@ResponseBody
+	public  Map<String, Object> sendParentBrokerNotifyMsg(@RequestBody JSONObject json) throws WxErrorException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.debug("try to send occasion notification message.[parent broker openid]"+json.getString("openid")+"[broker]"+json.getString("name"));
+		result.put("status", false);
+		
+      WxMpTemplateMessage msg = WxMpTemplateMessage.builder()
+    	      .toUser(json.getString("openid"))
+    	      .templateId(ilifeConfig.getMsgIdBroker())//oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk
+    	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html")
+    	      .build();
+      msg.addData(new WxMpTemplateData("first", json.getString("title")))
+    	    		.addData(new WxMpTemplateData("keyword1", json.getString("name")))
+    	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
+    	    		.addData(new WxMpTemplateData("remark", "请进入团队列表查看。","#FF0000"));
+      String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(msg); 
+      result.put("status", true);
+      result.put("msg", "parent broker notify msg sent successfully.");
+      return result;
 	}
 	
 }

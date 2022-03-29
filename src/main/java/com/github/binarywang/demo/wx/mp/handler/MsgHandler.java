@@ -4,7 +4,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.arangodb.entity.BaseDocument;
 import com.github.binarywang.demo.wx.mp.builder.TextBuilder;
+import com.github.binarywang.demo.wx.mp.config.WxMpConfig;
+import com.github.binarywang.demo.wx.mp.config.iLifeConfig;
 import com.github.binarywang.demo.wx.mp.service.WeixinService;
+import com.ilife.util.HttpClientHelper;
 import com.ilife.util.SxHelper;
 import com.thoughtworks.xstream.XStream;
 
@@ -17,6 +20,8 @@ import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutNewsMessage;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
+import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
+import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
 import me.chanjar.weixin.mp.builder.outxml.NewsBuilder;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +40,8 @@ import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -50,6 +57,7 @@ public class MsgHandler extends AbstractHandler {
 	@Value("#{extProps['mp.msg.media.rootBroker']}") String rootBrokerQrcodeMediaId;
   @Autowired
   private SxHelper helper;
+  
   @Override
   public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
                                   Map<String, Object> context, WxMpService wxMpService,
@@ -131,6 +139,34 @@ public class MsgHandler extends AbstractHandler {
 	    	this.logger.error(e.getMessage(), e);
 	    }			
     }
+    
+    //匹配微信文章URL
+    String pattern = "https://mp\\.weixin\\.qq\\.com/s/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+	 try {
+	     Pattern r = Pattern.compile(pattern);
+	     Matcher m = r.matcher(keyword);
+	     if (m.find()) {
+	         logger.debug("\n\nmatch wechat article: " + m.group());
+	         //创建微信文章：直接post即可
+	     	JSONObject  result = helper.publishArticle(userWxInfo.getOpenId(), userWxInfo.getNickname(), m.group());
+	     	if(result.getBooleanValue("status")) {//创建成功，返回提示
+		     	WxMpKefuMessage kfMsg = WxMpKefuMessage
+		     		  .TEXT().content("文章已发布，点击查看。阅读越多文章就会被更多人看到哦~~")
+		     		  .toUser(userWxInfo.getOpenId())
+		     		  .build();
+		     	wxMpService.getKefuService().sendKefuMessage(kfMsg);
+	     	}else {//创建错误：提示重新尝试，或进入页面操作
+		     	WxMpKefuMessage kfMsg = WxMpKefuMessage
+		     		  .TEXT().content("发布微信文章失败，请检查后重试，或进入界面直接操作，如果已经存在就不用再发布了哦~~")
+		     		  .toUser(userWxInfo.getOpenId())
+		     		  .build();
+		     	wxMpService.getKefuService().sendKefuMessage(kfMsg);
+	     	}
+	     }
+	 }catch(Exception ex) {
+	 	logger.error("Failed to match wechat article url.",ex);
+	 }
+    
     //匹配URL，仅对于已经支持的URL进行过滤，
     //如果在不支持的范围，则过滤掉URL，当成文字处理
     //如果再支持范围内，则转换为标准URL格式直接搜索标准URL，如果已经入库则直接返回
@@ -185,7 +221,7 @@ public class MsgHandler extends AbstractHandler {
     //如果keyword还有内容的话直接搜索，则根据关键词搜索符合内容
     //先返回一条提示信息
 	WxMpKefuMessage kfMsg = WxMpKefuMessage
-		  .TEXT().content("这是与"+keyword+"相关的内容，更多内容可以点击底部【小确幸】查看推荐哦，还可以添加关心的人得到专属于TA的推荐~~")
+		  .TEXT().content("这是与 "+keyword+" 相关的内容，更多内容可以点击底部【小确幸】查看推荐哦，还可以添加关心的人得到专属于TA的推荐~~")
 		  .toUser(userWxInfo.getOpenId())
 		  .build();
 	wxMpService.getKefuService().sendKefuMessage(kfMsg);
@@ -207,6 +243,5 @@ public class MsgHandler extends AbstractHandler {
 	return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
 	        .toUser(wxMessage.getFromUser()).build();
   }
-
-
+  
 }
