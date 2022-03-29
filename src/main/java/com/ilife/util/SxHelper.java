@@ -52,7 +52,7 @@ public class SxHelper {
 
 		
 		  //发布微信文章
-		  public JSONObject publishArticle(String openid,String nickname, String url) {
+		  public String publishArticle(String openid,String nickname, String url) {
 			  logger.debug("try to public new article.[openid]"+openid+"[url]"+url);
 			  String remote = ilifeConfig.getSxApi()+"/wx/wxArticle/rest/article";
 			  JSONObject broker = new JSONObject();
@@ -69,7 +69,17 @@ public class SxHelper {
 			  article.put("channel", "auto");
 			  JSONObject result = HttpClientHelper.getInstance().post(remote, article,null);
 			  logger.debug("article created.[status]"+result.getBoolean("status"));
-			  return result;
+			  String msg = "";
+			  if(result.getBooleanValue("status")) {//发布成功，返回成功卡片
+				  msg = item("文章发布成功","点击进入查看",
+							ilifeConfig.getFrontendPrefix()+"/list/images/"+(System.currentTimeMillis()%25)+".jpeg",
+							url);//TODO:需要调整为文章列表页面地址
+			  }else {//否则返回失败卡片
+				  msg = item("文章发布发布失败，请重新尝试或进入列表发布","点击进入文章列表",
+							ilifeConfig.getFrontendPrefix()+"/list/images/"+(System.currentTimeMillis()%25)+".jpeg",
+							url);//TODO:需要调整为文章列表页面地址
+			  }
+			  return msg;
 		  }
 		
 		  //新建Board

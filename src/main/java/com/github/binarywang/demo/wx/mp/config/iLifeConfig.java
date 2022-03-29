@@ -27,6 +27,9 @@ public class iLifeConfig {
 
   @Value("#{ilifePropertyies.data_api}")
   private String dataApi;
+  
+  @Value("#{ilifePropertyies.frontend_prefix}")
+  private String frontendPrefix;
 
   @Value("#{ilifePropertyies.auto_register_broker}")
   private boolean autoRegisterBroker;
@@ -83,6 +86,14 @@ public boolean isAutoRegisterBroker() {
 
 public void setAutoRegisterBroker(boolean autoRegisterBroker) {
 	this.autoRegisterBroker = autoRegisterBroker;
+}
+
+public String getFrontendPrefix() {
+	return frontendPrefix;
+}
+
+public void setFrontendPrefix(String frontendPrefix) {
+	this.frontendPrefix = frontendPrefix;
 }
 
 public String getDefaultParentBrokerId() {

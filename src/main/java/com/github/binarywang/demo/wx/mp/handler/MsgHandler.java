@@ -148,21 +148,17 @@ public class MsgHandler extends AbstractHandler {
 	     if (m.find()) {
 	         logger.debug("\n\nmatch wechat article: " + m.group());
 	         //创建微信文章：直接post即可
-	     	JSONObject  result = helper.publishArticle(userWxInfo.getOpenId(), userWxInfo.getNickname(), m.group());
-	     	logger.debug("got article publish result.",result);
-	     	if(result.getBooleanValue("status")) {//创建成功，返回提示
-		     	WxMpKefuMessage kfMsg = WxMpKefuMessage
-		     		  .TEXT().content("文章已发布，点击查看。阅读越多文章就会被更多人看到哦~~")
-		     		  .toUser(userWxInfo.getOpenId())
-		     		  .build();
-		     	wxMpService.getKefuService().sendKefuMessage(kfMsg);
-	     	}else {//创建错误：提示重新尝试，或进入页面操作
-			    try {
-			    	return new TextBuilder().build("发布微信文章失败，请检查后重试，或进入界面直接操作，如果已经存在就不用再发布了哦~~", wxMessage, weixinService);
-			    } catch (Exception e) {
-			    	this.logger.error(e.getMessage(), e);
-			    }	
-	     	}
+	     	String  xml = helper.publishArticle(userWxInfo.getOpenId(), userWxInfo.getNickname(), m.group());
+	     	logger.debug("got article publish result.",xml);
+	     	//返回卡片
+	        XStream xstream = new XStream();
+	        Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
+	        XStream.setupDefaultSecurity(xstream);
+	        xstream.allowTypes(classes);
+	        xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
+	    	WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(xml);
+	    	return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
+	    	        .toUser(wxMessage.getFromUser()).build();
 	     }
 	 }catch(Exception ex) {
 	 	logger.error("Failed to match wechat article url.",ex);
