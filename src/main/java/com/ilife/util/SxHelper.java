@@ -72,11 +72,11 @@ public class SxHelper {
 			  String msg = "";
 			  if(result.getBooleanValue("status")) {//发布成功，返回成功卡片
 				  msg = item("文章发布成功","点击进入查看",
-							ilifeConfig.getFrontendPrefix()+"/list/images/"+(System.currentTimeMillis()%25)+".jpeg",
+							ilifeConfig.getFrontendPrefix()+"/list/images/logo"+(System.currentTimeMillis()%25)+".jpeg",
 							url);//TODO:需要调整为文章列表页面地址
 			  }else {//否则返回失败卡片
 				  msg = item("文章发布发布失败，请重新尝试或进入列表发布","点击进入文章列表",
-							ilifeConfig.getFrontendPrefix()+"/list/images/"+(System.currentTimeMillis()%25)+".jpeg",
+							ilifeConfig.getFrontendPrefix()+"/list/images/logo"+(System.currentTimeMillis()%25)+".jpeg",
 							url);//TODO:需要调整为文章列表页面地址
 			  }
 			  return msg;
