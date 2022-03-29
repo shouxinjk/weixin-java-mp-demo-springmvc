@@ -149,6 +149,7 @@ public class MsgHandler extends AbstractHandler {
 	         logger.debug("\n\nmatch wechat article: " + m.group());
 	         //创建微信文章：直接post即可
 	     	JSONObject  result = helper.publishArticle(userWxInfo.getOpenId(), userWxInfo.getNickname(), m.group());
+	     	logger.debug("got article publish result.",result);
 	     	if(result.getBooleanValue("status")) {//创建成功，返回提示
 		     	WxMpKefuMessage kfMsg = WxMpKefuMessage
 		     		  .TEXT().content("文章已发布，点击查看。阅读越多文章就会被更多人看到哦~~")

@@ -60,6 +60,7 @@ public class SxHelper {
 			  broker.put("nickname", nickname);//设置nickname，在新建时使用
 			  JSONObject article = new JSONObject();
 			  String articleId = Util.md5(url);
+			  article.put("broker", broker);
 			  article.put("id", articleId);//指定ID，同一个URL仅发布一次
 			  article.put("isNewRecord", true);//新建而不是更新
 			  article.put("url", url);
