@@ -75,7 +75,7 @@ public class SxHelper {
 							ilifeConfig.getFrontendPrefix()+"/list/images/logo"+(System.currentTimeMillis()%25)+".jpeg",
 							url);//TODO:需要调整为文章列表页面地址
 			  }else {//否则返回失败卡片
-				  msg = item("文章发布发布失败，请重新尝试或进入列表发布","点击进入文章列表",
+				  msg = item("阅豆不够，进文章列表获取吧","点击进入文章列表",
 							ilifeConfig.getFrontendPrefix()+"/list/images/logo"+(System.currentTimeMillis()%25)+".jpeg",
 							url);//TODO:需要调整为文章列表页面地址
 			  }
