@@ -76,8 +76,10 @@ public class SxHelper {
 				  wechatArticle = getWxArticleInfo(url);
 				  if(wechatArticle.getString("title")!=null)
 					  article.put("title", wechatArticle.getString("title"));
-				  if(wechatArticle.getString("coverImg")!=null)
+				  if(wechatArticle.getString("coverImg")!=null) {
+					  article.put("coverImg", wechatArticle.getString("coverImg"));
 					  img = wechatArticle.getString("coverImg");
+				  }
 			  }catch(Exception ex) {
 				  //do nothing
 			  }
