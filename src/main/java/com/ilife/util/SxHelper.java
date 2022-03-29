@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +66,13 @@ public class SxHelper {
 			  article.put("id", articleId);//指定ID，同一个URL仅发布一次
 			  article.put("isNewRecord", true);//新建而不是更新
 			  article.put("url", url);
-			  article.put("title", nickname + " 发布");//固定的标题
+			  article.put("title", "新文章 "+nickname);//固定的标题
+			  try {
+				  Document doc = Jsoup.connect(url).get();
+				  article.put("title", doc.title());//固定的标题
+			  }catch(Exception ex) {
+				  //do nothing
+			  }
 			  article.put("status", "active");
 			  article.put("channel", "auto");
 			  JSONObject result = HttpClientHelper.getInstance().post(remote, article,null);
