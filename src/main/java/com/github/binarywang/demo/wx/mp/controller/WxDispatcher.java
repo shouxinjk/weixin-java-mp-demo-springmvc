@@ -492,6 +492,52 @@ XXXX
 	}
 	
 	/**
+	 * 在购买置顶广告位、阅豆并完成支付后，发送付款成功消息：
+{{first.DATA}}
+商品名称：{{keyword1.DATA}}
+付款金额：{{keyword2.DATA}}
+订单状态：{{keyword3.DATA}}
+下单时间：{{keyword4.DATA}}
+备注：{{keyword5.DATA}}
+{{remark.DATA}}
+
+您好，您有新的订单付款成功！
+商品名称：迪士尼水杯
+付款金额：100
+订单状态：订单付款
+下单时间：2014年7月21日 18:36
+备注：麻烦打包好一点，送礼用！
+感谢你的使用。我们将尽快给您安排发货！
+	 * 
+	 * 输入参数是一个Map。
+	 */
+	@RequestMapping(value = "/payment-success-notify", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendWxPaymentNotify(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.info("start send payment success message.[params]",params);
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(ilifeConfig.getDefaultSystemBrokerOpenid())
+      	      .templateId(ilifeConfig.getMsgIdPayment())//sf910GwObDADwsqbDkAWUA4nQ2j9Tso7QEo5bqbjF34
+      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/index.html")
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", params.get("product")))
+  	    		.addData(new WxMpTemplateData("keyword2", params.get("amount")))
+  	    		.addData(new WxMpTemplateData("keyword3", params.get("status")))
+  	    		.addData(new WxMpTemplateData("keyword4", params.get("time")))
+  	    		.addData(new WxMpTemplateData("keyword5", params.get("ext")))
+  	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}
+	
+	/**
 	 * 发送清单推送消息
 	 * 
 	 * 输入参数是一个Map。

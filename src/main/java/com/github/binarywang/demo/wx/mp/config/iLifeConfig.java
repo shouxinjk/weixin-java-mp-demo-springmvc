@@ -40,6 +40,9 @@ public class iLifeConfig {
   @Value("#{ilifePropertyies.default_parent_broker_openid}")
   private String defaultParentBrokerOpenid;
   
+  @Value("#{ilifePropertyies.default_system_broker_openid}")
+  private String defaultSystemBrokerOpenid;
+  
   @Value("#{ilifePropertyies.sx_api}")
   private String sxApi;
   
@@ -64,6 +67,9 @@ public class iLifeConfig {
   @Value("#{ilifePropertyies.template_connect}")
   private String msgIdConnect;
   
+  @Value("#{ilifePropertyies.template_payment}")
+  private String msgIdPayment;
+  
   public String getSxApi() {
     return this.sxApi;
   }
@@ -72,7 +78,23 @@ public class iLifeConfig {
     return this.dataApi;
   }
   
-  public String getDisableBrokerUrl() {
+  public String getDefaultSystemBrokerOpenid() {
+	return defaultSystemBrokerOpenid;
+}
+
+public void setDefaultSystemBrokerOpenid(String defaultSystemBrokerOpenid) {
+	this.defaultSystemBrokerOpenid = defaultSystemBrokerOpenid;
+}
+
+public String getMsgIdPayment() {
+	return msgIdPayment;
+}
+
+public void setMsgIdPayment(String msgIdPayment) {
+	this.msgIdPayment = msgIdPayment;
+}
+
+public String getDisableBrokerUrl() {
 	return disableBrokerUrl;
 }
 
