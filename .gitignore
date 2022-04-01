@@ -8,4 +8,7 @@
 classes/
 build/
 wx.properties
+apiclient_cert.p12
+ilife_ext.properties
+wxPay.properties
 ilife.properties
