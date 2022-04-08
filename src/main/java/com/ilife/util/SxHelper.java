@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -62,6 +63,8 @@ public class SxHelper {
 			  String wxUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&"
 						+ "redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&"
 						+ "state=____STATE____#wechat_redirect";
+			  
+			  wxUrl = StringEscapeUtils.escapeHtml4(wxUrl);
 
 			  logger.debug("try to public new article.[openid]"+openid+"[url]"+url);
 			  String remote = ilifeConfig.getSxApi()+"/wx/wxArticle/rest/article";
