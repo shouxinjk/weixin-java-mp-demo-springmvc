@@ -58,6 +58,11 @@ public class SxHelper {
 		
 		  //发布微信文章
 		  public String publishArticle(String openid,String nickname, String url) {
+			  //点击后跳转到文章列表，能够同时获取 用户信息
+			  String wxUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&"
+						+ "redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&"
+						+ "state=____STATE____#wechat_redirect";
+
 			  logger.debug("try to public new article.[openid]"+openid+"[url]"+url);
 			  String remote = ilifeConfig.getSxApi()+"/wx/wxArticle/rest/article";
 			  JSONObject broker = new JSONObject();
@@ -68,7 +73,8 @@ public class SxHelper {
 			  article.put("broker", broker);
 			  article.put("id", articleId);//指定ID，同一个URL仅发布一次
 			  article.put("isNewRecord", true);//新建而不是更新
-			  article.put("url", url);
+//			  article.put("url", url);
+			  article.put("url", wxUrl.replace("____STATE____", "publisher__articles"));
 			  article.put("title", "新文章"+nickname);//固定的标题
 			  String img = ilifeConfig.getFrontendPrefix()+"/list/images/logo"+(System.currentTimeMillis()%25)+".jpeg";
 			  JSONObject wechatArticle = null;
