@@ -73,8 +73,7 @@ public class SxHelper {
 			  article.put("broker", broker);
 			  article.put("id", articleId);//指定ID，同一个URL仅发布一次
 			  article.put("isNewRecord", true);//新建而不是更新
-//			  article.put("url", url);
-			  article.put("url", wxUrl.replace("____STATE____", "publisher__articles"));
+			  article.put("url", url);
 			  article.put("title", "新文章"+nickname);//固定的标题
 			  String img = ilifeConfig.getFrontendPrefix()+"/list/images/logo"+(System.currentTimeMillis()%25)+".jpeg";
 			  JSONObject wechatArticle = null;
@@ -97,11 +96,11 @@ public class SxHelper {
 			  if(result.getBooleanValue("status")) {//发布成功，返回成功卡片
 				  msg = item(article.getString("title"),"文章发布成功，点击进入查看",
 							img,
-							url);//TODO:需要调整为文章列表页面地址
+							wxUrl.replace("____STATE____", "publisher__articles"));//跳转到文章列表页面地址
 			  }else {//否则返回失败卡片
 				  msg = item(article.getString("title"),"文章发布失败，阅豆不够，可以点击进文章列表获取哦~~",
 							img,
-							url);//TODO:需要调整为文章列表页面地址
+							wxUrl.replace("____STATE____", "publisher__articles"));//跳转到文章列表页面地址
 			  }
 			  return msg;
 		  }
