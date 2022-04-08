@@ -141,7 +141,7 @@ public class MsgHandler extends AbstractHandler {
     }
     
     //匹配微信文章URL
-    String pattern = "https://mp\\.weixin\\.qq\\.com/s/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]+";
+     String pattern = "https://mp\\.weixin\\.qq\\.com/s[-a-zA-Z0-9+&@#/%?=~_|!:,.;]+";
 	 try {
 	     Pattern r = Pattern.compile(pattern);
 	     Matcher m = r.matcher(keyword);
