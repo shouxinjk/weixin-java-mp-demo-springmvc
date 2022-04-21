@@ -535,7 +535,7 @@ public class SubscribeHandler extends AbstractHandler {
 		}else {//如果不是达人，则完成注册
 			String url = ilifeConfig.getRegisterBrokerUrl()+ilifeConfig.getDefaultParentBrokerId();//固定达人ID 
 			JSONObject data = new JSONObject();
-//			data.put("hierarchy", "3");//是一个3级达人
+			data.put("hierarchy", "3");//是一个3级达人
 			data.put("level", "推广达人");
 			data.put("upgrade", "无");
 			data.put("status", "ready");//默认直接设置为ready，后续接收清单推送

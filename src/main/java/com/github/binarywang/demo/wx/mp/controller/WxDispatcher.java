@@ -850,6 +850,46 @@ XXXX
 	}
 	
 	/**
+	 * 通过公众号向流量主发送模板消息。提醒指定时间段的时候，每天或每周等
+	 * 注意：需要谨慎使用，可能会导致模板消息被封 
+	 * 输入参数：
+        {
+			openid:xxx,
+			title:xxx,
+			timestamp:yyyy-MM-dd HH:mm:ss
+			points:xxx,
+			remark:xxx
+        }
+      * 消息模板：
+			{{first.DATA}}
+			截止时间：{{keyword1.DATA}}
+			总资产：{{keyword2.DATA}}
+			{{remark.DATA}}
+	 */
+	@RequestMapping(value = "/notify-mp-publisher", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendMpTemplateMessagePublisher(@RequestBody JSONObject json) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.info("start send publisher notify message.[params]",json);
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(json.getString("openid"))
+      	      .templateId(ilifeConfig.getMsgIdPublisher())//sf910GwObDADwsqbDkAWUA4nQ2j9Tso7QEo5bqbjF34
+      	      .url("https://www.biglistoflittlethings.com/ilife-web-wx/publisher/articles.html")
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", json.getString("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", json.getString("timestamp")))
+  	    		.addData(new WxMpTemplateData("keyword2", json.getString("points")))
+  	    		.addData(new WxMpTemplateData("remark", json.getString("remark")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}
+	
+	/**
 	 * 达人注册后，发送上级达人通知信息。通过jsonObject传参，包括：
 	 * @param name 达人昵称，或姓名
 	 * @param openid 上级达人的openid

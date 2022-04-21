@@ -64,6 +64,9 @@ public class iLifeConfig {
   @Value("#{ilifePropertyies.template_broker}")
   private String msgIdBroker;
   
+  @Value("#{ilifePropertyies.template_publisher}")
+  private String msgIdPublisher;
+  
   @Value("#{ilifePropertyies.template_connect}")
   private String msgIdConnect;
   
@@ -196,6 +199,14 @@ public String getMsgIdBroker() {
 
 public void setMsgIdBroker(String msgIdBroker) {
 	this.msgIdBroker = msgIdBroker;
+}
+
+public String getMsgIdPublisher() {
+	return msgIdPublisher;
+}
+
+public void setMsgIdPublisher(String msgIdPublisher) {
+	this.msgIdPublisher = msgIdPublisher;
 }
 
 public String getMsgIdConnect() {
