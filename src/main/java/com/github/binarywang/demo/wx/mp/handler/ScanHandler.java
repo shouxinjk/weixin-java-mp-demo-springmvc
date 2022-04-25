@@ -99,6 +99,8 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 //	  if(userWxInfo.getQrSceneStr().trim().length()>0) {
 //	  		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
   	  //!!! 注意：不是用户场景码，而是Message内的场景码即EventKey进行判断
+	logger.error("\n\nEvent Key: "+ wxMessage.getEventKey());
+	logger.error("\n\nQrSceneStr: "+ userWxInfo.getQrSceneStr());	  
 	  if(wxMessage.getEventKey().trim().length()>0) {
 	  		String[] params = wxMessage.getEventKey().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
 
@@ -374,15 +376,15 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	  				CacheSingletonUtil.getInstance().addCacheData(params[1], userWxInfo.getOpenId());
 	  				
 			        //发送通知消息：禁止。使用静默关注，不需要发送通知 
-	  				/**
+	  				//**
 	  		        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
 	  		      	      .toUser(userWxInfo.getOpenId())
 	  		      	      .templateId("G4ah8DnXccJJydrBEoz0D9XksaFifwVA44hK8o2dIog")//已经注册则直接发送登录状态提醒
 	  		      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/index.html")
 	  		      	      .build();
-	  		  	    templateMessage.addData(new WxMpTemplateData("first", "扫码登录成功"))
+	  		  	    templateMessage.addData(new WxMpTemplateData("first", "扫码关注成功"))
 	  		  	    		.addData(new WxMpTemplateData("keyword1", dateFormat.format(new Date())))//操作时间
-	  		  	    		.addData(new WxMpTemplateData("keyword2", "登录成功"))//登录状态
+	  		  	    		.addData(new WxMpTemplateData("keyword2", "关注成功"))//登录状态
 	  		  	    		.addData(new WxMpTemplateData("keyword3", "小确幸大生活"))//登录网站
 	  		  	    		.addData(new WxMpTemplateData("remark", "正在与已注册账户绑定，请进入Web端查看并开始后续操作"));
 	  		  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage); 

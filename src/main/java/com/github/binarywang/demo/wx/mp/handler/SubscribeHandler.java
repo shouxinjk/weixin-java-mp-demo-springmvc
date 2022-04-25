@@ -93,6 +93,8 @@ public class SubscribeHandler extends AbstractHandler {
 //    if(userWxInfo.getQrSceneStr().trim().length()>0) {
 //    		String[] params = userWxInfo.getQrSceneStr().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
     //!!! 注意，不是用户场景码，而是根据Message场景码即EventKey判断
+	logger.error("\n\nEvent Key: "+ wxMessage.getEventKey());
+	logger.error("\n\nQrSceneStr: "+ userWxInfo.getQrSceneStr());
     if(wxMessage.getEventKey().trim().length()>0) {
 	  		String[] params = wxMessage.getEventKey().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
 	  		if(params.length<2) {//如果无识别标识，不做任何处理
