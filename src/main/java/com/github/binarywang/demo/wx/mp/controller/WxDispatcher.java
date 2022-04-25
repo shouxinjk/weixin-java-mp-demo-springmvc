@@ -247,9 +247,10 @@ public class WxDispatcher {
 	 */
 	@RequestMapping("/inst-qrcode")
 	@ResponseBody
-	public Map<String, Object> generateInstQRCode() throws WxErrorException, IOException {
+	public Map<String, Object> generateInstQRCode(@RequestParam("code")String code) throws WxErrorException, IOException {
 		Map<String, Object> result = Maps.newHashMap();
-		String code = Util.get6bitCodeRandom();//使用6位短码，长了会导致二维码生成场景值错误
+		if(code==null || code.trim().length()==0)//支持前端传入短码
+			code = Util.get6bitCodeRandom();//使用6位短码，长了会导致二维码生成场景值错误
 		logger.debug("try to generate inst QRcode for binding.[code]"+code);
 		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket("Inst::"+code,2592000);//有效期30天，注意场景值长度不能超过64
 		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
