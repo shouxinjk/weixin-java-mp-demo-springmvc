@@ -97,6 +97,9 @@ public class SubscribeHandler extends AbstractHandler {
 	logger.error("\n\nQrSceneStr: "+ userWxInfo.getQrSceneStr());
     if(wxMessage.getEventKey().trim().length()>0) {
 	  		String[] params = wxMessage.getEventKey().trim().split("::");//场景值由两部分组成。TYPE::ID。其中Type为User 或Broker，ID为openId或brokerId。对于通过预定义用户添加关心的人的情况，其场景值为User::userId::shadowUserId
+	  		if(wxMessage.getEventKey().trim().startsWith("qrscene_")) {//关注时event前缀为 qrscene_，如：qrscene_Inst::Ynqiqm，切换为通过qrscene处理
+	  			params = userWxInfo.getQrSceneStr().trim().split("::");
+	  		}
 	  		if(params.length<2) {//如果无识别标识，不做任何处理
     			logger.error("====\nWrong scene str.[str]"+userWxInfo.getQrSceneStr()+"\n======");
     		}else if("User".equalsIgnoreCase(params[0])) {//如果是用户邀请则发送。User::openId
@@ -398,18 +401,19 @@ public class SubscribeHandler extends AbstractHandler {
 	  				//直接将openId写入缓存，等待客户端查询完成绑定操作
 	  				CacheSingletonUtil.getInstance().addCacheData(params[1], userWxInfo.getOpenId());
 	  				
-			        //发送通知消息：禁止。使用静默关注，不需要发送通知 
-	  				/**
+			        //发送通知消息：由于扫码关注后将跳转到公众号界面，需要通过模板消息回到访问前页面。
+	  				//通过短地址中转：由前端负责根据短码跳转
+	  				//**
 	  		        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
 	  		      	      .toUser(userWxInfo.getOpenId())
 	  		      	      .templateId("G4ah8DnXccJJydrBEoz0D9XksaFifwVA44hK8o2dIog")//已经注册则直接发送登录状态提醒
-	  		      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/index.html")
+	  		      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/s.html?s="+params[1])
 	  		      	      .build();
-	  		  	    templateMessage.addData(new WxMpTemplateData("first", "扫码登录成功"))
+	  		  	    templateMessage.addData(new WxMpTemplateData("first", "扫码成功，请点击进入"))
 	  		  	    		.addData(new WxMpTemplateData("keyword1", dateFormat.format(new Date())))//操作时间
 	  		  	    		.addData(new WxMpTemplateData("keyword2", "登录成功"))//登录状态
 	  		  	    		.addData(new WxMpTemplateData("keyword3", "小确幸大生活"))//登录网站
-	  		  	    		.addData(new WxMpTemplateData("remark", "正在与已注册账户绑定，请进入Web端查看并开始后续操作"));
+	  		  	    		.addData(new WxMpTemplateData("remark", "已经完成账户准备，请点击进入"));
 	  		  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage); 
 	  		  	     //**/
 	  			}else {//如果不是达人，则先完成注册：注意，当前主要由流量主完成，自动注册达人
