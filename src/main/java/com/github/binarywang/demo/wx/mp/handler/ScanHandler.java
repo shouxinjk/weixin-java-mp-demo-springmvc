@@ -184,7 +184,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 					  .mediaId(brokerGroupChatQrcodeMediaId)
 					  .build();
 					wxMpService.getKefuService().sendKefuMessage(kfMsg);
-	  				return new TextBuilder().build("已经注册达人了哦，请扫码进入达人交流群，获取更多信息~~", wxMessage, weixinService);
+	  				return new TextBuilder().build("欢迎回来，请扫码进入生活家交流群以获取更多信息~~", wxMessage, weixinService);
 	  			}else {//如果不是达人，则完成注册
 		    			String url = ilifeConfig.getRegisterBrokerUrl()+params[1];//针对上级达人创建
 		    			JSONObject data = new JSONObject();

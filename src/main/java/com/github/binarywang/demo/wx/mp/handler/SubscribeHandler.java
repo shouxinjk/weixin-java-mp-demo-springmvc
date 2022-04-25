@@ -195,7 +195,7 @@ public class SubscribeHandler extends AbstractHandler {
 					  .mediaId(brokerGroupChatQrcodeMediaId)
 					  .build();
 					wxMpService.getKefuService().sendKefuMessage(kfMsg);
-    				return new TextBuilder().build("已经注册达人了哦，请扫码进入达人交流群，获取更多信息~~", wxMessage, weixinService);
+    				return new TextBuilder().build("欢迎回来，请扫码进入生活家交流群以获取更多信息~~", wxMessage, weixinService);
     			}else {//如果不是达人，则完成注册
 	    			//注册新达人。并建立新达人与上级达人的关联
 	    			//String url = "http://localhost:8080/iLife/a/mod/broker/rest/"+params[1];
