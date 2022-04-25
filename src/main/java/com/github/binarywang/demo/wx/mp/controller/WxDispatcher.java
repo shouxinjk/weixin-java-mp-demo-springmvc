@@ -240,6 +240,28 @@ public class WxDispatcher {
 	}	
 	
 	/**
+	 * 生成即时注册二维码
+	 * 该二维码仅用于未关注流量主进入系统页面时。达人扫码后前端能够得到绑定的openid
+	 * 二维码格式为：Inst::xxxxxx,
+	 * 其中xxxxxx为6位短码，作为当前二维码识别标志，扫码完成后前端将根据该标志查询扫码用户的openId
+	 */
+	@RequestMapping("/inst-qrcode")
+	@ResponseBody
+	public Map<String, Object> generateInstQRCode() throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		String code = Util.get6bitCodeRandom();//使用6位短码，长了会导致二维码生成场景值错误
+		logger.debug("try to generate inst QRcode for binding.[code]"+code);
+		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket("Inst::"+code,2592000);//有效期30天，注意场景值长度不能超过64
+		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
+		logger.debug("Got QRcode URL. [URL]",url);
+		result.put("ticket", code);//返回前端，后续将根据该id查询扫码用户的openId
+		result.put("url", url);
+		result.put("status",true);
+		result.put("description","Inst QRCode created successfully");
+		return result;
+	}
+	
+	/**
 	 * 根据UUID查询扫码用户的openid
 	 * 用于选品工具、采集工具达人扫码绑定
 	 */
