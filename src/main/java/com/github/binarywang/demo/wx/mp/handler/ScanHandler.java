@@ -184,7 +184,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 					  .mediaId(brokerGroupChatQrcodeMediaId)
 					  .build();
 					wxMpService.getKefuService().sendKefuMessage(kfMsg);
-	  				return new TextBuilder().build("已经注册达人了哦，我们致力于通过将好的生活方式和领域知识给到更多人，并建立起第二收入，赶紧点击【我】然后点击【进入达人后台】看看吧~~", wxMessage, weixinService);
+	  				return new TextBuilder().build("已经注册达人了哦，请扫码进入达人交流群 ~~", wxMessage, weixinService);
 	  			}else {//如果不是达人，则完成注册
 		    			String url = ilifeConfig.getRegisterBrokerUrl()+params[1];//针对上级达人创建
 		    			JSONObject data = new JSONObject();
@@ -247,7 +247,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 			        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+"，恭喜成功注册达人"))
 			        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
 			        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
-			        	    		.addData(new WxMpTemplateData("remark", "将好的生活方式和领域知识给到更多人，并建立起第二收入。为立即开始，请填写真实姓名和电话号码，请点击卡片，一步即可完善。","#FF0000"));
+			        	    		.addData(new WxMpTemplateData("remark", "分享生活，优雅带货，请填写真实姓名和电话号码，请点击卡片，一步即可完善。","#FF0000"));
 			        String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg); 
 					//推送 客服消息，发送加群二维码：二维码图片需要预先上传，此处仅根据mediaId发送
 					WxMpKefuMessage kfMsg = WxMpKefuMessage
@@ -484,7 +484,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 				  .mediaId(brokerGroupChatQrcodeMediaId)
 				  .build();
 				wxMpService.getKefuService().sendKefuMessage(kfMsg);
-				return new TextBuilder().build("已经注册达人了哦，我们致力于通过将好的生活方式和领域知识给到更多人，并建立起第二收入，赶紧点击【我】然后点击【进入达人后台】看看吧~~", wxMessage, weixinService);
+				return new TextBuilder().build("感谢关注，我们一起用小确幸填满大生活~~", wxMessage, weixinService);
 			}else if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
 			  try {
 				  //自动注册为达人
@@ -521,7 +521,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 			  //否则发送三条提示文章：分别是生活专家、流量主指南、达人指南。注意：客服消息下行最多3条
 			  String titles[] = {"每一个人都是生活的专家",
 					  "流量主指南",
-					  "达人分享指南"};
+					  "生活家指南"};
 			  String urls[] = {"https://mp.weixin.qq.com/s?__biz=MzU2NTc3OTQ0MA==&mid=2247485093&idx=1&sn=66b0000ce1dfefdf531653c1620c3c97&chksm=fcb7c83acbc0412c35939ad3d4f2769acef590cc7bf5c721160c490aa29116739a8b73b9306c&token=711315459&lang=zh_CN#rd",
 					  "https://mp.weixin.qq.com/s?__biz=MzU2NTc3OTQ0MA==&mid=2247484495&idx=1&sn=60f598192331dffc96928bac1f82d5d9&chksm=fcb7cad0cbc043c65d0b6eaea648182982fe12a94fbe618efa4c78dc8a875477edf9efe5daa1#rd",
 					  "https://mp.weixin.qq.com/s?__biz=MzU2NTc3OTQ0MA==&mid=2247484348&idx=3&sn=c45cd6910f0df27011e4b487139bae1f&chksm=fcb7cd23cbc044359021b6ef47b77c0ccd53371a6131dfde45285dd17141942560defef74b9c&token=711315459&lang=zh_CN#rd"};
