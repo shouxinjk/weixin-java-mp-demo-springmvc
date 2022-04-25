@@ -184,7 +184,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 					  .mediaId(brokerGroupChatQrcodeMediaId)
 					  .build();
 					wxMpService.getKefuService().sendKefuMessage(kfMsg);
-	  				return new TextBuilder().build("已经注册达人了哦，请扫码进入达人交流群 ~~", wxMessage, weixinService);
+	  				return new TextBuilder().build("已经注册达人了哦，请扫码进入达人交流群，获取更多信息~~", wxMessage, weixinService);
 	  			}else {//如果不是达人，则完成注册
 		    			String url = ilifeConfig.getRegisterBrokerUrl()+params[1];//针对上级达人创建
 		    			JSONObject data = new JSONObject();
@@ -478,13 +478,15 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 			if(result!=null && result.getBooleanValue("status")) {//特殊情况：已经注册打人后取消关注，再次扫码关注时还是保留原来的达人信息，不另外新建记录
 				//能到这里，说明这货之前已经加入达人，但是又取消关注了。发个消息提示一下，同时提醒进群，增强运营支持
 				//推送 客服消息，发送加群二维码：二维码图片需要预先上传，此处仅根据mediaId发送
+				/**
 				WxMpKefuMessage kfMsg = WxMpKefuMessage
 				  .IMAGE()
 				  .toUser(userWxInfo.getOpenId())
 				  .mediaId(brokerGroupChatQrcodeMediaId)
 				  .build();
 				wxMpService.getKefuService().sendKefuMessage(kfMsg);
-				return new TextBuilder().build("感谢关注，我们一起用小确幸填满大生活~~", wxMessage, weixinService);
+				//**/
+				return new TextBuilder().build("感谢关注，我们致力于筛选出更适合的商品，一起用小确幸填满大生活~~", wxMessage, weixinService);
 			}else if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
 			  try {
 				  //自动注册为达人
