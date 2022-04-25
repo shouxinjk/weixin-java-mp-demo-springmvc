@@ -77,12 +77,12 @@ public class SxHelper {
 			  article.put("id", articleId);//指定ID，同一个URL仅发布一次
 			  article.put("isNewRecord", true);//新建而不是更新
 			  article.put("url", url);
-			  article.put("title", "新文章"+nickname);//固定的标题
+			  article.put("title", "新文章 "+nickname);//固定的标题
 			  String img = ilifeConfig.getFrontendPrefix()+"/list/images/logo"+(System.currentTimeMillis()%25)+".jpeg";
 			  JSONObject wechatArticle = null;
 			  try {
 				  wechatArticle = getWxArticleInfo(url);
-				  if(wechatArticle.getString("title")!=null)
+				  if(wechatArticle.getString("title")!=null && wechatArticle.getString("title").trim().length()>0)
 					  article.put("title", wechatArticle.getString("title"));
 				  if(wechatArticle.getString("coverImg")!=null) {
 					  article.put("coverImg", wechatArticle.getString("coverImg"));
@@ -588,7 +588,8 @@ public class SxHelper {
 		  //获取标题
 			Elements titles = doc.getElementsByClass("rich_media_title");
 			String title = titles.text();
-			data.put("title", title);
+			if(title != null && title.trim().length() ==0)//标题有时无法获取，前端会采用默认设置
+				data.put("title", title);
 			logger.debug("got title. [title]"+title);
 		  //获取封面图片
 			String picUrl = null;
