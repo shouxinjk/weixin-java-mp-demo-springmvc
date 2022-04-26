@@ -90,6 +90,8 @@ public class SxHelper {
 				  }
 			  }catch(Exception ex) {
 				  //do nothing
+				  article.put("title", "新发布文章");
+				  article.put("coverImg", "");
 			  }
 			  article.put("status", "active");
 			  article.put("channel", "auto");
