@@ -656,7 +656,8 @@ XXXX
 
  		//推送一条模板消息给管理员，通知上架成功
          templateMessage = WxMpTemplateMessage.builder()
-       	      .toUser("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc")//指定发送
+       	      //.toUser("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc")//指定发送
+        	  .toUser(ilifeConfig.getDefaultTechGuyOpenid())//指定发送
        	      .templateId(ilifeConfig.getMsgIdTask())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
        	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/share.html?origin=info2&id="+params.get("itemKey"))//需要通过微信中转，否则从模板消息进入无法获取达人信息和清单
        	      .build();
@@ -709,7 +710,7 @@ XXXX
 		//**/
 		//推送一条模板消息给管理员，通知上架失败
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
-      	      .toUser("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc")//指定发送
+      	      .toUser(ilifeConfig.getDefaultTechGuyOpenid())//指定发送
       	      .templateId(ilifeConfig.getMsgIdTask())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
       	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/share.html?origin=info2&id="+params.get("itemKey"))//由于失败，没有itemKey
       	      .build();
@@ -829,7 +830,7 @@ XXXX
 		if(valid) {
 			//推送一条模板消息给管理员，通知上架失败
 	        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
-	      	      .toUser("o8HmJ1EdIUR8iZRwaq1T7D_nPIYc")//TODO：当前测试阶段，仅指定发送
+	      	      .toUser(ilifeConfig.getDefaultTechGuyOpenid())//TODO：当前测试阶段，仅指定发送
 	      	      .templateId(ilifeConfig.getMsgIdGuide())
 	      	      .url(url)
 	      	      .build();

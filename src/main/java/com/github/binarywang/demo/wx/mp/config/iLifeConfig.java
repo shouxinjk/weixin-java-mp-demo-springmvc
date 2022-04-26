@@ -40,6 +40,9 @@ public class iLifeConfig {
   @Value("#{ilifePropertyies.default_parent_broker_openid}")
   private String defaultParentBrokerOpenid;
   
+  @Value("#{ilifePropertyies.default_tech_guy_openid}")
+  private String defaultTechGuyOpenid;
+  
   @Value("#{ilifePropertyies.default_system_broker_openid}")
   private String defaultSystemBrokerOpenid;
   
@@ -135,6 +138,14 @@ public String getDefaultParentBrokerOpenid() {
 
 public void setDefaultParentBrokerOpenid(String defaultParentBrokerOpenid) {
 	this.defaultParentBrokerOpenid = defaultParentBrokerOpenid;
+}
+
+public String getDefaultTechGuyOpenid() {
+	return defaultTechGuyOpenid;
+}
+
+public void setDefaultTechGuyOpenid(String defaultTechGuyOpenid) {
+	this.defaultTechGuyOpenid = defaultTechGuyOpenid;
 }
 
 public String getConnectUserUrl() {
