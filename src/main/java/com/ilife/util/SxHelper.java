@@ -129,7 +129,7 @@ public class SxHelper {
 				  if(result.getBoolean("success")) {
 				   msg = item(article.getString("title"),"文章发布成功，已加入今天的互阅列表，点击进入查看",
 								"https://www.biglistoflittlethings.com/static/logo/grouping/default.png",
-								wxUrl.replace("____STATE____", "publisher__articles-grouping____code="+code+"__timeFrom="+timeFrom+"__timeTo="+timeTo));//跳转到互阅文章列表页面地址
+								wxUrl.replace("____STATE____", "publisher__articles-grouping____code="+code+"__timeFrom="+timeFrom.getTime()+"__timeTo="+timeTo.getTime()));//跳转到互阅文章列表页面地址
 				  }else {
 				   msg = item(article.getString("title"),"文章发布成功，点击进入查看",
 							img,
