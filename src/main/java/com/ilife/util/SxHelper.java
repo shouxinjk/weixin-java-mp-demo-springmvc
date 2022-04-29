@@ -99,39 +99,45 @@ public class SxHelper {
 			  article.put("channel", "auto");
 			  JSONObject result = HttpClientHelper.getInstance().post(remote, article,null);
 			  logger.debug("article created.[status]"+result.getBoolean("status"));
-			  
-			  //提交到grouping加入互阅
-	    		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");//("yyyy-MM-dd HH:mm");//默认每天发一班
-	    		
-	    		//当前固定为整点发车，发报告时间为15分，截止时间为1小时
-	    		Calendar cal = Calendar.getInstance();
-	    		int currentHour = cal.get(Calendar.HOUR_OF_DAY);
-	    		cal.set(Calendar.MINUTE, 0);//整点开始
-	    		cal.set(Calendar.SECOND, 0);
-	    		Date timeFrom = cal.getTime();
-	    		cal.add(Calendar.HOUR, 24);//截止时间为一小时后；每天一班为24小时
-	    		Date timeTo = cal.getTime();
-	    		
-	    		String seed = fmt.format(timeFrom);
-	    		String code = Util.get6bitCodeRandom(seed);//需要固定seed，在生成报告时能够获取
-	    		
-			  JSONObject grouping = new JSONObject();
-			  grouping.put("code", code);
-			  grouping.put("subjectType", "article");//固定为文章类型
-			  grouping.put("subjectId", result.getJSONObject("data").getString("id"));//文章ID
-			  grouping.put("timeFrom", timeFrom);
-			  grouping.put("timeTo", timeTo);
-			  remote = ilifeConfig.getSxApi()+"/wx/wxGrouping/rest/grouping";
-			  result = HttpClientHelper.getInstance().post(remote, grouping,null);
-			  logger.debug("article groupping-ed.[status]"+result.getBoolean("status"));
-			  
 			  String msg = "";
-			  if(result.getBooleanValue("status")) {//发布成功，返回成功卡片
-				  msg = item(article.getString("title"),"文章发布成功，已加入今天的互阅列表，点击进入查看",
+			  
+			  if(result.getBooleanValue("status")) {//发布成功，提交到互阅列表后返回成功卡片
+				  //提交到grouping加入互阅
+		    		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");//("yyyy-MM-dd HH:mm");//默认每天发一班
+		    		
+		    		//当前固定为整点发车，发报告时间为15分，截止时间为1小时
+		    		Calendar cal = Calendar.getInstance();
+		    		int currentHour = cal.get(Calendar.HOUR_OF_DAY);
+		    		cal.set(Calendar.MINUTE, 0);//整点开始
+		    		cal.set(Calendar.SECOND, 0);
+		    		Date timeFrom = cal.getTime();
+		    		cal.add(Calendar.HOUR, 24);//截止时间为一小时后；每天一班为24小时
+		    		Date timeTo = cal.getTime();
+		    		
+		    		String seed = fmt.format(timeFrom);
+		    		String code = Util.get6bitCodeRandom(seed);//需要固定seed，在生成报告时能够获取
+		    		
+				  JSONObject grouping = new JSONObject();
+				  grouping.put("code", code);
+				  grouping.put("subjectType", "article");//固定为文章类型
+				  grouping.put("subjectId", result.getJSONObject("data").getString("id"));//文章ID
+				  grouping.put("timeFrom", timeFrom);
+				  grouping.put("timeTo", timeTo);
+				  remote = ilifeConfig.getSxApi()+"/wx/wxGrouping/rest/grouping";
+				  result = HttpClientHelper.getInstance().post(remote, grouping,null);
+				  logger.debug("article groupping-ed.[status]"+result.getBoolean("success"));
+				  if(result.getBoolean("success")) {
+				   msg = item(article.getString("title"),"文章发布成功，已加入今天的互阅列表，点击进入查看",
+								"https://www.biglistoflittlethings.com/static/logo/grouping/default.png",
+								wxUrl.replace("____STATE____", "publisher__articles-grouping____code="+code+"__timeFrom="+timeFrom+"__timeTo="+timeTo));//跳转到互阅文章列表页面地址
+				  }else {
+				   msg = item(article.getString("title"),"文章发布成功，点击进入查看",
 							img,
-							wxUrl.replace("____STATE____", "publisher__articles-grouping____code="+code+"__timeFrom="+timeFrom+"__timeTo="+timeTo));//跳转到文章列表页面地址
+							wxUrl.replace("____STATE____", "publisher__articles"));//跳转到文章列表页面地址
+					  
+				  }
 			  }else {//否则返回失败卡片
-				  msg = item(article.getString("title"),"文章发布失败，阅豆不够，可以点击进文章列表获取哦~~",
+				   msg = item(article.getString("title"),"文章发布失败，阅豆不够，可以点击进文章列表获取哦~~",
 							img,
 							wxUrl.replace("____STATE____", "publisher__articles"));//跳转到文章列表页面地址
 			  }
