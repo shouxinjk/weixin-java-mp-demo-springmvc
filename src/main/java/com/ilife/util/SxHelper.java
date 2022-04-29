@@ -127,7 +127,7 @@ public class SxHelper {
 				  result = HttpClientHelper.getInstance().post(remote, grouping,null);
 				  logger.debug("article groupping-ed.[status]"+result.getBoolean("success"));
 				  if(result.getBoolean("success")) {
-				   msg = item(article.getString("title"),"文章发布成功，已加入今天的互阅列表，点击进入查看",
+				   msg = item(article.getString("title"),"文章发布成功，已加入今天的互阅列表，分享邀请更多人来阅读吧~~",
 								"https://www.biglistoflittlethings.com/static/logo/grouping/default.png",
 								wxUrl.replace("____STATE____", "publisher__articles-grouping___code="+code+"__timeFrom="+timeFrom.getTime()+"__timeTo="+timeTo.getTime()));//跳转到互阅文章列表页面地址
 				  }else {
