@@ -119,8 +119,8 @@ public class SxHelper {
 			  grouping.put("code", code);
 			  grouping.put("subjectType", "article");//固定为文章类型
 			  grouping.put("subjectId", result.getJSONObject("data").getString("id"));//文章ID
-			  grouping.put("from", timeFrom);
-			  grouping.put("to", timeTo);
+			  grouping.put("timeFrom", timeFrom);
+			  grouping.put("timeTo", timeTo);
 			  remote = ilifeConfig.getSxApi()+"/wx/wxGrouping/rest/grouping";
 			  result = HttpClientHelper.getInstance().post(remote, grouping,null);
 			  logger.debug("article groupping-ed.[status]"+result.getBoolean("status"));
