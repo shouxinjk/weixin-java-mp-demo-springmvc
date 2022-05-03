@@ -94,6 +94,35 @@ public class MsgHandler extends AbstractHandler {
     //处理逻辑：
     
     //TODO 匹配指令：需要特殊处理
+    //如果涉及到退款、退钱、退费等，需要优先处理，并且人工介入
+    if("退款 退钱 退费 骗子 欺骗".indexOf(keyword)>-1) {
+    	WxMpKefuMessage kfMsg = WxMpKefuMessage
+			  .IMAGE()
+			  .toUser(userWxInfo.getOpenId())
+			  .mediaId(contactQrcodeMediaId)
+			  .build();
+			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+		//回复文字消息
+	    try {
+	    	return new TextBuilder().build("非常抱歉，给亲带来麻烦了。如果是充值或付费遇到问题，请扫码添加，我们会收到了立即反馈的~~", wxMessage, weixinService);
+	    } catch (Exception e) {
+	    	this.logger.error(e.getMessage(), e);
+	    }
+    }     
+    if("充值 充钱 阅豆 购买 置顶".indexOf(keyword)>-1) {
+    	WxMpKefuMessage kfMsg = WxMpKefuMessage
+			  .IMAGE()
+			  .toUser(userWxInfo.getOpenId())
+			  .mediaId(contactQrcodeMediaId)
+			  .build();
+			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+		//回复文字消息
+	    try {
+	    	return new TextBuilder().build("对于有需求的流量主，我们提供了充值和广告服务。充值会增加豆豆，能够让公众号和文章在大厅排序更靠前。而置顶广告能够在指定时段把公众号或文章显示在顶部指定位置，便于更多人看到。充值和置顶都可以进入流量主后台直接完成，也欢迎扫码，我们邀请进群~~", wxMessage, weixinService);
+	    } catch (Exception e) {
+	    	this.logger.error(e.getMessage(), e);
+	    }
+    }    
     //显示达人群二维码:同时配置达人群菜单
     if("群聊  加群 达人群  聊天群 官方群 微信群 SX_GROUPCHAT".indexOf(keyword)>-1) {
     	WxMpKefuMessage kfMsg = WxMpKefuMessage
