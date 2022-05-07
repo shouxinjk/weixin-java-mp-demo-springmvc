@@ -154,7 +154,7 @@ public class MsgHandler extends AbstractHandler {
 	    }
     }
     //显示平台达人二维码，同时配置加入达人菜单
-    if("咨询 了解 什么 ? ？ 小确幸大生活 联系人 联系方式 问题 官方 公司 关于 SX_CONTACT".indexOf(keyword)>-1) {
+    if("客服 咨询 了解 什么 ? ？ 小确幸大生活 联系人 联系方式 问题 官方 公司 关于 SX_CONTACT".indexOf(keyword)>-1) {
     	WxMpKefuMessage kfMsg = WxMpKefuMessage
 			  .IMAGE()
 			  .toUser(userWxInfo.getOpenId())
