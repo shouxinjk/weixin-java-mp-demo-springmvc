@@ -250,12 +250,13 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 			        	      .url(redirectUrl)
 			        	      .build();
 			        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+" 恭喜注册成功"))
-			        	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
+			        	    		.addData(new WxMpTemplateData("keyword1", level))//当前无法直接获取昵称，采用类别：生活家、流量主
 			        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
-			        	    		.addData(new WxMpTemplateData("remark", "感谢关注，我们提供个性化选品服务，以及流量主运营工具。"
-			        	    				+ "\n生活家：客观评价，用心选品，轻松选出对的商品，并分享给对的人。"
-			        	    				+ "\n流量主：公众号运营、互动及变现交流，提升运营效率，节省时间持续输出更优质的内容。"
-			        	    				+ "\n\n无论是个人，还是流量主，都能在分享生活方式和知识内容的同时给出可执行的商品和服务，渔鱼兼授，增加收益。","#FF0000"));
+			        	    		.addData(new WxMpTemplateData("remark", "感谢关注，我们提供个性化选品服务，以及，流量主运营支持工具。"
+			        	    				+ "\n\n生活家：客观评价，用心选品，轻松选出对的商品，并分享给对的人。"
+			        	    				+ "\n\n流量主：公众号运营、互动及变现交流，提升运营效率，节省时间以输出更优质的内容。"
+			        	    				+ "\n\n无论是个人，还是流量主，都能在分享生活方式和知识内容的同时给出可执行的商品和服务，渔鱼兼授，增加收益。"
+			        	    				+ "\n\n请扫码进群，便于讨论交流。"));
 			        String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg); 
 					//推送 客服消息，发送加群二维码：二维码图片需要预先上传，此处仅根据mediaId发送
 					WxMpKefuMessage kfMsg = WxMpKefuMessage
@@ -281,9 +282,9 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
                 	      .build();
 
             	    templateMessage.addData(new WxMpTemplateData("first", "有新成员接受邀请"))
-            	    		.addData(new WxMpTemplateData("keyword1", userWxInfo.getNickname()))
+            	    		.addData(new WxMpTemplateData("keyword1", level +" "+userWxInfo.getNickname()))
             	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
-            	    		.addData(new WxMpTemplateData("remark", "生活家奖励：将分享成员产生的订单收益\n流量主奖励："+pointsReward.getString("points")+"阅豆\n\n点击请进入团队列表查看。"));
+            	    		.addData(new WxMpTemplateData("remark", "生活家权益：将分享成员产生的订单收益\n流量主奖励："+pointsReward.getString("points")+"阅豆\n\n点击查看团队列表。"));
             	      msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
 	  			}
 	  		}else if("Bind".equalsIgnoreCase(params[0])) {//在选品工具中扫码绑定达人账号。Bind::uuid，uuid为本次扫码使用的唯一识别码
