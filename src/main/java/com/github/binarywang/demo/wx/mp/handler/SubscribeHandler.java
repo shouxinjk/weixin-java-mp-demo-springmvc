@@ -195,7 +195,7 @@ public class SubscribeHandler extends AbstractHandler {
 					  .mediaId(brokerGroupChatQrcodeMediaId)
 					  .build();
 					wxMpService.getKefuService().sendKefuMessage(kfMsg);
-    				return new TextBuilder().build("欢迎回来，请扫码进入生活家交流群以获取更多信息~~", wxMessage, weixinService);
+    				return new TextBuilder().build("欢迎回来，请扫码进群，便于交流~~", wxMessage, weixinService);
     			}else {//如果不是达人，则完成注册
   					//先获取上级达人
   					JSONObject parentBrokerJson = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerById/"+params[1], null, header);
@@ -276,7 +276,8 @@ public class SubscribeHandler extends AbstractHandler {
 				wxMpService.getKefuService().sendKefuMessage(kfMsg);
 				
 				//给上级达人添加阅豆
-				JSONObject pointsReward = HttpClientHelper.getInstance().post(ilifeConfig.getSxApi()+"/mod/broker/rest/reward/invite/"+params[1], null, header);
+				JSONObject postData = new JSONObject();
+				JSONObject pointsReward = HttpClientHelper.getInstance().post(ilifeConfig.getSxApi()+"/mod/broker/rest/reward/invite/"+params[1], postData, header);
 		        //根据上级达人类型，区分跳转链接
 				String targetUrl = "http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html";
 				if("流量主".equalsIgnoreCase(level)) {
