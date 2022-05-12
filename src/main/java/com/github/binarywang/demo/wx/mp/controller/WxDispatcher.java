@@ -914,6 +914,42 @@ XXXX
 	}
 	
 	/**
+	 * 发送开白请求，响应开白回复
+	 * 
+	 * 	{{first.DATA}} title 接收到新的开白申请
+		原文标题：{{keyword1.DATA}}  request:文章标题或公众号名称 
+		原文时间：{{keyword2.DATA}}  requestTime：yyyy-MM-dd HH:mm:ss
+		{{remark.DATA}} remark：备注。公众号：xxx，开白类型：xxx 请即时处理
+	 * 
+	 * @param json
+	 * @return
+	 * @throws WxErrorException
+	 * @throws IOException
+	 */
+	@RequestMapping(value = "/notify-mp-forward", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendMpTemplateMessageForward(@RequestBody JSONObject json) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.info("start send forward notify message.[params]",json);
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(json.getString("openid"))
+      	      .templateId("pAsLmwxm8zkKBHRh9fOTjjwrQLGcM1d71Hp6oG4DWtU")//注意哦，是hard code哦
+      	      .url(json.getString("redirectUrl"))
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", json.getString("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", json.getString("request")))
+  	    		.addData(new WxMpTemplateData("keyword2", json.getString("requestTime")))
+  	    		.addData(new WxMpTemplateData("remark", json.getString("remark")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}
+	
+	/**
 	 * 达人注册后，发送上级达人通知信息。通过jsonObject传参，包括：
 	 * @param name 达人昵称，或姓名
 	 * @param openid 上级达人的openid
