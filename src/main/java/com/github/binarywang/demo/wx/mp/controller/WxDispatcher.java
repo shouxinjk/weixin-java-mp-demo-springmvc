@@ -954,6 +954,8 @@ XXXX
 	 * @param name 达人昵称，或姓名
 	 * @param openid 上级达人的openid
 	 * @param title 通知标题
+	 * @param url 跳转地址。可以为空，使用默认值
+	 * @param remark 备注 。可以为空，使用默认值
 	 * @return
 	 * @throws WxErrorException 
 	 * buildParentBrokerNotifyMsg(,userWxInfo.getNickname(),ilifeConfig.getDefaultParentBrokerOpenid(),"")
@@ -965,15 +967,25 @@ XXXX
 		logger.debug("try to send occasion notification message.[parent broker openid]"+json.getString("openid")+"[broker]"+json.getString("name"));
 		result.put("status", false);
 		
+		String remark = "请进入团队列表查看。";
+		if(json.getString("remark")!=null && json.getString("remark").trim().length()>0) {
+			remark = json.getString("remark");
+		}
+		
+		String url = "http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html";
+		if(json.getString("url")!=null && json.getString("url").trim().length()>0) {
+			url = json.getString("url");
+		}
+		
       WxMpTemplateMessage msg = WxMpTemplateMessage.builder()
     	      .toUser(json.getString("openid"))
     	      .templateId(ilifeConfig.getMsgIdBroker())//oWmOZm04KAQ2kRfCcU-udGJ0ViDVhqoXZmTe3HCWxlk
-    	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html")
+    	      .url(url)
     	      .build();
       msg.addData(new WxMpTemplateData("first", json.getString("title")))
     	    		.addData(new WxMpTemplateData("keyword1", json.getString("name")))
     	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
-    	    		.addData(new WxMpTemplateData("remark", "请进入团队列表查看。","#FF0000"));
+    	    		.addData(new WxMpTemplateData("remark", remark));
       String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(msg); 
       result.put("status", true);
       result.put("msg", "parent broker notify msg sent successfully.");

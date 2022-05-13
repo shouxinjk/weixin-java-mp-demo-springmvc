@@ -294,7 +294,7 @@ public class SubscribeHandler extends AbstractHandler {
         	    templateMessage.addData(new WxMpTemplateData("first", "有新成员接受邀请"))
         	    		.addData(new WxMpTemplateData("keyword1", level +" "+userWxInfo.getNickname()))
         	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
-        	    		.addData(new WxMpTemplateData("remark", "流量主奖励："+pointsReward.getString("points")+"阅豆\n生活家权益：将分享成员产生的订单收益\n\n点击查看团队列表。"));
+        	    		.addData(new WxMpTemplateData("remark", "邀请奖励："+pointsReward.getString("points")+"阅豆\n权益激活：将分享新成员内容带货收益\n\n点击查看团队列表。"));
         	      msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
     			}
     		}else if("Bind".equalsIgnoreCase(params[0])) {//在选品工具中扫码绑定达人账号。Bind::uuid，uuid为本次扫码使用的唯一识别码
