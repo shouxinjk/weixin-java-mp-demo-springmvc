@@ -914,6 +914,49 @@ XXXX
 	}
 	
 	/**
+	 * 通过公众号向流量主发送模板消息。提醒指定时间段的时候，每天或每周等
+	 * 注意：需要谨慎使用，可能会导致模板消息被封 
+	 * 输入参数：
+        {
+			openid:xxx,
+			title:xxx,
+			timestamp:yyyy-MM-dd HH:mm:ss
+			points:xxx,
+			remark:xxx,
+			color:xxx
+        }
+      * 消息模板：
+			{{first.DATA}} title
+			用户名：{{keyword1.DATA}} nickname
+			统计时间：{{keyword2.DATA}} timestamp
+			统计数据：{{keyword3.DATA}} points 阅豆
+			{{remark.DATA}} remark
+	 */
+	@RequestMapping(value = "/notify-mp-publisher-rank", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendMpTemplateMessagePublisherRank(@RequestBody JSONObject json) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.info("start send publisher notify message.[params]",json);
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(json.getString("openid"))
+      	      .templateId("QKSw7Gb7_V5FGhNW0KOw0bv-fBd5V38JLIX-PKfcdKk")
+      	      .url("https://www.biglistoflittlethings.com/ilife-web-wx/publisher/articles.html")
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", json.getString("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", json.getString("nickname")))
+  	    		.addData(new WxMpTemplateData("keyword2", json.getString("timestamp")))
+  	    		.addData(new WxMpTemplateData("keyword3", json.getString("points")))
+  	    		.addData(new WxMpTemplateData("remark", json.getString("remark"),json.getString("color")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}	
+	
+	/**
 	 * 发送开白请求，响应开白回复
 	 * 
 	 * 	{{first.DATA}} title 接收到新的开白申请
