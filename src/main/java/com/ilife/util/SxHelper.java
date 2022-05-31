@@ -309,6 +309,27 @@ public class SxHelper {
 		  return HttpClientHelper.getInstance().post(remote, params);
 	  }
 	  
+	  //判断是否是淘宝链接，如果是则自动上架。
+	  //如果不是CPS商品则直接返回错误
+	  public JSONObject checkTaobaoUrl(String url,String openid) {
+		  //调用远端服务完成自动上架
+		  String remote = ilifeConfig.getSxApi()+"/rest/cps/taobao";
+		  JSONObject params = new JSONObject();
+		  params.put("url", url);
+		  params.put("openid", openid);
+		  return HttpClientHelper.getInstance().post(remote, params);
+	  }
+	  
+	  //通知手动上架。
+	  //如果不是CPS商品则直接返回错误
+	  public JSONObject checkManualEnhouseUrl(String url,String openid) {
+		  //调用远端服务完成自动上架
+		  String remote = ilifeConfig.getSxApi()+"/rest/cps/manual";
+		  JSONObject params = new JSONObject();
+		  params.put("url", url);
+		  params.put("openid", openid);
+		  return HttpClientHelper.getInstance().post(remote, params);
+	  }
 	  /**
 	   * 判定是否包含有淘口令，有则返回口令，否则返回null
 	   * @param text
