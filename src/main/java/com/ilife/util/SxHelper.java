@@ -298,6 +298,17 @@ public class SxHelper {
 		  return "";
 	  }
 	  
+	  //判断是否是拼多多链接，如果是则自动上架。
+	  //如果不是CPS商品则直接返回错误
+	  public JSONObject checkPddUrl(String url,String openid) {
+		  //调用远端服务完成自动上架
+		  String remote = ilifeConfig.getSxApi()+"/rest/cps/pdd";
+		  JSONObject params = new JSONObject();
+		  params.put("url", url);
+		  params.put("openid", openid);
+		  return HttpClientHelper.getInstance().post(remote, params);
+	  }
+	  
 	  /**
 	   * 判定是否包含有淘口令，有则返回口令，否则返回null
 	   * @param text
@@ -430,9 +441,9 @@ public class SxHelper {
 			 <Url><![CDATA[%s]]></Url>
 			 </item>";
 	   */
-	  private String item(String title,String description,String picUrl,String url) {
+	  public String item(String title,String description,String picUrl,String url) {
 		  if(description == null || description.trim().length() == 0)
-			  description = "Life is all about having a good time.";
+			  description = "选出好的，分享对的，让生活充满小确幸。";
 		  StringBuffer sb = new StringBuffer();
 		  sb.append("<item>");
 		  sb.append("<title>"+title+"</title>");
@@ -512,7 +523,8 @@ public class SxHelper {
 					  logo = getDefaultImage();
 			  }
 			  String _key = doc.getKey();
-			  result = item(title,summary,logo,_key);
+			  String targetUrl = "https://www.biglistoflittlethings.com/ilife-web-wx/info2.html?id="+doc.getKey();
+			  result = item(title,summary,logo,targetUrl);
 		  }
 		  return result;
 	  }
@@ -670,6 +682,36 @@ public class SxHelper {
 	        logger.debug("got publishTime. [publishTime]"+time);
 	        //**/
 		  return data;
+	  }
+	  
+	  //发送企业微信通知消息
+	  //直接用卡片方式组织
+	  public void sendWeworkMsg(String title,String description,String picUrl,String url) {
+			//组装模板消息
+			JSONObject json = new JSONObject();
+			json.put("msgtype", "news");
+			JSONObject jsonArticle = new JSONObject();
+			jsonArticle.put("title" , title);
+			jsonArticle.put("description" , description);
+			jsonArticle.put("url" , url);
+			jsonArticle.put("picurl" , picUrl);
+
+			JSONArray jsonArticles = new JSONArray();
+			jsonArticles.add(jsonArticle);
+			JSONObject jsonNews = new JSONObject();
+			jsonNews.put("articles", jsonArticles);
+			json.put("news", jsonNews);
+			
+			logger.debug("try to send cp msg. ",json);
+			
+	   	    //准备发起HTTP请求：设置data server Authorization
+		    Map<String,String> header = new HashMap<String,String>();
+		    header.put("Authorization","Basic aWxpZmU6aWxpZmU=");
+		    
+			//发送到企业微信
+			HttpClientHelper.getInstance().post(
+					ilifeConfig.getWeworkApi()+"/notify-cp-company-broker", 
+					json,header);
 	  }
 	  
 	  

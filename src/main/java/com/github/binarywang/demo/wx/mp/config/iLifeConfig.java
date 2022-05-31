@@ -30,6 +30,9 @@ public class iLifeConfig {
   
   @Value("#{ilifePropertyies.frontend_prefix}")
   private String frontendPrefix;
+  
+  @Value("#{ilifePropertyies.wework_api}")
+  private String weworkApi;
 
   @Value("#{ilifePropertyies.auto_register_broker}")
   private boolean autoRegisterBroker;
@@ -122,6 +125,14 @@ public String getFrontendPrefix() {
 
 public void setFrontendPrefix(String frontendPrefix) {
 	this.frontendPrefix = frontendPrefix;
+}
+
+public String getWeworkApi() {
+	return weworkApi;
+}
+
+public void setWeworkApi(String weworkApi) {
+	this.weworkApi = weworkApi;
 }
 
 public String getDefaultParentBrokerId() {

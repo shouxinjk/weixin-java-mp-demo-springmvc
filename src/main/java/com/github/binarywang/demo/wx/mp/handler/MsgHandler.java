@@ -192,6 +192,34 @@ public class MsgHandler extends AbstractHandler {
 	 }catch(Exception ex) {
 	 	logger.error("Failed to match wechat article url.",ex);
 	 }
+	 
+	 //CPS: pdd
+	 //匹配拼多多链接，如果匹配则自动上架
+	 if(keyword.indexOf("yangkeduo.com")>0) {
+		 JSONObject result = helper.checkPddUrl(keyword,wxMessage.getFromUser());
+		 if(result.getBooleanValue("success")) {//是CPS商品则自动上架
+			 JSONObject data = result.getJSONObject("data");
+			String docXml = helper.item(data.getString("title"), 
+					data.getString("summary"), 
+					data.getString("logo"), 
+					"https://www.biglistoflittlethings.com/ilife-web-wx/info2.html?id="+data.getString("itemKey"));
+ 		    XStream xstream = new XStream();
+ 		    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
+ 		    XStream.setupDefaultSecurity(xstream);
+ 		    xstream.allowTypes(classes);
+ 		    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
+ 			WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(docXml);
+ 			return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
+ 			        .toUser(wxMessage.getFromUser()).build();
+		 }else if(result.getJSONObject("broker")!=null){//如果有对应达人，则发送上架通知，等候手动处理
+			 //需要发送通知给管理员，告知手动采集：直接发送消息到企业微信即可。完成后需要通过微信后台回复。
+			 helper.sendWeworkMsg("拼多多商品上架", "请求达人："+result.getJSONObject("broker").getString("nickname"), result.getJSONObject("broker").getString("avatarUrl"), keyword);
+			 return new TextBuilder().build("请稍等，已转发客服，稍后回复~~", wxMessage, weixinService);
+		 }else {
+			 //do nothing
+			 return new TextBuilder().build("啊哦，这个商品没在推广哦，看看其他的吧~~", wxMessage, weixinService);
+		 }
+	 }
     
     //匹配URL，仅对于已经支持的URL进行过滤，
     //如果在不支持的范围，则过滤掉URL，当成文字处理
@@ -223,7 +251,7 @@ public class MsgHandler extends AbstractHandler {
     			helper.insertBrokerSeed(openid,"url",targetUrl, wxMessage.getContent());
         		//先发个消息安抚一下
     		    try {
-    		    	return new TextBuilder().build("商品URL收到，正在转换，请稍等~", wxMessage, weixinService);
+    		    	return new TextBuilder().build("商品URL收到，正在获取商品详情，请稍等~", wxMessage, weixinService);
     		    } catch (Exception e) {
     		    	this.logger.error(e.getMessage(), e);
     		    }
