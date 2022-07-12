@@ -325,28 +325,33 @@ public class MsgHandler extends AbstractHandler {
 
     //如果keyword还有内容的话直接搜索，则根据关键词搜索符合内容
     //先返回一条提示信息
-	WxMpKefuMessage kfMsg = WxMpKefuMessage
-		  .TEXT().content("这是与 "+keyword+" 相关的内容，更多内容可以点击底部【小确幸】查看推荐哦，还可以添加关心的人得到专属于TA的推荐~~")
-		  .toUser(userWxInfo.getOpenId())
-		  .build();
-	wxMpService.getKefuService().sendKefuMessage(kfMsg);
-	//然后返回一条搜索结果：微信限制只能返回一条
-    String xml = null;
-    try {
-    		xml = helper.searchMatchedItem(keyword);
-    }catch(Exception ex) {
-    		logger.error("Error occured while search items.[keyword]"+keyword,ex);
-    }
-    if(xml == null || xml.trim().length() == 0)
-    		xml = helper.loadDefaultItem();
-    XStream xstream = new XStream();
-    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
-    XStream.setupDefaultSecurity(xstream);
-    xstream.allowTypes(classes);
-    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
-	WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(xml);
-	return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
-	        .toUser(wxMessage.getFromUser()).build();
-  }
+    if(keyword.trim().length()<12) {//仅在关键字有限时才搜索
+		WxMpKefuMessage kfMsg = WxMpKefuMessage
+			  .TEXT().content("找到 "+keyword+" 相关的内容，点击可以查看更多~~")
+			  .toUser(userWxInfo.getOpenId())
+			  .build();
+		wxMpService.getKefuService().sendKefuMessage(kfMsg);
+		//然后返回一条搜索结果：微信限制只能返回一条
+	    String xml = null;
+	    try {
+	    		xml = helper.searchMatchedItem(keyword);
+	    }catch(Exception ex) {
+	    		logger.error("Error occured while search items.[keyword]"+keyword,ex);
+	    }
+	    if(xml == null || xml.trim().length() == 0)
+	    		xml = helper.loadDefaultItem();
+	    XStream xstream = new XStream();
+	    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
+	    XStream.setupDefaultSecurity(xstream);
+	    xstream.allowTypes(classes);
+	    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
+		WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(xml);
+		return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
+		        .toUser(wxMessage.getFromUser()).build();
+	}
+    
+  	//最后返回不懂说啥，给出联系人方式
+    return new TextBuilder().build("没听懂哦，输入关键字可以推荐好物哦~~", wxMessage, weixinService);
   
+}
 }
