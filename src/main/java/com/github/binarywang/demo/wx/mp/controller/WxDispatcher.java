@@ -618,6 +618,9 @@ XXXX
 		}catch(Exception ex) {
 			//do nothing
 		}
+		
+		/**
+		//不推送淘口令，口令能够在详情页查看
 		StringBuffer sb = new StringBuffer();
 		sb.append("亲，你的专属淘口令也准备好了哦，");
 		sb.append(params.get("token") + params.get("title"));
@@ -629,6 +632,8 @@ XXXX
 		  .content(sb.toString())
 		  .build();
 		wxMpService.getKefuService().sendKefuMessage(msg);
+		
+		//**/
 		
 		//发送第二条文字消息：淘口令：大兄嘚，就别发那么多消息了，微信连续发20条就会停止发送了
 		/**
