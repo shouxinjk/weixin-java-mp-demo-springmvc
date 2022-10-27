@@ -195,6 +195,7 @@ public class MsgHandler extends AbstractHandler {
 	 
 	 //CPS: pdd
 	 //匹配拼多多链接，如果匹配则自动上架
+	 /**
 	 if(keyword.indexOf("yangkeduo.com")>0 || keyword.indexOf("pinduoduo.com")>0) {
 		 JSONObject result = helper.checkPddUrl(keyword,wxMessage.getFromUser());
 		 if(result.getBooleanValue("success")) {//是CPS商品则自动上架
@@ -220,6 +221,7 @@ public class MsgHandler extends AbstractHandler {
 			 return new TextBuilder().build("啊哦，这个商品没在推广哦，看看其他的吧~~", wxMessage, weixinService);
 		 }
 	 }
+	 //**/
 	 
 	 //CPS：taobao tmall fliggy 
 	 //当前未实现接口，统一采用手动上架通知：通过下方对URL识别统一处理
@@ -274,7 +276,7 @@ public class MsgHandler extends AbstractHandler {
 	 }
 	 //**/
     
-    //匹配URL，仅对于已经支持的URL进行过滤，
+    //匹配商品URL，仅对于已经支持的电商URL进行过滤，
     //如果在不支持的范围，则过滤掉URL，当成文字处理
     //如果再支持范围内，则转换为标准URL格式直接搜索标准URL，如果已经入库则直接返回
     String url = helper.getUrl(keyword);
@@ -302,7 +304,7 @@ public class MsgHandler extends AbstractHandler {
     			        .toUser(wxMessage.getFromUser()).build();
     		}else {//提交到broker_seed库，等待采集。并发送 安抚消息
     	        //尝试自动采集、发送通知手动采集、或通知不予采集
-    			 JSONObject result = helper.autoEnhouse(keyword,wxMessage.getFromUser());
+    			 JSONObject result = helper.autoEnhouse(targetUrl,wxMessage.getFromUser());
     			 if(result.getBooleanValue("success")) {//是CPS商品则自动上架
     				 JSONObject data = result.getJSONObject("data");
     				 docXml = helper.item(data.getString("title"), 
