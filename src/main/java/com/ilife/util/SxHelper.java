@@ -298,6 +298,25 @@ public class SxHelper {
 		  return "";
 	  }
 	  
+	  //判断是否支持自动入库
+	  public JSONObject checkAutoEnhouseSupport(String url) {
+		  String remote = ilifeConfig.getSxApi()+"/rest/cps/support";
+		  JSONObject params = new JSONObject();
+		  params.put("url", url);
+		  return HttpClientHelper.getInstance().post(remote, params);
+	  }
+	  
+	  //根据URL自动采集商品
+	  public JSONObject autoEnhouse(String url,String openid) {
+		  //调用远端服务完成自动上架
+		  String remote = ilifeConfig.getSxApi()+"/rest/cps/enhouse";
+		  JSONObject params = new JSONObject();
+		  params.put("url", url);
+		  params.put("openid", openid);
+		  return HttpClientHelper.getInstance().post(remote, params);
+	  }
+	  
+	  @Deprecated
 	  //判断是否是拼多多链接，如果是则自动上架。
 	  //如果不是CPS商品则直接返回错误
 	  public JSONObject checkPddUrl(String url,String openid) {
@@ -311,6 +330,7 @@ public class SxHelper {
 	  
 	  //判断是否是淘宝链接，如果是则自动上架。
 	  //如果不是CPS商品则直接返回错误
+	  @Deprecated
 	  public JSONObject checkTaobaoUrl(String url,String openid) {
 		  //调用远端服务完成自动上架
 		  String remote = ilifeConfig.getSxApi()+"/rest/cps/taobao";
@@ -415,6 +435,10 @@ public class SxHelper {
 	   * @text 原始消息文本
 	   */
 	  public void insertBrokerSeed(String openid,String type, String data, String text) {
+		  insertBrokerSeed( openid, type,  data,  text, false);
+	  }
+	  //手动指定是否通知状态
+	  public void insertBrokerSeed(String openid,String type, String data, String text, boolean notifyStatus) {
 		  	getArangoClient(); 
 		  //组织默认broker-seed文档
 			BaseDocument doc = new BaseDocument();
@@ -423,7 +447,7 @@ public class SxHelper {
 			statusNode.put("collect", false);
 			statusNode.put("cps", false);
 			statusNode.put("profit", false);
-			statusNode.put("notify", false);
+			statusNode.put("notify", notifyStatus);
 			Map<String,Object> timestampNode = new HashMap<String,Object>();
 			timestampNode.put("create", new Date());	
 			

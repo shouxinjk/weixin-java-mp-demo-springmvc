@@ -301,21 +301,12 @@ public class MsgHandler extends AbstractHandler {
     			return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
     			        .toUser(wxMessage.getFromUser()).build();
     		}else {//提交到broker_seed库，等待采集。并发送 安抚消息
-    			helper.insertBrokerSeed(openid,"url",targetUrl, wxMessage.getContent());
-        		//先发个消息安抚一下
-    			/**
-    		    try {
-    		    	return new TextBuilder().build("商品URL收到，正在获取商品详情，请稍等~", wxMessage, weixinService);
-    		    } catch (Exception e) {
-    		    	this.logger.error(e.getMessage(), e);
-    		    }
-    		    //**/
-    			//尝试自动采集、发送通知手动采集、或通知不予采集
-    			 JSONObject result = helper.checkManualEnhouseUrl(keyword,wxMessage.getFromUser());
+    	        //尝试自动采集、发送通知手动采集、或通知不予采集
+    			 JSONObject result = helper.autoEnhouse(keyword,wxMessage.getFromUser());
     			 if(result.getBooleanValue("success")) {//是CPS商品则自动上架
     				 JSONObject data = result.getJSONObject("data");
     				 docXml = helper.item(data.getString("title"), 
-    						data.getString("summary"), 
+    						data.getString("summary")==null?"新提交商品已上架":data.getString("summary"), 
     						data.getString("logo"), 
     						"https://www.biglistoflittlethings.com/ilife-web-wx/info2.html?id="+data.getString("itemKey"));
     	 		    XStream xstream = new XStream();
@@ -324,16 +315,18 @@ public class MsgHandler extends AbstractHandler {
     	 		    xstream.allowTypes(classes);
     	 		    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
     	 			WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(docXml);
+    	 			helper.insertBrokerSeed(openid,"url",targetUrl, wxMessage.getContent(),true);//在种子库里写一条记录，但无需再发通知：另一种方式是此处不发送通知，等待自动任务完成。有一定的时延
     	 			return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
     	 			        .toUser(wxMessage.getFromUser()).build();
     			 }else if(result.getJSONObject("broker")!=null){//如果有对应达人，则发送上架通知，等候手动处理
+    	    		 helper.insertBrokerSeed(openid,"url",targetUrl, wxMessage.getContent());
     				 //需要发送通知给管理员，告知手动采集：直接发送消息到企业微信即可。完成后需要通过微信后台回复。
     				 helper.sendWeworkMsg("手动商品上架：" +keyword, "请求达人："+result.getJSONObject("broker").getString("nickname"), result.getJSONObject("broker").getString("avatarUrl"), keyword);
     				 return new TextBuilder().build("请稍等，已转发客服，稍后回复。超过半小时未回复也可以直接联系客服哦~~", wxMessage, weixinService);
     			 }else {
     				 //do nothing
     				 return new TextBuilder().build("啊哦，这个商品没在推广哦，看看其他的吧~~", wxMessage, weixinService);
-    			 }    			
+    			 }  
     		}
     	}
     }
