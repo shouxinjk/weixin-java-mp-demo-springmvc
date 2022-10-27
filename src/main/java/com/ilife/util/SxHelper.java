@@ -558,7 +558,28 @@ public class SxHelper {
 		  if(doc != null) {
 			  Map<String,Object>  props = doc.getProperties();
 			  String title = ""+props.get("title");
-			  String summary = ""+ props.get("summary");
+			  String summary = "";
+			  if(props.get("summary")!=null) {
+				  summary = ""+props.get("summary");
+			  }else {
+				  Map<String,String> advices = (Map<String,String>)props.get("advices");
+				  if(advices != null && advices.keySet().size()>=1) {
+					  long index = System.currentTimeMillis()%advices.keySet().size();
+					  long i=0;
+					  for(String key: advices.keySet()) {
+						  if(index == i) {
+							  summary = advices.get(key);
+							  break;
+						  }
+						  i++;
+					  }
+				  }else if(props.get("tagging")!=null && props.get("tagging").toString().trim().length()>0) {
+					  summary = props.get("tagging").toString();
+				  }else {
+					  Map<String,String> distributor = (Map<String,String>)props.get("distributor");
+					  summary = distributor.get("name");
+				  }
+			  }
 			  String logo = props.get("logo")==null?""+props.get("logo"):null;
 			  if(logo==null) {//如果没有logo，则从image列表内选一张
 				  List<String> images = (List<String>)props.get("images");
