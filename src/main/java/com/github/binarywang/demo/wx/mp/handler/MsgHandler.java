@@ -292,7 +292,7 @@ public class MsgHandler extends AbstractHandler {
     			//do nothing
     		}
     	}else {//是支持的URL，查找是否已经入库，已经入库则返回，否则等待采集后返回
-    		String docXml = helper.queryDocByUrl(url);
+    		String docXml = helper.queryDocByUrl(targetUrl);//注意：需要根据转换后的URL查找
     		if(docXml!=null) {//查询到了，直接返回指定内容
     		    XStream xstream = new XStream();
     		    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
