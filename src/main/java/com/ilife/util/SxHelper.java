@@ -307,11 +307,12 @@ public class SxHelper {
 	  }
 	  
 	  //根据URL自动采集商品
-	  public JSONObject autoEnhouse(String url,String openid) {
+	  public JSONObject autoEnhouse(String url,String text,String openid) {
 		  //调用远端服务完成自动上架
 		  String remote = ilifeConfig.getSxApi()+"/rest/cps/enhouse";
 		  JSONObject params = new JSONObject();
 		  params.put("url", url);
+		  params.put("text", text);
 		  params.put("openid", openid);
 		  return HttpClientHelper.getInstance().post(remote, params);
 	  }
