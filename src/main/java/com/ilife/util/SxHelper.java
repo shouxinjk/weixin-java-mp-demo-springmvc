@@ -288,9 +288,9 @@ public class SxHelper {
 	  public String convertUrl(String url) {
 		  //TODO 调用远端服务检查是否支持
 		  String remote = ilifeConfig.getSxApi()+"/mod/linkTemplate/rest/convert";
-		  Map<String,String> params = Maps.newHashMap();
+		  JSONObject params = new JSONObject();
 		  params.put("url", url);
-		  JSONObject result = HttpClientHelper.getInstance().get(remote, params,null);
+		  JSONObject result = HttpClientHelper.getInstance().post(remote, params,null);
 		  logger.error("got result.",result);
 		  if(result.getBooleanValue("success")) {
 			  return result.getString("url");

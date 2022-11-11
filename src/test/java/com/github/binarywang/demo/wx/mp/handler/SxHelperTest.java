@@ -39,9 +39,10 @@ public class SxHelperTest {
 	
 	@Test
 	public void convertUrl() {
-		System.err.println( helper.convertUrl("http://item.jd.com/5089253.html?cpslink=0%26test=2"));
-		System.err.println( helper.convertUrl("https://item.jd.com/5089253.html?cpslink=0%26test=2"));
-		System.err.println( helper.convertUrl("http://cps.item.jd.com/5089253.html?cpslink=0%26test=2"));
+//		System.err.println( helper.convertUrl("http://item.jd.com/5089253.html?cpslink=0%26test=2"));
+//		System.err.println( helper.convertUrl("https://item.jd.com/5089253.html?cpslink=0%26test=2"));
+//		System.err.println( helper.convertUrl("http://cps.item.jd.com/5089253.html?cpslink=0%26test=2"));
+		System.err.println( helper.convertUrl("https://t.vip.com/vEE6ZGoewRA?aq=1&desturl=https%3A%2F%2Fm.vip.com%2Fproduct-1711197624-6918838978304616600.html%3Fnmsns%3Dshop_iphone-7.82.1-link%26nst%3Dproduct%26nsbc%3D%26nct%3Dlink%26ncid%3Dc7e914df1f3d9df62dd417ec63ad0bc48b117b4a%26nabtid%3D13%26nuid%3D460248657%26nchl_param%3Dshare%3Ac7e914df1f3d9df62dd417ec63ad0bc48b117b4a%3A1668154847342%26mars_cid_a%3Dc7e914df1f3d9df62dd417ec63ad0bc48b117b4a%26chl_type%3Dshare&nmsns=shop_iphone-7.82.1-link&nst=product&nsbc=&nct=link&ncid=c7e914df1f3d9df62dd417ec63ad0bc48b117b4a&nabtid=13&nuid=460248657&nchl_param=share:c7e914df1f3d9df62dd417ec63ad0bc48b117b4a:1668154847342&mars_cid_a=c7e914df1f3d9df62dd417ec63ad0bc48b117b4a&chl_type=share"));
 	}
 	
 	@Test
