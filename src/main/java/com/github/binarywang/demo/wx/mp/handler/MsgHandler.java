@@ -24,6 +24,7 @@ import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
 import me.chanjar.weixin.mp.builder.outxml.NewsBuilder;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -279,7 +280,8 @@ public class MsgHandler extends AbstractHandler {
     //匹配商品URL，仅对于已经支持的电商URL进行过滤，
     //如果在不支持的范围，则过滤掉URL，当成文字处理
     //如果再支持范围内，则转换为标准URL格式直接搜索标准URL，如果已经入库则直接返回
-    String url = helper.getUrl(keyword);
+    //String url = helper.getUrl(keyword);
+	 String url = StringEscapeUtils.escapeHtml4(keyword); //需要支持淘口令，避免直接采用url。需要进行转义处理
     if(url.trim().length()>0) {
     	//检查URL是否在支持范围内
     	String targetUrl = helper.convertUrl(url);
