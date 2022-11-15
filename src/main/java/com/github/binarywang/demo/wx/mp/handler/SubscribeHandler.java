@@ -525,7 +525,7 @@ public class SubscribeHandler extends AbstractHandler {
 			  .build();
 			wxMpService.getKefuService().sendKefuMessage(kfMsg);
 			//**/
-			return new TextBuilder().build("感谢关注，我们致力于筛选出更适合的商品，一起用小确幸填满大生活~~", wxMessage, weixinService);
+			return new TextBuilder().build("感谢关注，我们是决策助手，提供推荐、评价、定制服务，让每一个生活决策都带来小确幸，填满大生活~~", wxMessage, weixinService);
 		}else if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
 			  try {
 				  //自动注册为达人
@@ -581,7 +581,7 @@ public class SubscribeHandler extends AbstractHandler {
 			  }
 		  }
 		  //最后都要返回申明
-		  return new TextBuilder().build("感谢遇见。生活与消费密不可分，数以亿计的商品和海量信息，让选择越来越困难。我们提供基于生活方式和领域知识的选品能力，让每一个人都成为生活家，用小确幸填满大生活 ~~~", wxMessage, weixinService);
+		  return new TextBuilder().build("感谢遇见。我们是决策助手，提供推荐、评价、定制服务，让每一个生活决策都带来小确幸，填满大生活 ~~", wxMessage, weixinService);
     }
 
     return null;
@@ -615,7 +615,7 @@ public class SubscribeHandler extends AbstractHandler {
       msg.addData(new WxMpTemplateData("first", name+"，感谢关注"))
     	    		.addData(new WxMpTemplateData("keyword1", name))
     	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
-    	    		.addData(new WxMpTemplateData("remark", "我们同时提供了自购省钱、分享赚钱功能，点击注册就可以马上开始哦，欢迎扫码进群交流哦~~","#FF0000"));
+    	    		.addData(new WxMpTemplateData("remark", "我们同时提供了自购省钱、分享赚钱功能，点击注册就可以马上开始，欢迎扫码进群交流哦~~","#FF0000"));
     
       return msg;
 	}

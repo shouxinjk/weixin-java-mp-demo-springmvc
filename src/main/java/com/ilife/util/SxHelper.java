@@ -290,7 +290,7 @@ public class SxHelper {
 		  String remote = ilifeConfig.getSxApi()+"/mod/linkTemplate/rest/convert";
 		  JSONObject params = new JSONObject();
 		  params.put("url", url);
-		  JSONObject result = HttpClientHelper.getInstance().post(remote, params,null);
+		  JSONObject result = HttpClientHelper.getInstance().post(remote, params);
 		  logger.error("got result.",result);
 		  if(result.getBooleanValue("success")) {
 			  return result.getString("url");
