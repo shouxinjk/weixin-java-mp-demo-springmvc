@@ -530,7 +530,8 @@ public class SxHelper {
 		  String result = null;
 		  JSONArray hits = json.getJSONObject("hits").getJSONArray("hits");
 			if(hits.size()>0) {
-				JSONObject hit = hits.getJSONObject(0).getJSONObject("_source");
+				long idx = System.currentTimeMillis()%hits.size();
+				JSONObject hit = hits.getJSONObject((int)idx).getJSONObject("_source");
 				result = item(hit.getString("title"),
 						hit.getString("summary"),
 						hit.getJSONArray("images").getString(0),
