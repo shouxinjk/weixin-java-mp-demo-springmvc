@@ -234,7 +234,7 @@ public class SxHelper {
 	 * @return
 	 */
 	  public JSONObject searchByKeyword(String keyword) {
-		  return searchByKeyword(keyword,1);
+		  return searchByKeyword(keyword,10);
 	  }
 	  
 	  public JSONObject searchByKeyword(String keyword, int size) {
