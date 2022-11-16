@@ -512,8 +512,8 @@ public class SxHelper {
 		  String result = null;
 		  JSONArray hits = json.getJSONObject("hits").getJSONArray("hits");
 			if(hits.size()>0) { //将从返回的结果内随机取值
-				long idx = System.currentTimeMillis()%hits.size();
-				JSONObject hit = hits.getJSONObject((int)idx).getJSONObject("_source");
+				int idx = (int)Math.floor(Math.random()*100)%hits.size();
+				JSONObject hit = hits.getJSONObject(idx).getJSONObject("_source");
 				result = item(hit.getString("title"),
 						hit.getString("summary"),
 						hit.getJSONArray("images").getString(0),

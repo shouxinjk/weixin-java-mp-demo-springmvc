@@ -297,7 +297,7 @@ public class MsgHandler extends AbstractHandler {
 	}
     
   	//最后返回不懂说啥，给出联系人方式
-    return new TextBuilder().build("没听懂哦，输入关键字可以推荐好物哦~~", wxMessage, weixinService);
+    return new TextBuilder().build("没听懂哦，输入关键字可以推荐好物，点击菜单也可以哦~~", wxMessage, weixinService);
   
 }
 }
