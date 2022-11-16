@@ -193,103 +193,20 @@ public class MsgHandler extends AbstractHandler {
 	 }catch(Exception ex) {
 	 	logger.error("Failed to match wechat article url.",ex);
 	 }
-	 
-	 //CPS: pdd
-	 //匹配拼多多链接，如果匹配则自动上架
-	 /**
-	 if(keyword.indexOf("yangkeduo.com")>0 || keyword.indexOf("pinduoduo.com")>0) {
-		 JSONObject result = helper.checkPddUrl(keyword,wxMessage.getFromUser());
-		 if(result.getBooleanValue("success")) {//是CPS商品则自动上架
-			 JSONObject data = result.getJSONObject("data");
-			String docXml = helper.item(data.getString("title"), 
-					data.getString("summary"), 
-					data.getString("logo"), 
-					"https://www.biglistoflittlethings.com/ilife-web-wx/info2.html?id="+data.getString("itemKey"));
- 		    XStream xstream = new XStream();
- 		    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
- 		    XStream.setupDefaultSecurity(xstream);
- 		    xstream.allowTypes(classes);
- 		    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
- 			WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(docXml);
- 			return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
- 			        .toUser(wxMessage.getFromUser()).build();
-		 }else if(result.getJSONObject("broker")!=null){//如果有对应达人，则发送上架通知，等候手动处理
-			 //需要发送通知给管理员，告知手动采集：直接发送消息到企业微信即可。完成后需要通过微信后台回复。
-			 helper.sendWeworkMsg("拼多多商品上架", "请求达人："+result.getJSONObject("broker").getString("nickname"), result.getJSONObject("broker").getString("avatarUrl"), keyword);
-			 return new TextBuilder().build("请稍等，已转发客服，稍后回复~~", wxMessage, weixinService);
-		 }else {
-			 //do nothing
-			 return new TextBuilder().build("啊哦，这个商品没在推广哦，看看其他的吧~~", wxMessage, weixinService);
-		 }
-	 }
-	 //**/
-	 
-	 //CPS：taobao tmall fliggy 
-	 //当前未实现接口，统一采用手动上架通知：通过下方对URL识别统一处理
-	 /**
-	 if(keyword.indexOf("taobao")>0 || keyword.indexOf("fliggy")>0 || keyword.indexOf("tmall")>0 || keyword.indexOf("tb.cn")>0 ||
-			 keyword.indexOf("jd.cn")>0 || keyword.indexOf("jd.com")>0 ||
-			 keyword.indexOf("vip.com")>0 || keyword.indexOf("vip.cn")>0 || 
-			 keyword.indexOf("ly.com")>0 ||
-			 keyword.indexOf("ctrip.com")>0 ||
-			 keyword.indexOf("amazon.cn")>0 ||
-			 keyword.indexOf("lvmama.com")>0 ||
-			 keyword.indexOf("dangdang.com")>0 || 
-			 keyword.indexOf("kaola.com")>0 || 
-			 keyword.indexOf("vip.com")>0 || 
-			 keyword.indexOf("163.com")>0 || 
-			 keyword.indexOf("suning.com")>0 || 
-			 keyword.indexOf("gome.com")>0 || 
-			 keyword.indexOf("mi.com")>0 || 
-			 keyword.indexOf("maoyan.com")>0 || 
-			 keyword.indexOf("vip.com")>0 || 
-			 keyword.indexOf("qunar.com")>0 || 
-			 keyword.indexOf("mafengwo.cn")>0 || 
-			 keyword.indexOf("1919.com")>0 || 
-			 keyword.indexOf("biyao.com")>0 || 
-			 keyword.indexOf("dhc.net.cn")>0 || 
-			 keyword.indexOf("ikang.com")>0 || 
-			 keyword.indexOf("zbird.com")>0
-			 ) {
-		 JSONObject result = helper.checkManualEnhouseUrl(keyword,wxMessage.getFromUser());
-		 if(result.getBooleanValue("success")) {//是CPS商品则自动上架
-			 JSONObject data = result.getJSONObject("data");
-			String docXml = helper.item(data.getString("title"), 
-					data.getString("summary"), 
-					data.getString("logo"), 
-					"https://www.biglistoflittlethings.com/ilife-web-wx/info2.html?id="+data.getString("itemKey"));
- 		    XStream xstream = new XStream();
- 		    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
- 		    XStream.setupDefaultSecurity(xstream);
- 		    xstream.allowTypes(classes);
- 		    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
- 			WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(docXml);
- 			return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
- 			        .toUser(wxMessage.getFromUser()).build();
-		 }else if(result.getJSONObject("broker")!=null){//如果有对应达人，则发送上架通知，等候手动处理
-			 //需要发送通知给管理员，告知手动采集：直接发送消息到企业微信即可。完成后需要通过微信后台回复。
-			 helper.sendWeworkMsg("手动商品上架：" +keyword, "请求达人："+result.getJSONObject("broker").getString("nickname"), result.getJSONObject("broker").getString("avatarUrl"), keyword);
-			 return new TextBuilder().build("请稍等，已转发客服，稍后回复。超过半小时未回复也可以直接联系客服哦~~", wxMessage, weixinService);
-		 }else {
-			 //do nothing
-			 return new TextBuilder().build("啊哦，这个商品没在推广哦，看看其他的吧~~", wxMessage, weixinService);
-		 }
-	 }
-	 //**/
     
     //匹配商品URL，仅对于已经支持的电商URL进行过滤，
     //如果在不支持的范围，则过滤掉URL，当成文字处理
     //如果再支持范围内，则转换为标准URL格式直接搜索标准URL，如果已经入库则直接返回
-    //String url = helper.getUrl(keyword);
-	 String url = StringEscapeUtils.escapeHtml4(keyword); //需要支持淘口令，避免直接采用url。需要进行转义处理
+    String url = helper.getUrl(keyword);//判断是否是URL地址
     if(url.trim().length()>0) {
+    	String sUrl = StringEscapeUtils.escapeHtml4(keyword); //!!!注意：判断包含URL后需要采用原文处理，以支持淘口令，避免直接采用url。需要进行转义处理
     	//检查URL是否在支持范围内
-    	String targetUrl = helper.convertUrl(url);
+    	String targetUrl = helper.convertUrl(sUrl);
     	if(targetUrl.trim().length()==0) {//是不支持的URL，看看还有没有其他内容可用
     		//把url信息从文本中去掉
     		keyword = keyword.replace(url, "").trim();
     		if(keyword.length()==0) {//如果没有其他内容了，直接返回吧，说不知道是个啥
-    			return new TextBuilder().build("还不支持这个URL哈，重新输入看看呢。", wxMessage, weixinService);
+    			return new TextBuilder().build("还不支持这个URL哈，可以支持京东、拼多多、唯品会、淘宝~~", wxMessage, weixinService);
     		}else {//表示还有其他内容，口令啊，文字之类的，等着后面处理就是了
     			//do nothing
     		}

@@ -525,7 +525,7 @@ public class SubscribeHandler extends AbstractHandler {
 			  .build();
 			wxMpService.getKefuService().sendKefuMessage(kfMsg);
 			//**/
-			return new TextBuilder().build("感谢关注，我们是决策助手，提供推荐、评价、定制服务，让每一个生活决策都带来小确幸，填满大生活~~", wxMessage, weixinService);
+			return new TextBuilder().build("感谢关注，我们是决策助手，提供推荐、评价、定制服务，让每一个生活决策都是小确幸，填满大生活~~", wxMessage, weixinService);
 		}else if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
 			  try {
 				  //自动注册为达人
