@@ -998,6 +998,42 @@ XXXX
 	}
 	
 	/**
+	 * 发送账号申请审核通知
+	 * 
+	 * 	{{first.DATA}}
+		申请结果：{{keyword1.DATA}}
+		审核信息：{{keyword2.DATA}}
+		{{remark.DATA}}
+	 * 
+	 * @param json
+	 * @return
+	 * @throws WxErrorException
+	 * @throws IOException
+	 */
+	@RequestMapping(value = "/notify-mp-badge", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendMpTemplateMessageBadge(@RequestBody JSONObject json) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.info("start send forward notify message.[params]",json);
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(json.getString("openid"))
+      	      .templateId("x3aTDJqolbFPO8zqzHglmLZgaO1yW_9sbo42Wa5B7_4	")//注意哦，是hard code哦
+      	      .url(json.getString("redirectUrl"))
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", json.getString("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", json.getString("respond")))
+  	    		.addData(new WxMpTemplateData("keyword2", json.getString("respondMsg")))
+  	    		.addData(new WxMpTemplateData("remark", json.getString("remark")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}	
+	
+	/**
 	 * 达人注册后，发送上级达人通知信息。通过jsonObject传参，包括：
 	 * @param name 达人昵称，或姓名
 	 * @param openid 上级达人的openid
