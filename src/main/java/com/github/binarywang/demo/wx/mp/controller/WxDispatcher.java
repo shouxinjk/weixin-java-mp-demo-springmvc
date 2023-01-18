@@ -1018,7 +1018,7 @@ XXXX
 		
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
       	      .toUser(json.getString("openid"))
-      	      .templateId("x3aTDJqolbFPO8zqzHglmLZgaO1yW_9sbo42Wa5B7_4	")//注意哦，是hard code哦
+      	      .templateId("x3aTDJqolbFPO8zqzHglmLZgaO1yW_9sbo42Wa5B7_4")//注意哦，是hard code哦
       	      .url(json.getString("redirectUrl"))
       	      .build();
 
