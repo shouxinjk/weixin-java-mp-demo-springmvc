@@ -35,9 +35,16 @@ public class SxHelper {
 		  private iLifeConfig ilifeConfig;
 		  
 		@Value("#{extProps['es.url']}") String esUrl;
+		@Value("#{extProps['es.url.article']}") String esUrlArticle;
 		@Value("#{extProps['es.query']}") String esQuery;
+		@Value("#{extProps['es.query.article']}") String esQueryArticle;
 		@Value("#{extProps['es.queryByDistance']}") String esQueryByDistance;
 		@Value("#{extProps['mp.msg.url.prefix']}") String ilifeUrlPrefix;
+		
+		//ChatGPT
+		@Value("#{extProps['chatgpt.endpoint']}") String chatgptEndpoint;
+		@Value("#{extProps['chatgpt.apikey']}") String chatgptApiKey;
+		@Value("#{extProps['chatgpt.msg']}") String chatgptMsg;
 		
 	    ArangoDbClient arangoClient;
 	    
@@ -250,6 +257,64 @@ public class SxHelper {
 		  JSONObject result = HttpClientHelper.getInstance().post(esUrl, data,header);
 		  logger.debug("got result. " + result);
 		  return result;
+	  }
+	  
+	  //搜索article，返回10条
+	  public JSONObject searchArticleByKeyword(String keyword) {
+		  Map<String,String> header = Maps.newHashMap();
+          header.put("Content-Type","application/json");
+          header.put("Authorization","Basic ZWxhc3RpYzpjaGFuZ2VtZQ==");
+
+          String query = esQueryArticle.replace("__keyword", keyword);
+          logger.debug("try to search by query. " + query);
+		  JSONObject data = JSONObject.parseObject(query);
+//		  data.put("size", size);
+		  
+		  JSONObject result = HttpClientHelper.getInstance().post(esUrlArticle, data,header);
+		  logger.debug("got result. " + result);
+		  return result;
+	  }
+	  
+	  //请求ChatGPT回复。未能取得返回时为空。返回结果格式为：
+	  /**
+			{
+			    "id": "cmpl-6fkubrs4FA95mzjCH12LwAvttACb1",
+			    "object": "text_completion",
+			    "created": 1675409797,
+			    "model": "text-davinci-003",
+			    "choices": [
+			        {
+			            "text": "\n\n抽象派绘画的特点是：\n\n1. 抽象派绘画不拘泥于现实，而是以抽象的形式表达艺术家的情感和思想。\n\n2. 抽象派绘画不需要拘泥于传统的绘画技法，而是以抽象的形式表达艺术家的情感和思想。\n\n3. 抽象派绘画的色彩搭配比较夸张，色彩的运用更加丰富，更能表达艺术家的情感和思想。\n\n4. 抽象派绘画的线条更加抽象，更能表达艺术家的情感和思想。\n\n5. 抽象派绘画的结构更加复杂，更能表达艺术家的情感和思想。",
+			            "index": 0,
+			            "logprobs": null,
+			            "finish_reason": "stop"
+			        }
+			    ],
+			    "usage": {
+			        "prompt_tokens": 25,
+			        "completion_tokens": 422,
+			        "total_tokens": 447
+			    }
+			}
+	   */
+	  public String requestChatGPT(String keyword) {
+		  Map<String,String> header = Maps.newHashMap();
+          header.put("Content-Type","application/json");
+          header.put("Authorization","Bear "+chatgptApiKey);
+
+          String query = chatgptMsg.replace("__keyword", keyword)
+        		  .replace("__maxtokens", ""+(keyword.length()*2+1000));//一个汉字为两个token
+          logger.debug("try to search by query. " + query);
+		  JSONObject data = JSONObject.parseObject(query);
+//		  data.put("size", size);
+		  
+		  JSONObject result = HttpClientHelper.getInstance().post(chatgptEndpoint, data,header);
+		  logger.debug("got result. " + result);
+		  if(result.getJSONArray("choices")!=null && result.getJSONArray("choices").size()>0) {
+			  return result.getJSONArray("choices").getJSONObject(0).getString("text");
+		  }else {
+			  return "";
+		  }
 	  }
 	  
 	  //根据位置发起搜索
@@ -518,6 +583,36 @@ public class SxHelper {
 						hit.getString("summary"),
 						hit.getJSONArray("images").getString(0),
 						ilifeUrlPrefix+"/info2.html?id="+hit.getString("_key"));
+			}
+			logger.debug("Hit matched item and try to send msg."+result);
+		  return result;
+	  }
+	  
+	  //根据关键词搜索图文内容，包括方案、清单、排行榜
+	  public String searchMatchedArticle(String keyword) throws UnknownHostException {
+		  JSONObject json = searchArticleByKeyword(keyword);
+		  //获取返回结果
+		  String result = null;
+		  JSONArray hits = json.getJSONObject("hits").getJSONArray("hits");
+			if(hits.size()>0) { //将从返回的结果内随机取值
+				int idx = (int)Math.floor(Math.random()*100)%hits.size();
+				JSONObject hit = hits.getJSONObject(idx).getJSONObject("_source");
+				String typeStr = "";
+				String typeUrlPrefix = "info2.html?id=";
+				if("board".equalsIgnoreCase(hit.getString("type"))) {
+					typeStr = "主题清单";
+					typeUrlPrefix = "board2-waterfall.html?id=";
+				}else if("solution".equalsIgnoreCase(hit.getString("type"))) {
+					typeStr = "定制方案";
+					typeUrlPrefix = "solution.html?id=";
+				}else if("rank".equalsIgnoreCase(hit.getString("type"))) {
+					typeStr = "排行榜";
+					typeUrlPrefix = "billboard.html?rankId=";
+				}
+				result = item(typeStr+" "+hit.getString("title"),
+						hit.getString("summary"),
+						hit.getString("logo"),
+						ilifeUrlPrefix+typeUrlPrefix+hit.getString("_key"));
 			}
 			logger.debug("Hit matched item and try to send msg."+result);
 		  return result;

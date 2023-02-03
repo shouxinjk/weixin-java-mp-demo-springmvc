@@ -269,14 +269,18 @@ public class MsgHandler extends AbstractHandler {
     }
     //**/
     
+    //商品搜索：
     //如果keyword还有内容的话直接搜索，则根据关键词搜索符合内容
     //先返回一条提示信息
-    if(keyword.trim().length()<12) {//仅在关键字有限时才搜索
-		WxMpKefuMessage kfMsg = WxMpKefuMessage
-			  .TEXT().content("找到 "+keyword+" 相关的内容，点击可以查看更多~~")
-			  .toUser(userWxInfo.getOpenId())
-			  .build();
-		wxMpService.getKefuService().sendKefuMessage(kfMsg);
+    if((keyword.indexOf("查找")>-1 || keyword.indexOf("商品")>-1)&&keyword.trim().length()<12) {//仅在关键字有限时才搜索
+    	keyword = keyword.replace("查找", "").replace("商品", "");
+    	String tips = "";
+    	if("*".equalsIgnoreCase(keyword)) {
+    		keyword = "*";
+    		tips = "可以输入关键字查找商品哦，也可以进入查看更多~~";
+    	}else {
+    		tips = "找到 "+keyword+" 相关的商品，点击可以查看更多~~";
+    	}
 		//然后返回一条搜索结果：微信限制只能返回一条
 	    String xml = null;
 	    try {
@@ -284,20 +288,90 @@ public class MsgHandler extends AbstractHandler {
 	    }catch(Exception ex) {
 	    		logger.error("Error occured while search items.[keyword]"+keyword,ex);
 	    }
-	    if(xml == null || xml.trim().length() == 0)
-	    		xml = helper.loadDefaultItem();
-	    XStream xstream = new XStream();
-	    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
-	    XStream.setupDefaultSecurity(xstream);
-	    xstream.allowTypes(classes);
-	    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
-		WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(xml);
-		return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
-		        .toUser(wxMessage.getFromUser()).build();
+	    if(xml != null && xml.trim().length() > 0){
+	    	//先发送客服消息
+			WxMpKefuMessage kfMsg = WxMpKefuMessage
+					  .TEXT().content(tips)
+					  .toUser(userWxInfo.getOpenId())
+					  .build();
+				wxMpService.getKefuService().sendKefuMessage(kfMsg);
+				
+			//然后返回找到的商品图文
+		    XStream xstream = new XStream();
+		    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
+		    XStream.setupDefaultSecurity(xstream);
+		    xstream.allowTypes(classes);
+		    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
+			WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(xml);
+			return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
+			        .toUser(wxMessage.getFromUser()).build();
+	    }
 	}
     
+    //清单、方案、排行榜搜索：
+    //如果keyword还有内容的话直接搜索，则根据关键词搜索符合内容
+    //先返回一条提示信息
+    String[] articleMagicWords = {"清单","集合","列表","方案","个性化","定制","排行"};//类型识别词
+    String[] articleTypes = {"主题清单","主题清单","主题清单","定制方案","定制方案","定制方案","排行榜"};//与识别词一一对应
+    String matchedArticleTag = "";
+    String matchedAttcleType = "内容";
+    int idx = 0;
+    for(String token:articleMagicWords) {
+    	if(keyword.indexOf(token)>-1) {//找到了就返回
+    		matchedArticleTag = token;
+    		matchedAttcleType = articleTypes[idx];
+    		break;
+    	}
+    	idx++;
+    }
+    if(matchedArticleTag.trim().length()>0) {//需要触发特定关键词
+    	String bearKeyword = keyword.replace(matchedArticleTag, "").trim();
+    	if(bearKeyword.length()==0)
+    		bearKeyword = "*";
+    	String tips = "";
+    	if("*".equalsIgnoreCase(bearKeyword)) {
+    		tips = "可以输入关键字查找清单、方案、排行榜哦，也可以进入查看更多~~";
+    	}else {
+    		tips = "找到 "+bearKeyword+" 相关的"+matchedAttcleType+"，点击可以查看更多~~";
+    	}
+		//然后返回一条搜索结果：微信限制只能返回一条
+	    String xml = null;
+	    try {
+	    		xml = helper.searchMatchedArticle(bearKeyword);
+	    }catch(Exception ex) {
+	    		logger.error("Error occured while search articles.[keyword]"+keyword,ex);
+	    }
+	    if(xml != null && xml.trim().length() == 0) {
+	    	//发送一条客服消息
+			WxMpKefuMessage kfMsg = WxMpKefuMessage
+					  .TEXT().content(tips)
+					  .toUser(userWxInfo.getOpenId())
+					  .build();
+				wxMpService.getKefuService().sendKefuMessage(kfMsg);
+	    	//返回找到的内容
+		    XStream xstream = new XStream();
+		    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
+		    XStream.setupDefaultSecurity(xstream);
+		    xstream.allowTypes(classes);
+		    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
+			WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(xml);
+			return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
+			        .toUser(wxMessage.getFromUser()).build();
+	    }
+	}    
+    
+    //如果都没有则由ChatGPT回答
+    String answer = "";
+    try {
+    	answer = helper.requestChatGPT(keyword);
+    	if(answer!=null&&answer.trim().length()>0)
+    	    return new TextBuilder().build(answer, wxMessage, weixinService);
+    }catch(Exception ex) {
+    	logger.error("Error occured while access chatgpt.[keyword]"+keyword,ex);
+    }
+    
   	//最后返回不懂说啥，给出联系人方式
-    return new TextBuilder().build("没听懂哦，输入关键字可以推荐好物，点击菜单也可以哦~~", wxMessage, weixinService);
+    return new TextBuilder().build("没听懂哦，可以输入清单、方案、商品、排行榜等内容直接查找，也可以直接进入菜单哦~~", wxMessage, weixinService);
   
 }
 }
