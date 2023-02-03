@@ -24,8 +24,8 @@ public class SxHelperTest {
 	SxHelper helper;
 
 	@Test
-	public void searchByKeyword() {
-		JSONObject result = helper.searchByKeyword("情趣内衣");
+	public void searchItemByKeyword() {
+		JSONObject result = helper.searchItemByKeyword("情趣内衣");
 		JSONArray hits = result.getJSONObject("hits").getJSONArray("hits");
 		System.err.println("got result. total hits is "+hits.size());
 		assert hits.size()>0;
