@@ -341,7 +341,7 @@ public class MsgHandler extends AbstractHandler {
 	    }catch(Exception ex) {
 	    		logger.error("Error occured while search articles.[keyword]"+keyword,ex);
 	    }
-	    if(xml != null && xml.trim().length() == 0) {
+	    if(xml != null && xml.trim().length() > 0) {
 	    	//发送一条客服消息
 			WxMpKefuMessage kfMsg = WxMpKefuMessage
 					  .TEXT().content(tips)
