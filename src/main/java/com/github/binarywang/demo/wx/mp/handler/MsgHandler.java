@@ -269,6 +269,33 @@ public class MsgHandler extends AbstractHandler {
     }
     //**/
     
+	//搜索商品或内容，返回得分更高的结果：微信限制只能返回一条
+    String xml = null;
+    try {
+    		xml = helper.searchContent(keyword);
+    }catch(Exception ex) {
+    		logger.error("Error occured while search content.[keyword]"+keyword,ex);
+    }
+    if(xml != null && xml.trim().length() > 0){
+    	//先发送客服消息
+		WxMpKefuMessage kfMsg = WxMpKefuMessage
+				  .TEXT().content("找到 "+keyword+" 相关的内容，点击查看更多~~")
+				  .toUser(userWxInfo.getOpenId())
+				  .build();
+			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+			
+		//然后返回找到的商品图文
+	    XStream xstream = new XStream();
+	    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
+	    XStream.setupDefaultSecurity(xstream);
+	    xstream.allowTypes(classes);
+	    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
+		WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(xml);
+		return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
+		        .toUser(wxMessage.getFromUser()).build();
+    }
+    
+    /**
     //商品搜索：
     //如果keyword还有内容的话直接搜索，则根据关键词搜索符合内容
     //先返回一条提示信息
@@ -359,6 +386,7 @@ public class MsgHandler extends AbstractHandler {
 			        .toUser(wxMessage.getFromUser()).build();
 	    }
 	}    
+    //**/
     
     //如果都没有则由ChatGPT回答
     String answer = "";

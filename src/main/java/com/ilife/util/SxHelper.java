@@ -36,8 +36,10 @@ public class SxHelper {
 		  
 		@Value("#{extProps['es.url']}") String esUrl;
 		@Value("#{extProps['es.url.article']}") String esUrlArticle;
+		@Value("#{extProps['es.url.analyze']}") String esUrlAnalyze;
 		@Value("#{extProps['es.query']}") String esQuery;
 		@Value("#{extProps['es.query.article']}") String esQueryArticle;
+		@Value("#{extProps['es.query.analyze']}") String esQueryAnalyze;
 		@Value("#{extProps['es.queryByDistance']}") String esQueryByDistance;
 		@Value("#{extProps['mp.msg.url.prefix']}") String ilifeUrlPrefix;
 		
@@ -240,16 +242,23 @@ public class SxHelper {
 	 * @param keyword
 	 * @return
 	 */
-	  public JSONObject searchByKeyword(String keyword) {
-		  return searchByKeyword(keyword,10);
+	  public JSONObject searchItemByKeyword(String keyword) {
+		  return searchItemByKeyword(keyword,10);
 	  }
 	  
-	  public JSONObject searchByKeyword(String keyword, int size) {
+	  public JSONObject searchItemByKeyword(String keyword, int size) {
 		  Map<String,String> header = Maps.newHashMap();
           header.put("Content-Type","application/json");
           header.put("Authorization","Basic ZWxhc3RpYzpjaGFuZ2VtZQ==");
 
-          String query = esQuery.replace("__keyword", keyword);
+          //根据分词数量设置min_score
+          JSONObject tokens = tokenize(keyword);
+          String minScore = "2";
+          if(tokens!=null && tokens.getJSONArray("tokens")!=null) {
+        	  minScore = ""+(2*tokens.getJSONArray("tokens").size());
+          }
+          
+          String query = esQuery.replace("__keyword", keyword).replace("__minscore", minScore);
           logger.debug("try to search by query. " + query);
 		  JSONObject data = JSONObject.parseObject(query);
 		  data.put("size", size);
@@ -259,13 +268,31 @@ public class SxHelper {
 		  return result;
 	  }
 	  
-	  //搜索article，返回10条
-	  public JSONObject searchArticleByKeyword(String keyword) {
+	  //获取分词结果：用于构建最小得分
+	  public JSONObject tokenize(String keyword) {
 		  Map<String,String> header = Maps.newHashMap();
           header.put("Content-Type","application/json");
           header.put("Authorization","Basic ZWxhc3RpYzpjaGFuZ2VtZQ==");
 
           String query = esQueryArticle.replace("__keyword", keyword);
+          logger.debug("try to analyze keyword. " + query);
+		  JSONObject data = JSONObject.parseObject(query);
+		  
+		  return HttpClientHelper.getInstance().post(esUrlArticle, data,header);
+	  }
+	  //搜索article，返回10条
+	  public JSONObject searchArticleByKeyword(String keyword) {
+		  Map<String,String> header = Maps.newHashMap();
+          header.put("Content-Type","application/json");
+          header.put("Authorization","Basic ZWxhc3RpYzpjaGFuZ2VtZQ==");
+          //根据分词数量设置min_score
+          JSONObject tokens = tokenize(keyword);
+          String minScore = "2";
+          if(tokens!=null && tokens.getJSONArray("tokens")!=null) {
+        	  minScore = ""+(2*tokens.getJSONArray("tokens").size());
+          }
+          
+          String query = esQueryArticle.replace("__keyword", keyword).replace("__minscore", minScore);
           logger.debug("try to search by query. " + query);
 		  JSONObject data = JSONObject.parseObject(query);
 //		  data.put("size", size);
@@ -301,13 +328,13 @@ public class SxHelper {
 		  Map<String,String> header = Maps.newHashMap();
           header.put("Content-Type","application/json");
           header.put("Authorization","Bearer "+chatgptApiKey);
-//          header.put("Host", "chat.openai.com");
-//          header.put("Accept", "text/event-stream");
-////          header.put("User-Agent", userAgent);
-//          header.put("X-Openai-Assistant-App-Id", "");
-//          header.put("Connection", "close");
-//          header.put("Accept-Language", "en-US,en;q=0.9");
-//          header.put("Referer", "https://chat.openai.com/chat");
+          header.put("Host", "chat.openai.com");
+          header.put("Accept", "text/event-stream");
+//          header.put("User-Agent", userAgent);
+          header.put("X-Openai-Assistant-App-Id", "");
+          header.put("Connection", "close");
+          header.put("Accept-Language", "en-US,en;q=0.9");
+          header.put("Referer", "https://chat.openai.com/chat");
           
           String query = chatgptMsg.replace("__keyword", keyword)
         		  .replace("__maxtokens", ""+(keyword.length()*2+1000));//一个汉字为两个token
@@ -572,6 +599,54 @@ public class SxHelper {
 		  return sb.toString();
 	  }
 	  
+	  //同时搜索item和article，以得分高的返回一条
+	  public String searchContent(String keyword)  throws UnknownHostException{
+		  String result = null;
+		  //搜索商品
+		  JSONObject jsonItem = searchItemByKeyword(keyword);
+		  double maxScoreItem = jsonItem.getJSONObject("hits").getDoubleValue("max_score");
+		  //搜索内容
+		  JSONObject jsonArticle = searchArticleByKeyword(keyword);
+		  double maxScoreArticle = jsonArticle.getJSONObject("hits").getDoubleValue("max_score");
+		  //比较得分高低
+		  if(maxScoreArticle>maxScoreItem) { //返回清单、方案、排行榜
+			  JSONArray hits = jsonArticle.getJSONObject("hits").getJSONArray("hits");
+				if(hits.size()>0) { //将从返回的结果内随机取值
+					int idx = (int)Math.floor(Math.random()*100)%hits.size();
+					JSONObject hit = hits.getJSONObject(idx).getJSONObject("_source");
+					String typeStr = "";
+					String typeUrlPrefix = "info2.html?id=";
+					if("board".equalsIgnoreCase(hit.getString("type"))) {
+						typeStr = "主题清单";
+						typeUrlPrefix = "board2-waterfall.html?id=";
+					}else if("solution".equalsIgnoreCase(hit.getString("type"))) {
+						typeStr = "定制方案";
+						typeUrlPrefix = "solution.html?id=";
+					}else if("rank".equalsIgnoreCase(hit.getString("type"))) {
+						typeStr = "排行榜";
+						typeUrlPrefix = "billboard.html?rankId=";
+					}
+					result = item(typeStr+" "+hit.getString("title"),
+							hit.getString("summary"),
+							hit.getString("logo"),
+							ilifeUrlPrefix+typeUrlPrefix+hit.getString("_key"));
+				}
+				logger.debug("Hit matched item and try to send msg."+result);
+		  }else {//返回商品信息
+			  JSONArray hits = jsonItem.getJSONObject("hits").getJSONArray("hits");
+				if(hits.size()>0) { //将从返回的结果内随机取值
+					int idx = (int)Math.floor(Math.random()*100)%hits.size();
+					JSONObject hit = hits.getJSONObject(idx).getJSONObject("_source");
+					result = item(hit.getString("title"),
+							hit.getString("summary"),
+							hit.getJSONArray("images").getString(0),
+							ilifeUrlPrefix+"/info2.html?id="+hit.getString("_key"));
+				}
+				logger.debug("Hit matched item and try to send msg."+result);
+		  }
+		  return result;
+	  }
+	  
 	  /**
 	   * 根据关键词发起搜索，并返回单个条目
 	   * @param keyword
@@ -579,7 +654,7 @@ public class SxHelper {
 	   * @throws UnknownHostException
 	   */
 	  public String searchMatchedItem(String keyword) throws UnknownHostException {
-		  JSONObject json = searchByKeyword(keyword);
+		  JSONObject json = searchItemByKeyword(keyword);
 		  //获取返回结果
 		  String result = null;
 		  JSONArray hits = json.getJSONObject("hits").getJSONArray("hits");
