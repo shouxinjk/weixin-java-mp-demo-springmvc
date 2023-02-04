@@ -269,32 +269,6 @@ public class MsgHandler extends AbstractHandler {
     }
     //**/
     
-	//搜索商品或内容，返回得分更高的结果：微信限制只能返回一条
-    String xml = null;
-    try {
-    		xml = helper.searchContent(keyword);
-    }catch(Exception ex) {
-    		logger.error("Error occured while search content.[keyword]"+keyword,ex);
-    }
-    if(xml != null && xml.trim().length() > 0){
-    	//先发送客服消息
-		WxMpKefuMessage kfMsg = WxMpKefuMessage
-				  .TEXT().content("找到 "+keyword+" 相关的内容，点击查看更多~~")
-				  .toUser(userWxInfo.getOpenId())
-				  .build();
-			wxMpService.getKefuService().sendKefuMessage(kfMsg);
-			
-		//然后返回找到的商品图文
-	    XStream xstream = new XStream();
-	    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
-	    XStream.setupDefaultSecurity(xstream);
-	    xstream.allowTypes(classes);
-	    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
-		WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(xml);
-		return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
-		        .toUser(wxMessage.getFromUser()).build();
-    }
-    
     /**
     //商品搜索：
     //如果keyword还有内容的话直接搜索，则根据关键词搜索符合内容
@@ -334,6 +308,7 @@ public class MsgHandler extends AbstractHandler {
 			        .toUser(wxMessage.getFromUser()).build();
 	    }
 	}
+    //**/
     
     //清单、方案、排行榜搜索：
     //如果keyword还有内容的话直接搜索，则根据关键词搜索符合内容
@@ -357,9 +332,9 @@ public class MsgHandler extends AbstractHandler {
     		bearKeyword = "*";
     	String tips = "";
     	if("*".equalsIgnoreCase(bearKeyword)) {
-    		tips = "可以输入关键字查找清单、方案、排行榜哦，也可以进入查看更多~~";
+    		tips = "清单、方案、排行榜有很多的哦，加个关键词可以更准哦😉";
     	}else {
-    		tips = "找到 "+bearKeyword+" 相关的"+matchedAttcleType+"，点击可以查看更多~~";
+    		tips = "好安逸，找到相关的"+matchedAttcleType+"🤩，赶紧看哦~~";
     	}
 		//然后返回一条搜索结果：微信限制只能返回一条
 	    String xml = null;
@@ -386,7 +361,40 @@ public class MsgHandler extends AbstractHandler {
 			        .toUser(wxMessage.getFromUser()).build();
 	    }
 	}    
-    //**/
+
+	//搜索商品或内容，返回得分更高的结果：微信限制只能返回一条
+    String xml = null;
+    String[] kfMsgTpl = {
+    		"正在查找__keyword相关的内容，请稍等一下下哦😊😊",
+    		"找到__keyword相关的内容🥰，点击查看哦~~",
+    		"哇塞🤩，我找到你要的__keyword了，赶紧查看吧~~",
+    		"众里寻他千百度，__keyword就在灯火阑珊处😉",
+    };
+    try {
+    		xml = helper.searchContent(keyword);
+    }catch(Exception ex) {
+    		logger.error("Error occured while search content.[keyword]"+keyword,ex);
+    }
+    if(xml != null && xml.trim().length() > 0){
+    	//先发送客服消息
+    	//随机选一条回复语
+    	int random = (int)Math.floor(Math.random()*100)%kfMsgTpl.length;
+		WxMpKefuMessage kfMsg = WxMpKefuMessage
+				  .TEXT().content(kfMsgTpl[random].replace("__keyword", keyword))
+				  .toUser(userWxInfo.getOpenId())
+				  .build();
+			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+			
+		//然后返回找到的商品图文
+	    XStream xstream = new XStream();
+	    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
+	    XStream.setupDefaultSecurity(xstream);
+	    xstream.allowTypes(classes);
+	    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
+		WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(xml);
+		return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
+		        .toUser(wxMessage.getFromUser()).build();
+    }
     
     //如果都没有则由ChatGPT回答
     String answer = "";
@@ -399,7 +407,7 @@ public class MsgHandler extends AbstractHandler {
     }
     
   	//最后返回不懂说啥，给出联系人方式
-    return new TextBuilder().build("没听懂哦，可以输入清单、方案、商品、排行榜等内容直接查找，也可以直接进入菜单哦~~", wxMessage, weixinService);
+    return new TextBuilder().build("啊哦，没听懂哦😛，可以输入清单、方案、商品、排行榜等内容直接查找，也可以直接进入菜单哦~~", wxMessage, weixinService);
   
 }
 }
