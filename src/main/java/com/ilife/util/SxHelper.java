@@ -274,11 +274,11 @@ public class SxHelper {
           header.put("Content-Type","application/json");
           header.put("Authorization","Basic ZWxhc3RpYzpjaGFuZ2VtZQ==");
 
-          String query = esQueryArticle.replace("__keyword", keyword);
+          String query = esQueryAnalyze.replace("__keyword", keyword);
           logger.debug("try to analyze keyword. " + query);
 		  JSONObject data = JSONObject.parseObject(query);
 		  
-		  return HttpClientHelper.getInstance().post(esUrlArticle, data,header);
+		  return HttpClientHelper.getInstance().post(esUrlAnalyze, data,header);
 	  }
 	  //搜索article，返回10条
 	  public JSONObject searchArticleByKeyword(String keyword) {

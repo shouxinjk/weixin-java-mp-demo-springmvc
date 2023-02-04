@@ -1,6 +1,7 @@
 package com.github.binarywang.demo.wx.mp.handler;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +28,13 @@ public class SxHelperTest {
 	public void chatGPT() {
 		String result = helper.requestChatGPT("抽象派艺术特点");
 		System.err.println("got completion. "+result);
+	}
+	
+	@Test
+	public void searchContent() throws UnknownHostException {
+		String result = helper.searchContent("内衣");
+		System.err.println("got result. total hits is "+result);
+		assert result!=null&&result.trim().length()>0;
 	}
 	
 	@Test
