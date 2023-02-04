@@ -692,7 +692,7 @@ public class SxHelper {
 					typeUrlPrefix = "billboard.html?rankId=";
 				}
 				result = item(typeStr+" "+hit.getString("title"),
-						hit.getString("summary"),
+						hit.getString("summary").split("<")[0],//注意：索引里summary为html文档
 						hit.getString("logo"),
 						ilifeUrlPrefix+typeUrlPrefix+hit.getString("_key"));
 			}
