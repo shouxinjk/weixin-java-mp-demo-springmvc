@@ -14,6 +14,24 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.util.EntityUtils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -55,6 +73,52 @@ public class HttpClientHelper {
 		}
 		return helper;
 	}
+	
+	public String postForChatGPT(String url, JSONObject data,Map<String,String> header) throws Exception {
+        String result = "";
+        CloseableHttpClient httpClient = null;
+        try {
+            SSLContextBuilder builder = new SSLContextBuilder();
+            // 全部信任 不做身份鉴定
+            builder.loadTrustMaterial(null, new TrustStrategy() {
+                @Override
+                public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+                    return true;
+                }
+            });
+            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), new String[] { "TLSv1", "TLSv1.2" }, null, NoopHostnameVerifier.INSTANCE);
+            Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory> create().register("http", new PlainConnectionSocketFactory()).register("https", sslsf).build();
+            PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(registry);
+            cm.setMaxTotal(200);// max connection
+            httpClient = HttpClients.custom().setSSLSocketFactory(sslsf).setConnectionManager(cm).setConnectionManagerShared(true).build();
+            HttpPost httpPost = new HttpPost(url);
+            httpPost.setHeader("Content-type", "application/json; charset=utf-8");
+    		if(header!=null && header.size()>0) {
+    			for(Map.Entry<String, String> entry: header.entrySet()) {
+    				httpPost.setHeader(entry.getKey(),entry.getValue());
+    			}
+    		}
+    		// 构建消息实体
+    		StringEntity entity = new StringEntity(data.toJSONString(), Charset.forName("UTF-8"));
+    		entity.setContentEncoding("UTF-8");
+    		
+    		// 发送json格式的数据请求
+    		entity.setContentType("application/json");
+    		httpPost.setEntity(entity);
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(60000).setConnectTimeout(60000).build();// 设置请求和传输超时时间
+            httpPost.setConfig(requestConfig);
+            HttpResponse httpResponse = httpClient.execute(httpPost);
+            HttpEntity resEntity = httpResponse.getEntity();
+            result = EntityUtils.toString(resEntity);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (httpClient != null) {
+                httpClient.close();
+            }
+        }
+        return result;
+    }
 	
 	public JSONObject post(String url, JSONObject data) {
 		return post(url,data,null);

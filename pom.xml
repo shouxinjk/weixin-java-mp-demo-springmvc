@@ -134,8 +134,14 @@
 			<version>3.1.0</version>
 			<scope>test</scope>
 		</dependency-->		
-		<!-- TEST end -->        
-       
+		<!-- TEST end -->   
+		<!-- openAI client -->    
+		<!-- https://github.com/TheoKanning/openai-java --> 
+		<dependency>
+		  <groupId>com.theokanning.openai-gpt3-java</groupId>
+		  <artifactId>client</artifactId>
+		  <version>0.9.0</version>
+		</dependency>      
     </dependencies>
 
     <build>

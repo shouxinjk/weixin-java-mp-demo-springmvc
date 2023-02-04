@@ -24,6 +24,12 @@ public class SxHelperTest {
 	SxHelper helper;
 
 	@Test
+	public void chatGPT() {
+		String result = helper.requestChatGPT("抽象派艺术特点");
+		System.err.println("got completion. "+result);
+	}
+	
+	@Test
 	public void searchItemByKeyword() {
 		JSONObject result = helper.searchItemByKeyword("情趣内衣");
 		JSONArray hits = result.getJSONObject("hits").getJSONArray("hits");

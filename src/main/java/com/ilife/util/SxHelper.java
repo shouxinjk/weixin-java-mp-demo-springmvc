@@ -328,13 +328,13 @@ public class SxHelper {
 		  Map<String,String> header = Maps.newHashMap();
           header.put("Content-Type","application/json");
           header.put("Authorization","Bearer "+chatgptApiKey);
-          header.put("Host", "chat.openai.com");
-          header.put("Accept", "text/event-stream");
-//          header.put("User-Agent", userAgent);
-          header.put("X-Openai-Assistant-App-Id", "");
-          header.put("Connection", "close");
-          header.put("Accept-Language", "en-US,en;q=0.9");
-          header.put("Referer", "https://chat.openai.com/chat");
+//          header.put("Host", "chat.openai.com");
+//          header.put("Accept", "text/event-stream");
+////          header.put("User-Agent", userAgent);
+//          header.put("X-Openai-Assistant-App-Id", "");
+//          header.put("Connection", "close");
+//          header.put("Accept-Language", "en-US,en;q=0.9");
+//          header.put("Referer", "https://chat.openai.com/chat");
           
           String query = chatgptMsg.replace("__keyword", keyword)
         		  .replace("__maxtokens", ""+(keyword.length()*2+1000));//一个汉字为两个token
