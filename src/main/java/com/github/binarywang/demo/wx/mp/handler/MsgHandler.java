@@ -96,6 +96,20 @@ public class MsgHandler extends AbstractHandler {
     
     //TODO 匹配指令：需要特殊处理
     //如果涉及到退款、退钱、退费等，需要优先处理，并且人工介入
+    if("你好 你是谁 你叫什么".indexOf(keyword)>-1) {
+    	WxMpKefuMessage kfMsg = WxMpKefuMessage
+			  .IMAGE()
+			  .toUser(userWxInfo.getOpenId())
+			  .mediaId(contactQrcodeMediaId)
+			  .build();
+			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+		//回复文字消息
+	    try {
+	    	return new TextBuilder().build("我是你的生活助手，能提供推荐、评价、定制服务，让每一个生活决策都带来小确幸，填满你的大生活。可以输入关键字查找也可以随意聊天的哦😊😊", wxMessage, weixinService);
+	    } catch (Exception e) {
+	    	this.logger.error(e.getMessage(), e);
+	    }
+    }     
     if("退款 退钱 退费 骗子 欺骗".indexOf(keyword)>-1) {
     	WxMpKefuMessage kfMsg = WxMpKefuMessage
 			  .IMAGE()
@@ -398,6 +412,19 @@ public class MsgHandler extends AbstractHandler {
     
     //如果都没有则由ChatGPT回答
     String answer = "";
+	//chatgpt比较慢，先回复一条消息
+    String[] chatGptMsgTpl = {
+    		"让我想想哈，稍等一下下哦😊😊",
+    		"有点忙不过来了哦，要稍等等哦~~",
+    		"正在全力思考中😉",
+    };
+	int random = (int)Math.floor(Math.random()*100)%chatGptMsgTpl.length;
+	WxMpKefuMessage kfMsg = WxMpKefuMessage
+			  .TEXT().content(chatGptMsgTpl[random].replace("__keyword", keyword))
+			  .toUser(userWxInfo.getOpenId())
+			  .build();
+		wxMpService.getKefuService().sendKefuMessage(kfMsg);
+	//请求chatgpt
     try {
     	answer = helper.requestChatGPT(keyword);
     	if(answer!=null&&answer.trim().length()>0)

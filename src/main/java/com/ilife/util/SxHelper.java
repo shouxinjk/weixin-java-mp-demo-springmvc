@@ -27,6 +27,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.arangodb.entity.BaseDocument;
 import com.github.binarywang.demo.wx.mp.config.iLifeConfig;
 import com.google.common.collect.Maps;
+import com.theokanning.openai.OpenAiService;
+import com.theokanning.openai.completion.CompletionChoice;
+import com.theokanning.openai.completion.CompletionRequest;
 
 @Service
 public class SxHelper {
@@ -325,30 +328,18 @@ public class SxHelper {
 			}
 	   */
 	  public String requestChatGPT(String keyword) {
-		  Map<String,String> header = Maps.newHashMap();
-          header.put("Content-Type","application/json");
-          header.put("Authorization","Bearer "+chatgptApiKey);
-//          header.put("Host", "chat.openai.com");
-//          header.put("Accept", "text/event-stream");
-////          header.put("User-Agent", userAgent);
-//          header.put("X-Openai-Assistant-App-Id", "");
-//          header.put("Connection", "close");
-//          header.put("Accept-Language", "en-US,en;q=0.9");
-//          header.put("Referer", "https://chat.openai.com/chat");
-          
-          String query = chatgptMsg.replace("__keyword", keyword)
-        		  .replace("__maxtokens", ""+(keyword.length()*2+1000));//一个汉字为两个token
-          logger.debug("try to search by query. " + query);
-		  JSONObject data = JSONObject.parseObject(query);
-//		  data.put("size", size);
-		  
-		  JSONObject result = HttpClientHelper.getInstance().post(chatgptEndpoint, data,header);
-		  logger.debug("got result. " + result);
-		  if(result.getJSONArray("choices")!=null && result.getJSONArray("choices").size()>0) {
-			  return result.getJSONArray("choices").getJSONObject(0).getString("text");
-		  }else {
-			  return "";
-		  }
+		  OpenAiService service = new OpenAiService(chatgptApiKey,120);
+			CompletionRequest completionRequest = CompletionRequest.builder()
+			        .prompt(keyword)
+			        .model("text-davinci-003")
+			        .maxTokens(keyword.length()*2+1000)
+			        .echo(true)
+			        .build();
+			List<CompletionChoice> choices = service.createCompletion(completionRequest).getChoices();
+			if(choices!=null && choices.size()>0) {
+				return choices.get(choices.size()-1).getText();
+			}
+			return "";
 	  }
 	  
 	  //根据位置发起搜索

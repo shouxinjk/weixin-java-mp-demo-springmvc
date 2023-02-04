@@ -28,6 +28,7 @@ public class SxHelperTest {
 	public void chatGPT() {
 		String result = helper.requestChatGPT("抽象派艺术特点");
 		System.err.println("got completion. "+result);
+		assert result.length()>0;
 	}
 	
 	@Test
