@@ -26,7 +26,7 @@ public class SxHelperTest {
 
 	@Test
 	public void chatGPT() {
-		String result = helper.requestChatGPT("抽象派艺术特点");
+		String result = helper.requestChatGPT("毕加索是一个什么样的人");
 		System.err.println("got completion. "+result);
 		assert result.length()>0;
 	}
