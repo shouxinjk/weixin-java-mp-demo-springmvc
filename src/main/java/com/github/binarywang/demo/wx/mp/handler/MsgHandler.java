@@ -427,14 +427,21 @@ public class MsgHandler extends AbstractHandler {
 	//请求chatgpt
     try {
     	answer = helper.requestChatGPT(keyword);
-    	if(answer!=null&&answer.trim().length()>0)
-    	    return new TextBuilder().build(answer, wxMessage, weixinService);
+    	if(answer!=null&&answer.trim().length()>0) {
+    		//等待时间过长无法直接返回，采用客服消息
+    	    //return new TextBuilder().build(answer, wxMessage, weixinService);
+    		kfMsg = WxMpKefuMessage
+    				  .TEXT().content(answer)
+    				  .toUser(userWxInfo.getOpenId())
+    				  .build();
+    			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+    	}
     }catch(Exception ex) {
     	logger.error("Error occured while access chatgpt.[keyword]"+keyword,ex);
     }
     
   	//最后返回不懂说啥，给出联系人方式
-    return new TextBuilder().build("啊哦，没听懂哦😛，可以输入清单、方案、商品、排行榜等内容直接查找，也可以直接进入菜单哦~~", wxMessage, weixinService);
+    return new TextBuilder().build("可以输入清单、方案、商品、排行榜等内容直接查找，也可以直接进入菜单哦~~", wxMessage, weixinService);
   
 }
 }
