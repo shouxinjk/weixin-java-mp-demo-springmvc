@@ -282,6 +282,39 @@ public class MsgHandler extends AbstractHandler {
 		    }
     }
     //**/
+  
+    
+    //嫁接ChatGPT
+    String answer = "";
+	//chatgpt比较慢，先回复一条消息
+    String[] chatGptMsgTpl = {
+    		"让我想想哈，稍等一下下哦😊😊",
+    		"有点忙不过来了哦，要稍等等哦~~",
+    		"正在全力思考中😉",
+    };
+	int random = (int)Math.floor(Math.random()*100)%chatGptMsgTpl.length;
+	/**
+	WxMpKefuMessage kfMsg = WxMpKefuMessage
+			  .TEXT().content(chatGptMsgTpl[random].replace("__keyword", keyword))
+			  .toUser(userWxInfo.getOpenId())
+			  .build();
+		wxMpService.getKefuService().sendKefuMessage(kfMsg);
+		//**/
+	//请求chatgpt
+    try {
+    	answer = helper.requestChatGPT(keyword);
+    	if(answer!=null&&answer.trim().length()>0) {
+    		//等待时间过长无法直接返回，采用客服消息
+    	    //return new TextBuilder().build(answer, wxMessage, weixinService);
+    		WxMpKefuMessage kfMsg = WxMpKefuMessage
+    				  .TEXT().content(answer)
+    				  .toUser(userWxInfo.getOpenId())
+    				  .build();
+    			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+    	}
+    }catch(Exception ex) {
+    	logger.error("Error occured while access chatgpt.[keyword]"+keyword,ex);
+    }
     
     /**
     //商品搜索：
@@ -392,9 +425,8 @@ public class MsgHandler extends AbstractHandler {
     if(xml != null && xml.trim().length() > 0){
     	//先发送客服消息
     	//随机选一条回复语
-    	int random = (int)Math.floor(Math.random()*100)%kfMsgTpl.length;
 		WxMpKefuMessage kfMsg = WxMpKefuMessage
-				  .TEXT().content(kfMsgTpl[random].replace("__keyword", keyword))
+				  .TEXT().content(kfMsgTpl[(int)Math.floor(Math.random()*100)%kfMsgTpl.length].replace("__keyword", keyword))
 				  .toUser(userWxInfo.getOpenId())
 				  .build();
 			wxMpService.getKefuService().sendKefuMessage(kfMsg);
@@ -408,36 +440,6 @@ public class MsgHandler extends AbstractHandler {
 		WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(xml);
 		return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
 		        .toUser(wxMessage.getFromUser()).build();
-    }
-    
-    //如果都没有则由ChatGPT回答
-    String answer = "";
-	//chatgpt比较慢，先回复一条消息
-    String[] chatGptMsgTpl = {
-    		"让我想想哈，稍等一下下哦😊😊",
-    		"有点忙不过来了哦，要稍等等哦~~",
-    		"正在全力思考中😉",
-    };
-	int random = (int)Math.floor(Math.random()*100)%chatGptMsgTpl.length;
-	WxMpKefuMessage kfMsg = WxMpKefuMessage
-			  .TEXT().content(chatGptMsgTpl[random].replace("__keyword", keyword))
-			  .toUser(userWxInfo.getOpenId())
-			  .build();
-		wxMpService.getKefuService().sendKefuMessage(kfMsg);
-	//请求chatgpt
-    try {
-    	answer = helper.requestChatGPT(keyword);
-    	if(answer!=null&&answer.trim().length()>0) {
-    		//等待时间过长无法直接返回，采用客服消息
-    	    //return new TextBuilder().build(answer, wxMessage, weixinService);
-    		kfMsg = WxMpKefuMessage
-    				  .TEXT().content(answer)
-    				  .toUser(userWxInfo.getOpenId())
-    				  .build();
-    			wxMpService.getKefuService().sendKefuMessage(kfMsg);
-    	}
-    }catch(Exception ex) {
-    	logger.error("Error occured while access chatgpt.[keyword]"+keyword,ex);
     }
     
   	//最后返回不懂说啥，给出联系人方式
