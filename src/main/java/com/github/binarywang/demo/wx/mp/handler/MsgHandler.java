@@ -335,7 +335,7 @@ public class MsgHandler extends AbstractHandler {
     		"正在生成中……",
     };
 
-	/**
+	//**
 	WxMpKefuMessage kfMsg = WxMpKefuMessage
 			  .TEXT().content(chatGptMsgTpl[(int)Math.floor(Math.random()*100)%chatGptMsgTpl.length].replace("__keyword", keyword))
 			  .toUser(userWxInfo.getOpenId())
@@ -349,11 +349,11 @@ public class MsgHandler extends AbstractHandler {
     	if(answer!=null&&answer.trim().length()>0) {
     		//等待时间过长无法直接返回，采用客服消息
     	    //return new TextBuilder().build(answer, wxMessage, weixinService);
-    		WxMpKefuMessage kfMsg = WxMpKefuMessage
-    				  .TEXT().content(answer.replace(keyword,"").replace("\\n", ""))
+    		WxMpKefuMessage kfMsgBot = WxMpKefuMessage
+    				  .TEXT().content(answer)
     				  .toUser(userWxInfo.getOpenId())
     				  .build();
-    			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+    			wxMpService.getKefuService().sendKefuMessage(kfMsgBot);
     	}
     }catch(Exception ex) {
     	logger.error("Error occured while access chatgpt.[keyword]"+keyword,ex);
@@ -395,11 +395,11 @@ public class MsgHandler extends AbstractHandler {
 	    }
 	    if(xml != null && xml.trim().length() > 0) {
 	    	//发送一条客服消息
-			WxMpKefuMessage kfMsg = WxMpKefuMessage
+			WxMpKefuMessage kfMsgSearch = WxMpKefuMessage
 					  .TEXT().content(tips)
 					  .toUser(userWxInfo.getOpenId())
 					  .build();
-				wxMpService.getKefuService().sendKefuMessage(kfMsg);
+				wxMpService.getKefuService().sendKefuMessage(kfMsgSearch);
 	    	//返回找到的内容
 		    XStream xstream = new XStream();
 		    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };

@@ -328,7 +328,7 @@ public class SxHelper {
 			}
 	   */
 	  
-	  /**
+	  
 	  public String requestChatGPT(String keyword) {
 		  OpenAiService service = new OpenAiService(chatgptApiKey,120);
 			CompletionRequest completionRequest = CompletionRequest.builder()
@@ -339,12 +339,12 @@ public class SxHelper {
 			        .build();
 			List<CompletionChoice> choices = service.createCompletion(completionRequest).getChoices();
 			if(choices!=null && choices.size()>0) {
-				return choices.get(0).getText();
+				return choices.get(0).getText().replaceAll("\\n","");
 			}
 			return "";
 	  }
-	  /**/
-	 
+	  
+	  /**
 	  public String requestChatGPT(String keyword) {
 		  Map<String,String> header = Maps.newHashMap();
           header.put("Content-Type","application/json");
@@ -366,7 +366,7 @@ public class SxHelper {
           }
           return "";
 	  }
-	  
+	  /**/
 	  
 	  //根据位置发起搜索
 	  public JSONObject searchByLocation(String lat,String lon) {
