@@ -178,7 +178,7 @@ public class HttpClientHelper {
     		// 发送json格式的数据请求
     		entity.setContentType("application/json");
     		httpPost.setEntity(entity);
-            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(120000).setConnectTimeout(120000).build();// 设置请求和传输超时时间
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(600000).setConnectTimeout(600000).build();// 设置请求和传输超时时间
             httpPost.setConfig(requestConfig);
             HttpResponse httpResponse = httpClient.execute(httpPost);
             HttpEntity resEntity = httpResponse.getEntity();
