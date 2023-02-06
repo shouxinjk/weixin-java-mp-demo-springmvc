@@ -324,6 +324,42 @@ public class MsgHandler extends AbstractHandler {
 	}
     //**/
     
+
+    
+    //嫁接ChatGPT
+    String answer = "";
+	//chatgpt比较慢，先回复一条消息
+    String[] chatGptMsgTpl = {
+    		"问的人有点多，稍等一下下哦😊😊",
+    		"有点忙不过来了，要稍等等哦~~",
+    		"正在生成中……",
+    };
+
+	/**
+	WxMpKefuMessage kfMsg = WxMpKefuMessage
+			  .TEXT().content(chatGptMsgTpl[(int)Math.floor(Math.random()*100)%chatGptMsgTpl.length].replace("__keyword", keyword))
+			  .toUser(userWxInfo.getOpenId())
+			  .build();
+		wxMpService.getKefuService().sendKefuMessage(kfMsg);
+		//**/
+    
+	//请求chatgpt
+    try {
+    	answer = helper.requestChatGPT(keyword);
+    	if(answer!=null&&answer.trim().length()>0) {
+    		//等待时间过长无法直接返回，采用客服消息
+    	    //return new TextBuilder().build(answer, wxMessage, weixinService);
+    		WxMpKefuMessage kfMsg = WxMpKefuMessage
+    				  .TEXT().content(answer.replace(keyword,"").replace("\\n", ""))
+    				  .toUser(userWxInfo.getOpenId())
+    				  .build();
+    			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+    	}
+    }catch(Exception ex) {
+    	logger.error("Error occured while access chatgpt.[keyword]"+keyword,ex);
+    }
+    
+    
     //清单、方案、排行榜搜索：
     //如果keyword还有内容的话直接搜索，则根据关键词搜索符合内容
     //先返回一条提示信息
@@ -409,41 +445,6 @@ public class MsgHandler extends AbstractHandler {
 		return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
 		        .toUser(wxMessage.getFromUser()).build();
     }
-
-    
-    //嫁接ChatGPT
-    String answer = "";
-	//chatgpt比较慢，先回复一条消息
-    String[] chatGptMsgTpl = {
-    		"问的人有点多，稍等一下下哦😊😊",
-    		"有点忙不过来了，要稍等等哦~~",
-    		"正在生成中……",
-    };
-
-	/**
-	WxMpKefuMessage kfMsg = WxMpKefuMessage
-			  .TEXT().content(chatGptMsgTpl[(int)Math.floor(Math.random()*100)%chatGptMsgTpl.length].replace("__keyword", keyword))
-			  .toUser(userWxInfo.getOpenId())
-			  .build();
-		wxMpService.getKefuService().sendKefuMessage(kfMsg);
-		//**/
-    
-	//请求chatgpt
-    try {
-    	answer = helper.requestChatGPT(keyword);
-    	if(answer!=null&&answer.trim().length()>0) {
-    		//等待时间过长无法直接返回，采用客服消息
-    	    //return new TextBuilder().build(answer, wxMessage, weixinService);
-    		WxMpKefuMessage kfMsg = WxMpKefuMessage
-    				  .TEXT().content(answer.replace(keyword,"").replace("\\n", ""))
-    				  .toUser(userWxInfo.getOpenId())
-    				  .build();
-    			wxMpService.getKefuService().sendKefuMessage(kfMsg);
-    	}
-    }catch(Exception ex) {
-    	logger.error("Error occured while access chatgpt.[keyword]"+keyword,ex);
-    }
-    
     
   	//最后返回不懂说啥，给出联系人方式
     return new TextBuilder().build("可以输入清单、方案、商品、排行榜等内容直接查找，也可以直接进入菜单哦~~", wxMessage, weixinService);
