@@ -330,8 +330,8 @@ public class MsgHandler extends AbstractHandler {
     String answer = "";
 	//chatgpt比较慢，先回复一条消息
     String[] chatGptMsgTpl = {
-    		"问的人有点多，稍等一下下哦😊😊",
-    		"有点忙不过来了，要稍等等哦~~",
+    		"问的人有点多，稍等一下下哦😊",
+    		"有点小忙🐝，要稍等等哦~~",
     		"正在生成中……",
     };
 
