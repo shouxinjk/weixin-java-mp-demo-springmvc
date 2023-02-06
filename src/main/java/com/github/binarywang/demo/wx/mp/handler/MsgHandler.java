@@ -288,14 +288,14 @@ public class MsgHandler extends AbstractHandler {
     String answer = "";
 	//chatgpt比较慢，先回复一条消息
     String[] chatGptMsgTpl = {
-    		"让我想想哈，稍等一下下哦😊😊",
-    		"有点忙不过来了哦，要稍等等哦~~",
-    		"正在全力思考中😉",
+    		"问的人有点多，稍等一下下哦😊😊",
+    		"有点忙不过来了，要稍等等哦~~",
+    		"正在生成中……",
     };
-	int random = (int)Math.floor(Math.random()*100)%chatGptMsgTpl.length;
+
 	/**
 	WxMpKefuMessage kfMsg = WxMpKefuMessage
-			  .TEXT().content(chatGptMsgTpl[random].replace("__keyword", keyword))
+			  .TEXT().content(chatGptMsgTpl[(int)Math.floor(Math.random()*100)%chatGptMsgTpl.length].replace("__keyword", keyword))
 			  .toUser(userWxInfo.getOpenId())
 			  .build();
 		wxMpService.getKefuService().sendKefuMessage(kfMsg);
@@ -425,12 +425,13 @@ public class MsgHandler extends AbstractHandler {
     if(xml != null && xml.trim().length() > 0){
     	//先发送客服消息
     	//随机选一条回复语
+    	/**
 		WxMpKefuMessage kfMsg = WxMpKefuMessage
 				  .TEXT().content(kfMsgTpl[(int)Math.floor(Math.random()*100)%kfMsgTpl.length].replace("__keyword", keyword))
 				  .toUser(userWxInfo.getOpenId())
 				  .build();
 			wxMpService.getKefuService().sendKefuMessage(kfMsg);
-			
+			//**/
 		//然后返回找到的商品图文
 	    XStream xstream = new XStream();
 	    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
