@@ -327,6 +327,9 @@ public class SxHelper {
 			    }
 			}
 	   */
+	  
+	  /**
+	  //出现handshake错误，改用原始提交，强制信任所有主机
 	  public String requestChatGPT(String keyword) {
 		  OpenAiService service = new OpenAiService(chatgptApiKey,120);
 			CompletionRequest completionRequest = CompletionRequest.builder()
@@ -340,6 +343,28 @@ public class SxHelper {
 				return choices.get(choices.size()-1).getText();
 			}
 			return "";
+	  }
+	  //**/
+	  public String requestChatGPT(String keyword) {
+		  Map<String,String> header = Maps.newHashMap();
+          header.put("Content-Type","application/json");
+          header.put("Authorization","Bearer "+chatgptApiKey);
+          
+          String msg = chatgptMsg.replace("__keyword", keyword).replace("__maxtokens",""+(keyword.length()*2+1000));
+          try{
+        	  String result = HttpClientHelper.getInstance().postForChatGPT(chatgptEndpoint, JSONObject.parseObject(msg), header);
+        	  if(result!=null&& result.trim().length()>0) { //解析结果
+        		  JSONObject json = JSONObject.parseObject(result);
+        		  JSONArray choices = json.getJSONArray("choices");
+        		  if(choices!=null&&choices.size()>0) {
+        			  JSONObject choice = choices.getJSONObject(choices.size()-1);//取得最后一个
+        			  return choice.getString("text");
+        		  }
+        	  }
+          }catch(Exception ex) {
+        	  logger.error("failed request chatgpt.",ex);
+          }
+          return "";
 	  }
 	  
 	  //根据位置发起搜索

@@ -33,12 +33,48 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 
+
+import java.io.DataInputStream;  
+import java.io.IOException;  
+import java.io.InputStream;  
+import java.io.OutputStream;  
+import java.net.ConnectException;  
+import java.net.URL;  
+import java.security.cert.CertificateException;  
+import java.security.cert.X509Certificate;  
+  
+import javax.net.ssl.HostnameVerifier;  
+import javax.net.ssl.HttpsURLConnection;  
+import javax.net.ssl.SSLContext;  
+import javax.net.ssl.SSLSession;  
+import javax.net.ssl.TrustManager;  
+import javax.net.ssl.X509TrustManager; 
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 public class HttpClientHelper {
 	Logger logger = LoggerFactory.getLogger(getClass());
 	CloseableHttpClient httpClient = HttpClients.createDefault();
+	
+    private static class TrustAnyTrustManager implements X509TrustManager {  
+    	@Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {  
+        }  
+    	@Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {  
+        }  
+    	@Override
+        public X509Certificate[] getAcceptedIssuers() {  
+            return null;  
+        }  
+    }  
+
+    private class TrustAnyHostnameVerifier implements HostnameVerifier {  
+        public boolean verify(String hostname, SSLSession session) {  
+            return true;  
+        }  
+    } 
 	
 	public static void main(String[] args) {
 		String url = "http://www.shouxinjk.net/ilife/a/mod/broker/rest/1001";
@@ -74,6 +110,43 @@ public class HttpClientHelper {
 		return helper;
 	}
 	
+	public static String sendHttps(String url) throws Exception {  
+        InputStream in = null;  
+        OutputStream out = null;  
+        String returnValue = "";  
+        try {  
+            //SSLContext sc = SSLContext.getInstance("SSL");  
+//            System.setProperty("https.protocols", "TLSv1.2,TLSv1.1,SSLv3");  
+//            SSLContext sc = SSLContext.getInstance("TLS", "SunJSSE");
+            SSLContext sc = SSLContext.getInstance("TLS");  
+            sc.init(null, new TrustManager[] { new TrustAnyTrustManager() }, new java.security.SecureRandom());  
+            URL console = new URL(url);  
+            HttpsURLConnection conn = (HttpsURLConnection) console.openConnection();  
+            conn.setSSLSocketFactory(sc.getSocketFactory());  
+//            conn.setHostnameVerifier(new TrustAnyHostnameVerifier());  
+            conn.setRequestMethod("POST");
+            conn.connect();  
+            InputStream is = conn.getInputStream();  
+            DataInputStream indata = new DataInputStream(is);  
+            returnValue = indata.readLine();              
+            conn.disconnect();  
+        } catch (ConnectException e) {  
+            e.printStackTrace();
+            throw e;  
+        } catch (IOException e) {  
+        	e.printStackTrace();
+            throw e;  
+        } finally {  
+            try {  
+                in.close();  
+            } catch (Exception e) {  }  
+            try {  
+                out.close();  
+            } catch (Exception e) { }  
+        }  
+        return returnValue;  
+    } 
+	
 	public String postForChatGPT(String url, JSONObject data,Map<String,String> header) throws Exception {
         String result = "";
         CloseableHttpClient httpClient = null;
@@ -86,7 +159,7 @@ public class HttpClientHelper {
                     return true;
                 }
             });
-            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), new String[] { "TLSv1", "TLSv1.2" }, null, NoopHostnameVerifier.INSTANCE);
+            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), new String[] { "TLSv1.2" }, null, new TrustAnyHostnameVerifier());
             Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory> create().register("http", new PlainConnectionSocketFactory()).register("https", sslsf).build();
             PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(registry);
             cm.setMaxTotal(200);// max connection
@@ -105,7 +178,7 @@ public class HttpClientHelper {
     		// 发送json格式的数据请求
     		entity.setContentType("application/json");
     		httpPost.setEntity(entity);
-            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(60000).setConnectTimeout(60000).build();// 设置请求和传输超时时间
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(120000).setConnectTimeout(120000).build();// 设置请求和传输超时时间
             httpPost.setConfig(requestConfig);
             HttpResponse httpResponse = httpClient.execute(httpPost);
             HttpEntity resEntity = httpResponse.getEntity();
