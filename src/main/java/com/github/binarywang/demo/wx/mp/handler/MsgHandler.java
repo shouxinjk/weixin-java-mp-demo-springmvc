@@ -327,26 +327,28 @@ public class MsgHandler extends AbstractHandler {
 
     
     //嫁接ChatGPT
-    String answer = "";
 	//chatgpt比较慢，先回复一条消息
     String[] chatGptMsgTpl = {
     		"问的人有点多，稍等一下下哦😊",
+    		"收到好多问题啊，要等一下下哦~~😉",
+    		"忙成小蜜蜂了🐝，马上就来哦~~",
     		"有点小忙🐝，要稍等等哦~~",
     		"正在生成中……",
     };
-
-	//**
-	WxMpKefuMessage kfMsg = WxMpKefuMessage
-			  .TEXT().content(chatGptMsgTpl[(int)Math.floor(Math.random()*100)%chatGptMsgTpl.length].replace("__keyword", keyword))
-			  .toUser(userWxInfo.getOpenId())
-			  .build();
-		wxMpService.getKefuService().sendKefuMessage(kfMsg);
-		//**/
-    
+	//随机返回一条应答，避免尬聊
+    if((int)Math.floor(Math.random()*100)%10<2) { //20%的概率会收到这个消息
+		WxMpKefuMessage kfMsg = WxMpKefuMessage
+				  .TEXT().content(chatGptMsgTpl[(int)Math.floor(Math.random()*100)%chatGptMsgTpl.length].replace("__keyword", keyword))
+				  .toUser(userWxInfo.getOpenId())
+				  .build();
+			wxMpService.getKefuService().sendKefuMessage(kfMsg);
+    }
 	//请求chatgpt
+    boolean hasChatGPT = false;
     try {
-    	answer = helper.requestChatGPT(keyword);
+    	String answer = helper.requestChatGPT(keyword);
     	if(answer!=null&&answer.trim().length()>0) {
+    		hasChatGPT = true;
     		//等待时间过长无法直接返回，采用客服消息
     	    //return new TextBuilder().build(answer, wxMessage, weixinService);
     		WxMpKefuMessage kfMsgBot = WxMpKefuMessage
@@ -359,48 +361,84 @@ public class MsgHandler extends AbstractHandler {
     	logger.error("Error occured while access chatgpt.[keyword]"+keyword,ex);
     }
     
-    
-    //清单、方案、排行榜搜索：
-    //如果keyword还有内容的话直接搜索，则根据关键词搜索符合内容
-    //先返回一条提示信息
-    String[] articleMagicWords = {"清单","集合","列表","方案","个性化","定制","排行"};//类型识别词
-    String[] articleTypes = {"主题清单","主题清单","主题清单","定制方案","定制方案","定制方案","排行榜"};//与识别词一一对应
-    String matchedArticleTag = "";
-    String matchedAttcleType = "内容";
-    int idx = 0;
-    for(String token:articleMagicWords) {
-    	if(keyword.indexOf(token)>-1) {//找到了就返回
-    		matchedArticleTag = token;
-    		matchedAttcleType = articleTypes[idx];
-    		break;
-    	}
-    	idx++;
-    }
-    if(matchedArticleTag.trim().length()>0) {//需要触发特定关键词
-    	String bearKeyword = keyword.replace(matchedArticleTag, "").trim();
-    	if(bearKeyword.length()==0)
-    		bearKeyword = "*";
-    	String tips = "";
-    	if("*".equalsIgnoreCase(bearKeyword)) {
-    		tips = "清单、方案、排行榜有很多的哦，加个关键词可以更准哦😉";
-    	}else {
-    		tips = "好安逸，找到相关的"+matchedAttcleType+"🤩，赶紧看哦~~";
-    	}
-		//然后返回一条搜索结果：微信限制只能返回一条
-	    String xml = null;
-	    try {
-	    		xml = helper.searchMatchedArticle(bearKeyword);
-	    }catch(Exception ex) {
-	    		logger.error("Error occured while search articles.[keyword]"+keyword,ex);
+    //没有chatGPT响应的时候直接查找
+    if(!hasChatGPT) {
+	    //清单、方案、排行榜搜索：
+	    //如果keyword还有内容的话直接搜索，则根据关键词搜索符合内容
+	    //先返回一条提示信息
+	    String[] articleMagicWords = {"清单","集合","列表","方案","个性化","定制","排行"};//类型识别词
+	    String[] articleTypes = {"主题清单","主题清单","主题清单","定制方案","定制方案","定制方案","排行榜"};//与识别词一一对应
+	    String matchedArticleTag = "";
+	    String matchedAttcleType = "内容";
+	    int idx = 0;
+	    for(String token:articleMagicWords) {
+	    	if(keyword.indexOf(token)>-1) {//找到了就返回
+	    		matchedArticleTag = token;
+	    		matchedAttcleType = articleTypes[idx];
+	    		break;
+	    	}
+	    	idx++;
 	    }
-	    if(xml != null && xml.trim().length() > 0) {
-	    	//发送一条客服消息
-			WxMpKefuMessage kfMsgSearch = WxMpKefuMessage
-					  .TEXT().content(tips)
+	    if(matchedArticleTag.trim().length()>0) {//需要触发特定关键词
+	    	String bearKeyword = keyword.replace(matchedArticleTag, "").trim();
+	    	if(bearKeyword.length()==0)
+	    		bearKeyword = "*";
+	    	String tips = "";
+	    	if("*".equalsIgnoreCase(bearKeyword)) {
+	    		tips = "清单、方案、排行榜有很多的哦，加个关键词可以更准哦😉";
+	    	}else {
+	    		tips = "好安逸，找到相关的"+matchedAttcleType+"🤩，赶紧看哦~~";
+	    	}
+			//然后返回一条搜索结果：微信限制只能返回一条
+		    String xml = null;
+		    try {
+		    		xml = helper.searchMatchedArticle(bearKeyword);
+		    }catch(Exception ex) {
+		    		logger.error("Error occured while search articles.[keyword]"+keyword,ex);
+		    }
+		    if(xml != null && xml.trim().length() > 0) {
+		    	//发送一条客服消息
+				WxMpKefuMessage kfMsgSearch = WxMpKefuMessage
+						  .TEXT().content(tips)
+						  .toUser(userWxInfo.getOpenId())
+						  .build();
+					wxMpService.getKefuService().sendKefuMessage(kfMsgSearch);
+		    	//返回找到的内容
+			    XStream xstream = new XStream();
+			    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
+			    XStream.setupDefaultSecurity(xstream);
+			    xstream.allowTypes(classes);
+			    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
+				WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(xml);
+				return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
+				        .toUser(wxMessage.getFromUser()).build();
+		    }
+		}    
+	
+		//搜索商品或内容，返回得分更高的结果：微信限制只能返回一条
+	    String xml = null;
+	    String[] kfMsgTpl = {
+	    		"正在查找__keyword相关的内容，请稍等一下下哦😊😊",
+	    		"找到__keyword相关的内容🥰，点击查看哦~~",
+	    		"哇塞🤩，我找到你要的__keyword了，赶紧查看吧~~",
+	    		"众里寻他千百度，__keyword就在灯火阑珊处😉",
+	    };
+	    try {
+	    		xml = helper.searchContent(keyword);
+	    }catch(Exception ex) {
+	    		logger.error("Error occured while search content.[keyword]"+keyword,ex);
+	    }
+	    if(xml != null && xml.trim().length() > 0){
+	    	//先发送客服消息
+	    	//随机选一条回复语
+	    	/**
+			WxMpKefuMessage kfMsg = WxMpKefuMessage
+					  .TEXT().content(kfMsgTpl[(int)Math.floor(Math.random()*100)%kfMsgTpl.length].replace("__keyword", keyword))
 					  .toUser(userWxInfo.getOpenId())
 					  .build();
-				wxMpService.getKefuService().sendKefuMessage(kfMsgSearch);
-	    	//返回找到的内容
+				wxMpService.getKefuService().sendKefuMessage(kfMsg);
+				//**/
+			//然后返回找到的商品图文
 		    XStream xstream = new XStream();
 		    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
 		    XStream.setupDefaultSecurity(xstream);
@@ -410,44 +448,12 @@ public class MsgHandler extends AbstractHandler {
 			return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
 			        .toUser(wxMessage.getFromUser()).build();
 	    }
-	}    
-
-	//搜索商品或内容，返回得分更高的结果：微信限制只能返回一条
-    String xml = null;
-    String[] kfMsgTpl = {
-    		"正在查找__keyword相关的内容，请稍等一下下哦😊😊",
-    		"找到__keyword相关的内容🥰，点击查看哦~~",
-    		"哇塞🤩，我找到你要的__keyword了，赶紧查看吧~~",
-    		"众里寻他千百度，__keyword就在灯火阑珊处😉",
-    };
-    try {
-    		xml = helper.searchContent(keyword);
-    }catch(Exception ex) {
-    		logger.error("Error occured while search content.[keyword]"+keyword,ex);
     }
-    if(xml != null && xml.trim().length() > 0){
-    	//先发送客服消息
-    	//随机选一条回复语
-    	/**
-		WxMpKefuMessage kfMsg = WxMpKefuMessage
-				  .TEXT().content(kfMsgTpl[(int)Math.floor(Math.random()*100)%kfMsgTpl.length].replace("__keyword", keyword))
-				  .toUser(userWxInfo.getOpenId())
-				  .build();
-			wxMpService.getKefuService().sendKefuMessage(kfMsg);
-			//**/
-		//然后返回找到的商品图文
-	    XStream xstream = new XStream();
-	    Class<?>[] classes = new Class[] { WxMpXmlOutNewsMessage.Item.class };
-	    XStream.setupDefaultSecurity(xstream);
-	    xstream.allowTypes(classes);
-	    xstream.alias("item", WxMpXmlOutNewsMessage.Item.class);
-		WxMpXmlOutNewsMessage.Item item = (WxMpXmlOutNewsMessage.Item)xstream.fromXML(xml);
-		return WxMpXmlOutMessage.NEWS().addArticle(item).fromUser(wxMessage.getToUser())
-		        .toUser(wxMessage.getFromUser()).build();
-    }
-    
   	//最后返回不懂说啥，给出联系人方式
-    return new TextBuilder().build("可以输入清单、方案、商品、排行榜等内容直接查找，也可以直接进入菜单哦~~", wxMessage, weixinService);
-  
+    if(hasChatGPT) { //如果chatgpt已经回复过则不作任何处理
+    	return new TextBuilder().build("", wxMessage, weixinService);
+    }else {
+    	return new TextBuilder().build("啊哦，我的小脑袋瓜有点转不动了🤭可以输入清单、方案、商品、排行榜等内容直接查找，也可以直接进入菜单哦~~", wxMessage, weixinService);
+    }
 }
 }
