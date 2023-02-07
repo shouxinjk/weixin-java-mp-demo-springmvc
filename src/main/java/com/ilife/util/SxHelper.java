@@ -334,12 +334,12 @@ public class SxHelper {
 			CompletionRequest completionRequest = CompletionRequest.builder()
 			        .prompt(keyword)
 			        .model("text-davinci-003")
-			        .maxTokens(keyword.length()*2+1000)
+			        .maxTokens(keyword.length()*2+10000)
 			        .echo(true)
 			        .build();
 			List<CompletionChoice> choices = service.createCompletion(completionRequest).getChoices();
 			if(choices!=null && choices.size()>0) {
-				return choices.get(0).getText().replaceAll("\\n","")
+				return choices.get(0).getText().replace(keyword+"\\n","")
 						.replace(keyword+"？","").replace(keyword+"?","")
 						.replace(keyword+"：","").replace(keyword+":","")
 						.replace(keyword+" ","");
