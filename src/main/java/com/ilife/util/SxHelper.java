@@ -334,7 +334,7 @@ public class SxHelper {
 			CompletionRequest completionRequest = CompletionRequest.builder()
 			        .prompt(keyword)
 			        .model("text-davinci-003")
-			        .maxTokens(keyword.length()*2+10000)
+			        .maxTokens(keyword.length()*2+2000)
 			        .echo(true)
 			        .build();
 			List<CompletionChoice> choices = service.createCompletion(completionRequest).getChoices();
