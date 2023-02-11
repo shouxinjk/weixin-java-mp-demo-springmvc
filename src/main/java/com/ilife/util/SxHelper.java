@@ -330,8 +330,11 @@ public class SxHelper {
 	  
 	  
 	  public String requestChatGPT(String keyword) {
-		  OpenAiService service = new OpenAiService(chatgptApiKey,120);
-			CompletionRequest completionRequest = CompletionRequest.builder()
+		  int random = (int)Math.floor(Math.random()*100);
+		  String[] apiKeys = chatgptApiKey.split(",");
+		  String apiKey = apiKeys[random%apiKeys.length];//随机获取一个
+		  OpenAiService service = new OpenAiService(apiKey,120);
+		  CompletionRequest completionRequest = CompletionRequest.builder()
 			        .prompt(keyword)
 			        .model("text-davinci-003")
 			        .maxTokens(keyword.length()*2+2000)
