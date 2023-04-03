@@ -326,7 +326,9 @@ public class MsgHandler extends AbstractHandler {
     
 
     
-    //嫁接ChatGPT
+    //嫁接ChatGPT：当前未启用
+    boolean hasChatGPT = false;
+    /**
 	//chatgpt比较慢，先回复一条消息
     String[] chatGptMsgTpl = {
     		"问的人有点多，稍等一下下哦😊",
@@ -344,7 +346,6 @@ public class MsgHandler extends AbstractHandler {
 			wxMpService.getKefuService().sendKefuMessage(kfMsg);
     }
 	//请求chatgpt
-    boolean hasChatGPT = false;
     try {
     	String answer = helper.requestChatGPT(keyword);
     	if(answer!=null&&answer.trim().length()>0) {
@@ -360,7 +361,7 @@ public class MsgHandler extends AbstractHandler {
     }catch(Exception ex) {
     	logger.error("Error occured while access chatgpt.[keyword]"+keyword,ex);
     }
-    
+    //**/
     //没有chatGPT响应的时候直接查找
     if(!hasChatGPT) {
 	    //清单、方案、排行榜搜索：
