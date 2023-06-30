@@ -540,8 +540,15 @@ XXXX
 		Map<String, Object> result = Maps.newHashMap();
 		logger.info("start send payment success message.[params]",params);
 		
+		//默认直接发送给平台管理员：
+		//对于租户管理员：需要手动传递openid
+		String openid = ilifeConfig.getDefaultSystemBrokerOpenid();
+		if( params.get("openid")!=null && params.get("openid").trim().length()>0) {
+			openid = params.get("openid");
+		}
+		
         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
-      	      .toUser(ilifeConfig.getDefaultSystemBrokerOpenid())
+      	      .toUser(openid)
       	      .templateId(ilifeConfig.getMsgIdPayment())//sf910GwObDADwsqbDkAWUA4nQ2j9Tso7QEo5bqbjF34
       	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/index.html")
       	      .build();
@@ -1075,5 +1082,51 @@ XXXX
       result.put("msg", "parent broker notify msg sent successfully.");
       return result;
 	}
+	
+	/**
+	 * 在租户初次开通服务后推送管理员账户信息：
+        {
+			openid:xxx,
+			title:xxx,
+			company: xxx,
+			package:xxx,
+			username:xxx,
+			password:xxx,
+			expireOn:yyyy-MM-dd HH:mm:ss
+        }
+      * 消息模板：
+			{{first.DATA}} title
+			开通企业：{{keyword1.DATA}} company
+			开通套餐：{{keyword2.DATA}} package
+			开通账号：{{keyword3.DATA}} username
+			账号密码：{{keyword4.DATA}} password
+			套餐期限：{{keyword5.DATA}} expireOn
+			{{remark.DATA}}
+	 */
+	@RequestMapping(value = "/notify-mp-tenant-ready", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendMpTemplateMessageTenantReady(@RequestBody JSONObject json) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.info("start send tenant notify message.[params]",json);
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(json.getString("openid"))
+      	      .templateId("Fchqo70UJQmcwH-PT-QGtc45_0uP6fwuRVK7pa7Y0J0")
+      	      .url("https://air.biglistoflittlethings.com")
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", json.getString("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", json.getString("company")))
+  	    		.addData(new WxMpTemplateData("keyword2", json.getString("package")))
+  	    		.addData(new WxMpTemplateData("keyword3", json.getString("username")))
+  	    		.addData(new WxMpTemplateData("keyword4", json.getString("password")))
+  	    		.addData(new WxMpTemplateData("keyword5", json.getString("expireOn")))
+  	    		.addData(new WxMpTemplateData("remark", json.getString("remark")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}	
 	
 }
