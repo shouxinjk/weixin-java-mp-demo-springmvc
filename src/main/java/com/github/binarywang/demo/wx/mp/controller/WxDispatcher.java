@@ -497,17 +497,19 @@ XXXX
 		
 		logger.info("start send data sync message.[params]",params);
 		
-        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
-      	      .toUser(params.get("openid"))
-      	      .templateId(ilifeConfig.getMsgIdTask())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
-      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/index.html")
-      	      .build();
-
-  	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
-  	    		.addData(new WxMpTemplateData("keyword1", params.get("task")))
-  	    		.addData(new WxMpTemplateData("keyword2", params.get("time")))
-  	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
-  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+		//20230803: 模板被拦截，临时停发消息
+		String msgId = "";
+//        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+//      	      .toUser(params.get("openid"))
+//      	      .templateId(ilifeConfig.getMsgIdTask())//ey5yiuOvhnVN59Ui0_HdU_yF8NHZSkdcRab2tYmRAHI
+//      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/index.html")
+//      	      .build();
+//
+//  	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
+//  	    		.addData(new WxMpTemplateData("keyword1", params.get("task")))
+//  	    		.addData(new WxMpTemplateData("keyword2", params.get("time")))
+//  	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
+//  	    msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
   	     
   	     result.put("status", true);
   	     result.put("msgId", msgId);
