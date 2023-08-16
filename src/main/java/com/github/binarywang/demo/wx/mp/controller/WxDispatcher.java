@@ -1,11 +1,17 @@
 package com.github.binarywang.demo.wx.mp.controller;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +42,7 @@ import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.service.WxOAuth2Service;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.kefu.WxMpKefuMessage;
+import me.chanjar.weixin.mp.bean.material.WxMediaImgUploadResult;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutNewsMessage;
 //import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
@@ -143,6 +150,38 @@ public class WxDispatcher {
 	    WxOAuth2UserInfo wxMpUser = oAuth2Service.getUserInfo(accessToken, null);
 		logger.debug("Got userInfo",wxMpUser);
 		return wxMpUser;
+	}
+	
+	/**
+	 * 将图文内容中的图片url上传为永久素材。该接口不占用永久素材数量。
+	 */
+	@RequestMapping(value ="/upload", method = RequestMethod.POST)
+	@ResponseBody
+	public JSONObject uploadMediaByUrl(@RequestBody JSONObject json) throws WxErrorException, IOException {
+		JSONObject result = new JSONObject();
+		result.put("success", false);
+		String imgUrl = json.getString("imgUrl");//获取图片地址
+		if(imgUrl == null) {
+			result.put("msg", "imgUrl is mandatory.");
+			return result;
+		}
+		
+		HttpURLConnection httpUrl = (HttpURLConnection) new URL(imgUrl).openConnection();
+        httpUrl.connect();
+        InputStream inputStream = httpUrl.getInputStream();
+        String fileType = HttpURLConnection.guessContentTypeFromStream( inputStream );//猜测文件类型
+        if(fileType==null)fileType=".jpg";
+        File tmpFile = Files.createTempFile("tmp", fileType).toFile();
+        FileUtils.copyInputStreamToFile(inputStream, tmpFile);
+        inputStream.close();
+        
+		WxMediaImgUploadResult uploadResult = wxMpService.getMaterialService().mediaImgUpload(tmpFile);
+		httpUrl.disconnect();
+		
+		result.put("success", true);
+		result.put("url", uploadResult.getUrl());
+		
+		return result;
 	}
 
 	/**
