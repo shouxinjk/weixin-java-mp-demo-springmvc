@@ -38,6 +38,7 @@ import com.thoughtworks.xstream.XStream;
 import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
+import me.chanjar.weixin.common.bean.result.WxMediaUploadResult;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.service.WxOAuth2Service;
 import me.chanjar.weixin.mp.api.WxMpService;
@@ -154,8 +155,10 @@ public class WxDispatcher {
 	
 	/**
 	 * 将图文内容中的图片url上传为永久素材。该接口不占用永久素材数量。
+	 * 注意：
+	 * 该接口不影响素材分辨率尺寸，对于构建小程序卡片不符合 1080*864的要求
 	 */
-	@RequestMapping(value ="/upload", method = RequestMethod.POST)
+	@RequestMapping(value ="/upload-media", method = RequestMethod.POST)
 	@ResponseBody
 	public JSONObject uploadMediaByUrl(@RequestBody JSONObject json) throws WxErrorException, IOException {
 		JSONObject result = new JSONObject();
@@ -170,12 +173,46 @@ public class WxDispatcher {
         httpUrl.connect();
         InputStream inputStream = httpUrl.getInputStream();
         String fileType = HttpURLConnection.guessContentTypeFromStream( inputStream );//猜测文件类型
-        if(fileType==null)fileType=".jpg";
+        if(fileType==null)fileType=".png";
         File tmpFile = Files.createTempFile("tmp", fileType).toFile();
         FileUtils.copyInputStreamToFile(inputStream, tmpFile);
         inputStream.close();
         
 		WxMediaImgUploadResult uploadResult = wxMpService.getMaterialService().mediaImgUpload(tmpFile);
+		httpUrl.disconnect();
+		
+		result.put("success", true);
+		result.put("url", uploadResult.getUrl());
+		
+		return result;
+	}
+	
+	/**
+	 * 将图文内容中的图片url上传为临时素材。
+	 * 注意：
+	 * 该接口不影响素材分辨率尺寸，对于构建小程序卡片不符合 1080*864的要求
+	 */
+	@RequestMapping(value ="/upload-tmp-media", method = RequestMethod.POST)
+	@ResponseBody
+	public JSONObject uploadAttachmentByUrl(@RequestBody JSONObject json) throws WxErrorException, IOException {
+		JSONObject result = new JSONObject();
+		result.put("success", false);
+		String imgUrl = json.getString("imgUrl");//获取图片地址
+		if(imgUrl == null) {
+			result.put("msg", "imgUrl is mandatory.");
+			return result;
+		}
+		
+		HttpURLConnection httpUrl = (HttpURLConnection) new URL(imgUrl).openConnection();
+        httpUrl.connect();
+        InputStream inputStream = httpUrl.getInputStream();
+        String fileType = HttpURLConnection.guessContentTypeFromStream( inputStream );//猜测文件类型
+        if(fileType==null)fileType=".png";
+        File tmpFile = Files.createTempFile("tmp", fileType).toFile();
+        FileUtils.copyInputStreamToFile(inputStream, tmpFile);
+        inputStream.close();
+        
+		WxMediaUploadResult uploadResult = wxMpService.getMaterialService().mediaUpload("image", tmpFile);
 		httpUrl.disconnect();
 		
 		result.put("success", true);
