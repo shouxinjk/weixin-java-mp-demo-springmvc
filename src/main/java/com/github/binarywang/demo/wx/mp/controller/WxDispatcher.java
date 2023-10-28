@@ -339,6 +339,28 @@ public class WxDispatcher {
 	}
 	
 	/**
+	 * 生成saas小程序加入定制师二维码：从租户小程序扫码关注，并自动关联到租户
+	 * 该二维码仅用于从租户小程序进入，扫码后注册定制师，并默认关联到入口租户。支持从多个租户小程序扫码进入。
+	 * 二维码格式为：SaaS::xxxxxx,
+	 * 其中xxxxxx为用户在租户小程序的openid，能够根据该数据查询得到wwCustomer信息，扫码完成后关联到平台openid
+	 */
+	@RequestMapping("/saas-qrcode")
+	@ResponseBody
+	public Map<String, Object> generateSaasQRCode(@RequestParam("openid")String openid) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		if(openid==null || openid.trim().length()==0)//支持前端传入短码
+			openid = Util.get6bitCodeRandom();//使用6位短码，长了会导致二维码生成场景值错误
+		logger.debug("try to generate inst QRcode for binding.[code]"+openid);
+		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket("SaaS::"+openid,2592000);//有效期30天，注意场景值长度不能超过64
+		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
+		logger.debug("Got QRcode URL. [URL]",url);
+		result.put("url", url);
+		result.put("status",true);
+		result.put("description","SaaS QRCode created successfully");
+		return result;
+	}
+	
+	/**
 	 * 根据UUID查询扫码用户的openid
 	 * 用于选品工具、采集工具达人扫码绑定
 	 */
