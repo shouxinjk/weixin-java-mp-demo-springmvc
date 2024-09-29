@@ -737,6 +737,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 				data.put("upgrade", "无");
 				data.put("status", "ready");//默认直接设置为ready，后续接收清单推送
 				data.put("openid", openid);
+				data.put("appId", wxMpConfig.getAppid()); //20240929：新注册 broker 指定来源为公众号 appId，支持分账时自动区分
 				data.put("nickname", nickname);//昵称
 				data.put("name", nickname);//默认用nickName
 				//data.put("phone", "12345678");//等待用户自己填写
