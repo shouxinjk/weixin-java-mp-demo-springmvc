@@ -665,7 +665,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 
 		  }
 		  //最后都要返回申明
-		  return new TextBuilder().build("感谢遇见。我们是决策助手，提供推荐、评价、定制服务，让每一个生活决策都带来小确幸，填满大生活 ~~", wxMessage, weixinService);
+		  return new TextBuilder().build("感谢关注。我们致力于提供企业数智化服务，基于企业微信提供产品个性定制、内容生成、客户私域运营能力。企业微信搜索 墨加 能够立即订阅体验 ~~", wxMessage, weixinService);
 	  }
 	  
 	  return null;

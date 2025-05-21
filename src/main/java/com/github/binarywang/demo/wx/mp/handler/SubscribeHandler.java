@@ -525,7 +525,7 @@ public class SubscribeHandler extends AbstractHandler {
 			  .build();
 			wxMpService.getKefuService().sendKefuMessage(kfMsg);
 			//**/
-			return new TextBuilder().build("感谢关注，我们提供推荐、评价、定制服务，让每一个生活决策都带来小确幸，填满你的大生活。我还能随时陪你聊天，可以随意说些什么哦~~", wxMessage, weixinService);
+			return new TextBuilder().build("感谢关注。我们致力于提供企业数智化服务，基于企业微信提供产品个性定制、内容生成、客户私域运营能力。企业微信搜索 墨加 能够立即订阅体验 ~~", wxMessage, weixinService);
 		}else if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
 			  try {
 				  //自动注册为达人
@@ -581,7 +581,7 @@ public class SubscribeHandler extends AbstractHandler {
 			  }
 		  }
 		  //最后都要返回申明
-		  return new TextBuilder().build("感谢遇见。我们是决策助手，提供推荐、评价、定制服务，让每一个生活决策都带来小确幸，填满大生活 ~~", wxMessage, weixinService);
+		  return new TextBuilder().build("感谢关注。我们致力于提供企业数智化服务，基于企业微信提供产品个性定制、内容生成、客户私域运营能力。企业微信搜索 墨加 能够立即订阅体验 ~~", wxMessage, weixinService);
     }
 
     return null;
