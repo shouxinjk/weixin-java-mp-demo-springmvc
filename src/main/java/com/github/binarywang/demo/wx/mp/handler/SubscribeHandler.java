@@ -304,7 +304,11 @@ public class SubscribeHandler extends AbstractHandler {
 	  			payload.put("sxOpenid", userWxInfo.getOpenId());
 	  			payload.put("sxUnionid", userWxInfo.getUnionId());
 	  			//更新 wwCustomer 补充平台 sxOpenid、sxUnionid
-	  			result = HttpClientHelper.getInstance().post(ilifeConfig.getSxApi()+"/mod/wwCustomer/rest/completeCustomerInfoByOpenid/"+params[1],payload, header);
+	  			try {
+	  				result = HttpClientHelper.getInstance().post(ilifeConfig.getSxApi()+"/mod/wwCustomer/rest/completeCustomerInfoByOpenid/"+params[1],payload, header);
+	  			}catch(Exception ex) {
+		  			logger.debug("\n\nfailed update Tenant User info.[type]TUser[Scene]"+userWxInfo.getQrSceneStr());
+	  			}
 	  			logger.debug("try send notify msg.[openid]"+userWxInfo.getOpenId());
   				//直接将openId写入缓存，等待客户端查询完成绑定操作
 		        //发送通知消息
