@@ -241,6 +241,29 @@ public class WxDispatcher {
 	}
 	
 	/**
+	 * SaaS 端：
+	 * 用于商家用户从小程序扫码关注服务号时，场景值为商家小程序用户 TUser::openid
+	 * 用户扫码扫码后前端能够得到服务号openid、unionid，并自动补充到 wwCustomer
+	 * 二维码格式为：TUser::openid
+	 * 其中openid为当前二维码识别标志，扫码完成后前端将根据该标志wwCustomer 并更新 sxOpenid、sxUnionId
+	 * 
+	 * @param openid 为商家小程序下用户 openid
+	 */
+	@RequestMapping("/tuser-qrcode")
+	@ResponseBody
+	public Map<String, Object> generateTenantUserQRCode(@RequestParam("openid")String openid) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		logger.debug("try to generate tenant user QRcode.[openid]"+openid);
+		WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket("TUser::"+openid,2592000);//有效期30天，注意场景值长度不能超过64
+		String url = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
+		logger.debug("Got QRcode URL. [URL]",url);
+		result.put("url", url);
+		result.put("status",true);
+		result.put("description","Tenant User QRCode created successfully");
+		return result;
+	}		
+	
+	/**
 	 * 生成达人推广二维码。需要通过前端完成，操作逻辑为：
 	 * 1，先通过ilife注册达人，并获得达人ID
 	 * 2，请求生成二维码，参数为达人ID。返回达人ID、二维码URL

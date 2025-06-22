@@ -288,6 +288,28 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
             	    		.addData(new WxMpTemplateData("remark", "邀请奖励："+pointsReward.getString("points")+"阅豆\n权益激活：将分享新成员内容带货收益\n\n点击查看团队列表。"));
             	      msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
 	  			}
+	  		}else if("TUser".equalsIgnoreCase(params[0])) {//商家小程序用户扫码关注服务号，补全平台 openid。TUser::openid，openid 为商家小程序用户 openid
+	  			logger.debug("\n\ngot Tenant User scan event.[type]TUser[Scene]"+userWxInfo.getQrSceneStr());
+	  			//得到 sxOpenid、sxUnionid
+	  			JSONObject payload = new JSONObject();
+	  			payload.put("sxOpenid", userWxInfo.getOpenId());
+	  			payload.put("sxUnionid", userWxInfo.getUnionId());
+	  			//更新 wwCustomer 补充平台 sxOpenid、sxUnionid
+	  			result = HttpClientHelper.getInstance().post(ilifeConfig.getSxApi()+"/mod/wwCustomer/rest/completeCustomerInfoByOpenid/"+params[1],payload, header);
+	  			logger.debug("try send notify msg.[openid]"+userWxInfo.getOpenId());
+  				//直接将openId写入缓存，等待客户端查询完成绑定操作
+		        //发送通知消息
+  		        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+  		      	      .toUser(userWxInfo.getOpenId())
+  		      	      .templateId("G4ah8DnXccJJydrBEoz0D9XksaFifwVA44hK8o2dIog")//已经注册则直接发送登录状态提醒
+  		      	      .url("http://www.biglistoflittlethings.com/ilife-web-wx/home.html")
+  		      	      .build();
+  		  	    templateMessage.addData(new WxMpTemplateData("first", "感谢关注"))
+  		  	    		.addData(new WxMpTemplateData("keyword1", dateFormat.format(new Date())))//操作时间
+  		  	    		.addData(new WxMpTemplateData("keyword2", "登录成功"))//登录状态
+  		  	    		.addData(new WxMpTemplateData("keyword3", "墨加数据"))//登录网站
+  		  	    		.addData(new WxMpTemplateData("remark", "已完成关注，墨加将及时推送签约、派单、订单、佣金收益消息。可进入首页查看商家产品信息。"));
+  		  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage); 	  			
 	  		}else if("Bind".equalsIgnoreCase(params[0])) {//在选品工具中扫码绑定达人账号。Bind::uuid，uuid为本次扫码使用的唯一识别码
 	  			logger.debug("\n\ngot Scan event.[type]Bind[Scene]"+userWxInfo.getQrSceneStr());
 	  			//根据openId查找是否已经注册达人
