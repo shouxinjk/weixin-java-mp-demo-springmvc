@@ -79,6 +79,21 @@ public class iLifeConfig {
   @Value("#{ilifePropertyies.template_payment}")
   private String msgIdPayment;
   
+  @Value("#{ilifePropertyies.tpl_broker_register}")
+  private String msgTplBrokerRegister;
+  @Value("#{ilifePropertyies.tpl_broker_contract}")
+  private String msgTplBrokerContract;
+  @Value("#{ilifePropertyies.tpl_service_order}")
+  private String msgTplServiceOrder;
+  @Value("#{ilifePropertyies.tpl_cps_order}")
+  private String msgTplCpsOrder;
+  @Value("#{ilifePropertyies.tpl_settle}")
+  private String msgTplSettle;
+  @Value("#{ilifePropertyies.tpl_order}")
+  private String msgTplOrder;
+  @Value("#{ilifePropertyies.tps_schedule}")
+  private String msgTplSchedule;
+  
   public String getSxApi() {
     return this.sxApi;
   }
@@ -237,6 +252,62 @@ public String getMsgIdConnect() {
 
 public void setMsgIdConnect(String msgIdConnect) {
 	this.msgIdConnect = msgIdConnect;
+}
+
+public String getMsgTplBrokerRegister() {
+	return msgTplBrokerRegister;
+}
+
+public void setMsgTplBrokerRegister(String msgTplBrokerRegister) {
+	this.msgTplBrokerRegister = msgTplBrokerRegister;
+}
+
+public String getMsgTplBrokerContract() {
+	return msgTplBrokerContract;
+}
+
+public void setMsgTplBrokerContract(String msgTplBrokerContract) {
+	this.msgTplBrokerContract = msgTplBrokerContract;
+}
+
+public String getMsgTplServiceOrder() {
+	return msgTplServiceOrder;
+}
+
+public void setMsgTplServiceOrder(String msgTplServiceOrder) {
+	this.msgTplServiceOrder = msgTplServiceOrder;
+}
+
+public String getMsgTplCpsOrder() {
+	return msgTplCpsOrder;
+}
+
+public void setMsgTplCpsOrder(String msgTplCpsOrder) {
+	this.msgTplCpsOrder = msgTplCpsOrder;
+}
+
+public String getMsgTplSettle() {
+	return msgTplSettle;
+}
+
+public void setMsgTplSettle(String msgTplSettle) {
+	this.msgTplSettle = msgTplSettle;
+}
+
+public String getMsgTplOrder() {
+	return msgTplOrder;
+}
+
+public void setMsgTplOrder(String msgTplOrder) {
+	this.msgTplOrder = msgTplOrder;
+}
+
+public String getMsgTplSchedule() {
+	return msgTplSchedule;
+}
+
+public void setMsgTplSchedule(String msgTplSchedule) {
+	this.msgTplSchedule = msgTplSchedule;
 }
 
 }

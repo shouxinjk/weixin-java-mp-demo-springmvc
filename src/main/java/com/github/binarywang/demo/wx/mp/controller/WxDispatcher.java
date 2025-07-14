@@ -1251,5 +1251,376 @@ XXXX
   	     result.put("msgId", msgId);
   	     return result;
 	}	
+
+
+	/**
+	 * 师家认证状态变化时时推送通知，包括新增、状态修改。格式为：
+		你申请的师家认证通过审核。title。状态对应：pending 待审核、rejected 已拒绝、approved 通过审核
+		申请结果：通过审核 status。与状态对应：pending 待审核、rejected 已拒绝、approved 通过审核
+		审核信息：健康管理-健管师。content。根据 bizType 及certificateType 组装，如认证类型：定制旅行-定制师
+		可前往师家端发起商家签约并开始接受服务派单~ remark 状态为 approved 时内容为 「可前往师家端发起商家签约并开始接受服务派单～」，否则为「请进入师家端补充修改～」
+	 * 
+	 * 目标用户：openid 在服务号下的 openid
+	 * 
+	 * 输入参数是一个Map。如：
+	 {
+	 openid: "xxxxx",
+	 title: "恭喜，你申请的师家认证通过审核。",
+	 status: "通过审核",
+	 content: "健康管理-健管师",
+	 remark: "可前往师家端发起商家签约并开始接受服务派单~"
+	 }
+	 */
+	@RequestMapping(value = "/notify-broker-register", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendNotifyBrokerRegister(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		if(params.get("openid")==null || params.get("openid").toString().trim().length()==0) {//如果没有openid则直接跳过
+			logger.error("cannot send clearing notification msg without openid.[params]",params);
+	  	     result.put("status", false);
+	  	     return result;
+		}
+		logger.info("start send notification msg.[params]",params);
+		DecimalFormat decimalFmt = new DecimalFormat("###################.###########");
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(params.get("openid"))
+      	      .templateId(ilifeConfig.getMsgTplBrokerRegister())
+      	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/cps/index.html")//订单通知不跳转到详情页面
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", params.get("status")))//审核结果
+  	    		.addData(new WxMpTemplateData("keyword2", params.get("content")))//认证类型
+  	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}	
 	
+
+	/**
+	 * 师家签约时推送通知，包括新增、状态修改。格式为：
+		你的签约申请通过审核。title。状态对应：pending 待审核、rejected 已拒绝、approved 通过审核
+		申请结果：通过审核 status。与状态对应：pending 待审核、rejected 已拒绝、approved 通过审核
+		审核信息：签约商家 美途假日。content。提供签约商家名称，优先简称
+		在有新的服务派单时，将接收到通知，并能够接受或拒绝订单~ remark 状态为 approved 时内容为 「在有新的服务派单时，将接收到通知，并能够接受或拒绝订单～」，否则为「请等待审核结果或联系商家完成签约审核～」
+	 * 
+	 * 目标用户：openid 在服务号下的 openid
+	 * 
+	 * 输入参数是一个Map。如：
+	 {
+	 openid: "xxxxx",
+	 title: "恭喜，你的签约申请通过审核。",
+	 status: "通过审核",
+	 content: "签约商家 美途假日",
+	 remark: "在有新的服务派单时，将接收到通知，并能够接受或拒绝订单~"
+	 }
+	 */
+	@RequestMapping(value = "/notify-broker-contract", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendNotifyBrokerContract(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		if(params.get("openid")==null || params.get("openid").toString().trim().length()==0) {//如果没有openid则直接跳过
+			logger.error("cannot send clearing notification msg without openid.[params]",params);
+	  	     result.put("status", false);
+	  	     return result;
+		}
+		logger.info("start send notification msg.[params]",params);
+		DecimalFormat decimalFmt = new DecimalFormat("###################.###########");
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(params.get("openid"))
+      	      .templateId(ilifeConfig.getMsgTplBrokerContract())
+      	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/cps/index.html")//订单通知不跳转到详情页面
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", params.get("status")))//审核结果
+  	    		.addData(new WxMpTemplateData("keyword2", params.get("content")))//认证类型
+  	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}		
+
+
+	/**
+	 * 生成服务派单或状态变化时推送通知，包括新增、状态修改。格式为：
+		新订单通知 title 
+		商家名称：张亮麻辣烫 merchant 派单商家名称，优先为简称
+		服务名称：取物 content 服务订单名称
+		订单金额：199.80 price 服务订单金额
+		预约时间：2023-04-14 scheduleDate 服务订单预约时间
+		订单状态：已接单 status 服务订单状态
+	 * 
+	 * 
+	 * 目标用户：openid 在服务号下的 openid
+	 * 
+	 * 输入参数是一个Map。如：
+	 {
+	 openid: "xxxxx",
+	 title: "你有新的服务订单通知。",
+	 merchant: "美途假日",
+	 content: "取物",
+	 price: 199.80,
+	 scheduleDate: "2025-08-09 14:00",
+	 status: "已接单",
+	 remark: "请前往师家端-订单管理查看"
+	 }
+	 */
+	@RequestMapping(value = "/notify-service-order", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendNotifyServiceOrder(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		if(params.get("openid")==null || params.get("openid").toString().trim().length()==0) {//如果没有openid则直接跳过
+			logger.error("cannot send clearing notification msg without openid.[params]",params);
+	  	     result.put("status", false);
+	  	     return result;
+		}
+		logger.info("start send notification msg.[params]",params);
+		DecimalFormat decimalFmt = new DecimalFormat("###################.###########");
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(params.get("openid"))
+      	      .templateId(ilifeConfig.getMsgTplServiceOrder())
+      	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/cps/index.html")//订单通知不跳转到详情页面
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", params.get("merchant")))//派单商家
+  	    		.addData(new WxMpTemplateData("keyword2", params.get("content")))//服务内容
+  	    		.addData(new WxMpTemplateData("keyword3", params.get("price")))//订单金额
+  	    		.addData(new WxMpTemplateData("keyword4", params.get("scheduleDate")))//预约时间
+  	    		.addData(new WxMpTemplateData("keyword5", params.get("status")))//订单状态
+  	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}		
+
+
+	/**
+	 * 产生CPS 订单时推送通知，包括师家分销、用户分销。格式为：
+		你好，你已分销商品成功。title
+		商品信息：日本贝亲旋转尼龙奶瓶刷 content
+		商品单价：11.00元 price
+		商品佣金：2.00元 commission
+		分销时间：2015年7月21日 18:36 orderTime
+		感谢你的使用。 remark
+	 * 
+	 * 目标用户：openid 在服务号下的 openid
+	 * 
+	 * 输入参数是一个Map。如：
+	 {
+	 openid: "xxxxx",
+	 title: "恭喜，你有新的分销订单。",
+	 content: "日本贝亲旋转尼龙奶瓶刷",
+	 price: 11.00,
+	 commission: 2.00,
+	 orderTime: "2025-08-02 11:22:33",
+	 remark: "订单完成后将自动结算，请留意结算通知"
+	 }
+	 */
+	@RequestMapping(value = "/notify-cps-order", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendNotifyCpsOrder(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		if(params.get("openid")==null || params.get("openid").toString().trim().length()==0) {//如果没有openid则直接跳过
+			logger.error("cannot send clearing notification msg without openid.[params]",params);
+	  	     result.put("status", false);
+	  	     return result;
+		}
+		logger.info("start send notification msg.[params]",params);
+		DecimalFormat decimalFmt = new DecimalFormat("###################.###########");
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(params.get("openid"))
+      	      .templateId(ilifeConfig.getMsgTplCpsOrder())
+      	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/cps/index.html")//订单通知不跳转到详情页面
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", params.get("content")))//商品信息
+  	    		.addData(new WxMpTemplateData("keyword2", decimalFmt.format(Double.parseDouble(""+params.get("price")))))//订单金额
+  	    		.addData(new WxMpTemplateData("keyword3", decimalFmt.format(Double.parseDouble(""+params.get("commission")))))//收益金额
+  	    		.addData(new WxMpTemplateData("keyword4", params.get("orderTime")))//订单成交时间
+  	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}	
+	
+
+
+	/**
+	 * CPS 订单结算成功通知，格式为：
+		您有一笔新的结算通知 title
+		结算内容：坚持练习写毛笔字活动奖赏金 content
+		结算金额：5.64元 commission
+		结算时间：2018年07月01日 settleTime
+		赚钱事小，培养好习惯才是最终目标。继续新挑战吧！ remark
+	 * 
+	 * 目标用户：openid 在服务号下的 openid
+	 * 
+	 * 输入参数是一个Map。如：
+	 {
+	 openid: "xxxxx",
+	 title: "恭喜，您有一笔新的结算佣金到账。",
+	 content: "坚持练习写毛笔字活动奖赏金",
+	 commission: 5.64,
+	 settleTime: "2025-08-02 11:22:33",
+	 remark: "订单佣金已经结算且转入微信账户，请留意查收。"
+	 }
+	 */
+	@RequestMapping(value = "/notify-cps-settle", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendNotifyCpsSettle(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		if(params.get("openid")==null || params.get("openid").toString().trim().length()==0) {//如果没有openid则直接跳过
+			logger.error("cannot send clearing notification msg without openid.[params]",params);
+	  	     result.put("status", false);
+	  	     return result;
+		}
+		logger.info("start send notification msg.[params]",params);
+		DecimalFormat decimalFmt = new DecimalFormat("###################.###########");
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(params.get("openid"))
+      	      .templateId(ilifeConfig.getMsgTplSettle())
+      	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/cps/index.html")//订单通知不跳转到详情页面
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", params.get("content")))//商品信息
+  	    		.addData(new WxMpTemplateData("keyword2", decimalFmt.format(Double.parseDouble(""+params.get("commission")))))//收益金额
+  	    		.addData(new WxMpTemplateData("keyword3", params.get("settleTime")))//订单成交时间
+  	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}	
+
+
+	/**
+	 * 在生成订单时向下单用户推送通知，包括新增、状态修改。格式为：
+		新订单通知 title 
+		服务名称：取物 content  对应订单内容名称
+		服务时间：2022年10月11日 10:00 scheduleDate 预约时间。无预约时间采用订单更新时间
+		商家名称：张亮麻辣烫 merchant 商家名称，优先传递简称
+		订单状态：已接单 status 
+		订单编号：2022112900000022 orderId 传递6 位订单尾号
+	 * 
+	 * 
+	 * 目标用户：openid 在服务号下的 openid
+	 * 
+	 * 输入参数是一个Map。如：
+	 {
+	 openid: "xxxxx",
+	 title: "你有新的订单通知。",
+	 content: "取物",
+	 scheduleDate: "2025-08-09 14:00",
+	 merchant: "美途假日",
+	 status: "已接单",
+	 orderId: "xxxx", 
+	 remark: "请前往小程序-我的订单界面查看"
+	 }
+	 */
+	@RequestMapping(value = "/notify-user-order", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendNotifyUserOrder(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		if(params.get("openid")==null || params.get("openid").toString().trim().length()==0) {//如果没有openid则直接跳过
+			logger.error("cannot send clearing notification msg without openid.[params]",params);
+	  	     result.put("status", false);
+	  	     return result;
+		}
+		logger.info("start send notification msg.[params]",params);
+		DecimalFormat decimalFmt = new DecimalFormat("###################.###########");
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(params.get("openid"))
+      	      .templateId(ilifeConfig.getMsgTplOrder())
+      	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/cps/index.html")//订单通知不跳转到详情页面
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", params.get("content")))//订单内容
+  	    		.addData(new WxMpTemplateData("keyword2", params.get("scheduleDate")))//预约时间
+  	    		.addData(new WxMpTemplateData("keyword3", params.get("merchant")))//收单商家
+  	    		.addData(new WxMpTemplateData("keyword4", params.get("status")))//订单状态
+  	    		.addData(new WxMpTemplateData("keyword5", params.get("orderId")))//订单尾号
+  	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}		
+
+	/**
+	 * 在订单日程开始前推送通知，仅推送一次。格式为：
+		新订单通知 title 
+		服务名称：取物 content  对应订单内容名称
+		服务时间：2022年10月11日 10:00 scheduleDate 预约时间。无预约时间采用订单更新时间
+		商家名称：张亮麻辣烫 merchant 商家名称，优先传递简称
+		订单状态：已接单 status 
+		订单编号：2022112900000022 orderId 传递6 位订单尾号
+	 * 
+	 * 
+	 * 目标用户：openid 在服务号下的 openid
+	 * 
+	 * 输入参数是一个Map。如：
+	 {
+	 openid: "xxxxx",
+	 title: "你有订单日程即将开始。",
+	 content: "取物",
+	 scheduleDate: "2025-08-09 14:00",
+	 merchant: "美途假日",
+	 status: "待开始",
+	 orderId: "xxxx", 
+	 remark: "请前往小程序-日程界面查看"
+	 }
+	 */
+	@RequestMapping(value = "/notify-user-schedule", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> sendNotifyUserSchedule(@RequestBody Map<String,String> params) throws WxErrorException, IOException {
+		Map<String, Object> result = Maps.newHashMap();
+		if(params.get("openid")==null || params.get("openid").toString().trim().length()==0) {//如果没有openid则直接跳过
+			logger.error("cannot send clearing notification msg without openid.[params]",params);
+	  	     result.put("status", false);
+	  	     return result;
+		}
+		logger.info("start send notification msg.[params]",params);
+		DecimalFormat decimalFmt = new DecimalFormat("###################.###########");
+		
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+      	      .toUser(params.get("openid"))
+      	      .templateId(ilifeConfig.getMsgTplOrder())
+      	      //.url("http://www.biglistoflittlethings.com/ilife-web-wx/cps/index.html")//订单通知不跳转到详情页面
+      	      .build();
+
+  	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
+  	    		.addData(new WxMpTemplateData("keyword1", params.get("content")))//订单内容
+  	    		.addData(new WxMpTemplateData("keyword2", params.get("scheduleDate")))//预约时间
+  	    		.addData(new WxMpTemplateData("keyword3", params.get("merchant")))//收单商家
+  	    		.addData(new WxMpTemplateData("keyword4", params.get("status")))//订单状态
+  	    		.addData(new WxMpTemplateData("keyword5", params.get("orderId")))//订单尾号
+  	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
+  	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
+  	     
+  	     result.put("status", true);
+  	     result.put("msgId", msgId);
+  	     return result;
+	}	
 }
