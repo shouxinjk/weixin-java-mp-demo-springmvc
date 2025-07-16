@@ -1392,11 +1392,11 @@ XXXX
       	      .build();
 
   	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
-  	    		.addData(new WxMpTemplateData("keyword1", params.get("merchant")))//派单商家
-  	    		.addData(new WxMpTemplateData("keyword2", params.get("content")))//服务内容
-  	    		.addData(new WxMpTemplateData("keyword3", params.get("price")))//订单金额
-  	    		.addData(new WxMpTemplateData("keyword4", params.get("scheduleDate")))//预约时间
-  	    		.addData(new WxMpTemplateData("keyword5", params.get("status")))//订单状态
+  	    		.addData(new WxMpTemplateData("thing31", params.get("merchant")))//派单商家
+  	    		.addData(new WxMpTemplateData("thing9", params.get("content")))//服务内容
+  	    		.addData(new WxMpTemplateData("amount3", params.get("price")))//订单金额
+  	    		.addData(new WxMpTemplateData("time14", params.get("scheduleDate")))//预约时间
+  	    		.addData(new WxMpTemplateData("phrase13", params.get("status")))//订单状态
   	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
   	     
@@ -1555,11 +1555,11 @@ XXXX
       	      .build();
 
   	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
-  	    		.addData(new WxMpTemplateData("keyword1", params.get("content")))//订单内容
-  	    		.addData(new WxMpTemplateData("keyword2", params.get("scheduleDate")))//预约时间
-  	    		.addData(new WxMpTemplateData("keyword3", params.get("merchant")))//收单商家
-  	    		.addData(new WxMpTemplateData("keyword4", params.get("status")))//订单状态
-  	    		.addData(new WxMpTemplateData("keyword5", params.get("orderId")))//订单尾号
+  	    		.addData(new WxMpTemplateData("thing9", params.get("content")))//订单内容
+  	    		.addData(new WxMpTemplateData("time32", params.get("scheduleDate")))//预约时间
+  	    		.addData(new WxMpTemplateData("thing31", params.get("merchant")))//收单商家
+  	    		.addData(new WxMpTemplateData("phrase13", params.get("status")))//订单状态
+  	    		.addData(new WxMpTemplateData("character_string2", params.get("orderId")))//订单尾号
   	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
   	     
@@ -1611,11 +1611,11 @@ XXXX
       	      .build();
 
   	    templateMessage.addData(new WxMpTemplateData("first", params.get("title")))
-  	    		.addData(new WxMpTemplateData("keyword1", params.get("content")))//订单内容
-  	    		.addData(new WxMpTemplateData("keyword2", params.get("scheduleDate")))//预约时间
-  	    		.addData(new WxMpTemplateData("keyword3", params.get("merchant")))//收单商家
-  	    		.addData(new WxMpTemplateData("keyword4", params.get("status")))//订单状态
-  	    		.addData(new WxMpTemplateData("keyword5", params.get("orderId")))//订单尾号
+  	    		.addData(new WxMpTemplateData("thing9", params.get("content")))//订单内容
+  	    		.addData(new WxMpTemplateData("time32", params.get("scheduleDate")))//预约时间
+  	    		.addData(new WxMpTemplateData("thing31", params.get("merchant")))//收单商家
+  	    		.addData(new WxMpTemplateData("phrase13", params.get("status")))//订单状态
+  	    		.addData(new WxMpTemplateData("character_string2", params.get("orderId")))//订单尾号
   	    		.addData(new WxMpTemplateData("remark", params.get("remark")));
   	     String msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
   	     
