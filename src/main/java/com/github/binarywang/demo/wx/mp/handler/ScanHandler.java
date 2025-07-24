@@ -250,13 +250,12 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 			        	      .url(redirectUrl)
 			        	      .build();
 			        welcomeMsg.addData(new WxMpTemplateData("first", userWxInfo.getNickname()+" 恭喜注册成功"))
-			        	    		.addData(new WxMpTemplateData("keyword1", level))//当前无法直接获取昵称，采用类别：生活家、流量主
-			        	    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
-			        	    		.addData(new WxMpTemplateData("remark", "感谢关注，我们提供个性化选品服务，以及，流量主运营支持工具。"
-			        	    				+ "\n\n生活家：客观评价，用心选品，轻松选出对的商品，并分享给对的人。"
-			        	    				+ "\n\n流量主：公众号运营、互动及变现交流，提升运营效率，节省时间以输出更优质的内容。"
-			        	    				+ "\n\n无论是个人，还是流量主，都能在分享生活方式和知识内容的同时给出可执行的商品和服务，渔鱼兼授，增加收益。"
-			        	    				+ "\n\n请扫码进群，便于讨论交流。"));
+		    		.addData(new WxMpTemplateData("keyword1", level))//当前无法直接获取昵称，采用类别：生活家、流量主
+		    		.addData(new WxMpTemplateData("keyword2", dateFormat.format(new Date())))
+		    		.addData(new WxMpTemplateData("remark", "我们直连众多商家，选品广场拥有大量高质价比商品，可前往查看和分享。"
+		    				+ "\n\n生活家：挑选并分享商品，用户下单后立即获得佣金。邀请人员还能获得额外团队佣金收益。"
+		    				+ "\n\n流量主：提供 AI 工具自动生成内容，并嵌入商品信息，不仅提升内容效率，还能在粉丝下单后获取佣金收益。"
+		    				+ "\n\n更多内容，请扫码进群交流～～"));
 			        String msgId = weixinService.getTemplateMsgService().sendTemplateMsg(welcomeMsg); 
 					//推送 客服消息，发送加群二维码：二维码图片需要预先上传，此处仅根据mediaId发送
 					WxMpKefuMessage kfMsg = WxMpKefuMessage
@@ -632,7 +631,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 				  .build();
 				wxMpService.getKefuService().sendKefuMessage(kfMsg);
 				//**/
-				return new TextBuilder().build("感谢关注，我们提供推荐、评价、定制服务，让每一个生活决策都带来小确幸，填满你的大生活。我还能随时陪你聊天，可以随意说些什么哦~~", wxMessage, weixinService);
+				return new TextBuilder().build("感谢关注，我们提供DTC整体解决方案，商家能够发布商品到私域，生活家能够分享并获取佣金，师家能够与商家签约并接受服务派单。有任何问题，请随时联系我们~~", wxMessage, weixinService);
 			}else if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
 			  try {
 				  //自动注册为达人
@@ -689,7 +688,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 
 		  }
 		  //最后都要返回申明
-		  return new TextBuilder().build("感谢关注。我们致力于提供企业数智化服务，基于企业微信提供产品个性定制、内容生成、客户私域运营能力。企业微信搜索 墨加 能够立即订阅体验 ~~", wxMessage, weixinService);
+		  return new TextBuilder().build("感谢关注，我们提供DTC整体解决方案，商家能够发布商品到私域，生活家能够分享并获取佣金，师家能够与商家签约并接受服务派单。有任何问题，请随时联系我们~~", wxMessage, weixinService);
 	  }
 	  
 	  return null;
