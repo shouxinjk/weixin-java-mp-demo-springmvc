@@ -210,6 +210,8 @@ public class SubscribeHandler extends AbstractHandler {
 	    			data.put("upgrade", "无");
 	    			data.put("status", "pending");
 	    			data.put("openid", userWxInfo.getOpenId());
+	    			data.put("unionid", userWxInfo.getUnionId());
+	    			data.put("appId", wxMpConfig.getAppid()); //指定服务号 appId
 	    			data.put("nickname", userWxInfo.getNickname());//昵称
 	    			//data.put("name", "测试账户");//等待用户自己填写
 	    			//data.put("phone", "12345678");//等待用户自己填写

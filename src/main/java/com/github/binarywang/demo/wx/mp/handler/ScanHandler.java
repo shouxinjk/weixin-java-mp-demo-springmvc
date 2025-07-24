@@ -447,6 +447,8 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	    			data.put("upgrade", "无");
 	    			data.put("status", "ready");//默认直接设置为ready，后续接收清单推送
 	    			data.put("openid", userWxInfo.getOpenId());
+	    			data.put("unionid", userWxInfo.getUnionId());
+	    			data.put("appId", wxMpConfig.getAppid()); //指定服务号 appId
 	    			data.put("nickname", userWxInfo.getNickname());//昵称
 	    			data.put("name", userWxInfo.getNickname());//默认用昵称
 	    			//data.put("phone", "12345678");//等待用户自己填写
