@@ -199,6 +199,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 		    			data.put("upgrade", "无");
 		    			data.put("status", "ready");//默认直接设置为ready，后续接收清单推送
 		    			data.put("openid", userWxInfo.getOpenId());
+		    			data.put("unionid", userWxInfo.getUnionId());
 		    			data.put("nickname", userWxInfo.getNickname());//昵称
 		    			data.put("name", userWxInfo.getNickname());//默认用昵称
 		    			//data.put("phone", "12345678");//等待用户自己填写
@@ -339,6 +340,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	    			data.put("upgrade", "无");
 	    			data.put("status", "ready");//默认直接设置为ready，后续接收清单推送
 	    			data.put("openid", userWxInfo.getOpenId());
+	    			data.put("unionid", userWxInfo.getUnionId());
 	    			data.put("nickname", userWxInfo.getNickname());//昵称
 	    			data.put("name", userWxInfo.getNickname());//默认用昵称
 	    			//data.put("phone", "12345678");//等待用户自己填写
@@ -635,7 +637,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 			}else if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
 			  try {
 				  //自动注册为达人
-				  String redirectUrl = registerBroker(userWxInfo.getOpenId(),userWxInfo.getNickname());
+				  String redirectUrl = registerBroker(userWxInfo.getOpenId(),userWxInfo.getUnionId(),userWxInfo.getNickname());
 				  String url = redirectUrl + "#wechat_redirect";//经由微信OAuth授权后返回
 				  //返回通知消息：给新注册达人
 //				  WxMpTemplateMessage msg = buildBrokerNotifyMsg(userWxInfo.getNickname(),userWxInfo.getOpenId(),url);
@@ -737,7 +739,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	}
 
 	  
-		private String registerBroker(String openid,String nickname) {
+		private String registerBroker(String openid,String unionid,String nickname) {
 //			String redirectUrl = ilifeConfig.getUpdateBrokerUrl();
 			  String redirectUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid="+wxMpConfig.getAppid()
 		  		+ "&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html"
@@ -760,6 +762,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 				data.put("upgrade", "无");
 				data.put("status", "ready");//默认直接设置为ready，后续接收清单推送
 				data.put("openid", openid);
+				data.put("unionid", unionid);
 				data.put("appId", wxMpConfig.getAppid()); //20240929：新注册 broker 指定来源为公众号 appId，支持分账时自动区分
 				data.put("nickname", nickname);//昵称
 				data.put("name", nickname);//默认用nickName
