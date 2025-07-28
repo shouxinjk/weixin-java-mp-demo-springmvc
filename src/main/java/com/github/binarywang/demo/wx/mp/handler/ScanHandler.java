@@ -190,7 +190,12 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 	  			}else {//如果不是达人，则完成注册
 	  					//先获取上级达人
 	  					JSONObject parentBrokerJson = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerById/"+params[1], null, header);
-						String level = parentBrokerJson.getJSONObject("data").getString("level");
+						String level = "生活家";
+						try{
+							level = parentBrokerJson.getJSONObject("data").getString("level");
+						}catch(Exception ex) {
+							logger.debug("get level from parent broker failed.");
+						}
 						
 	  					String url = ilifeConfig.getRegisterBrokerUrl()+params[1];//针对上级达人创建
 		    			JSONObject data = new JSONObject();

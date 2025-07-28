@@ -199,7 +199,12 @@ public class SubscribeHandler extends AbstractHandler {
     			}else {//如果不是达人，则完成注册
   					//先获取上级达人
   					JSONObject parentBrokerJson = HttpClientHelper.getInstance().get(ilifeConfig.getSxApi()+"/mod/broker/rest/brokerById/"+params[1], null, header);
-					String level = parentBrokerJson.getJSONObject("data").getString("level");
+					String level = "生活家";
+					try{
+						level = parentBrokerJson.getJSONObject("data").getString("level");
+					}catch(Exception ex) {
+						logger.debug("get level from parent broker failed.");
+					}
 					
 	    			//注册新达人。并建立新达人与上级达人的关联
 	    			//String url = "http://localhost:8080/iLife/a/mod/broker/rest/"+params[1];
