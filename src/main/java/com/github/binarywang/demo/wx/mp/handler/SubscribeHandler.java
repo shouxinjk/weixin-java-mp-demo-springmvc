@@ -285,10 +285,7 @@ public class SubscribeHandler extends AbstractHandler {
 				JSONObject postData = new JSONObject();
 				JSONObject pointsReward = HttpClientHelper.getInstance().post(ilifeConfig.getSxApi()+"/mod/broker/rest/reward/invite/"+params[1], postData, header);
 		        //根据上级达人类型，区分跳转链接
-				String targetUrl = "http://www.biglistoflittlethings.com/ilife-web-wx/broker/team.html";
-				if("流量主".equalsIgnoreCase(level)) {
-					targetUrl = "http://www.biglistoflittlethings.com/ilife-web-wx/publiser/team.html";
-				}
+				String targetUrl = "http://www.biglistoflittlethings.com/ilife-web-wx/cps/user.html";
 				
 		     //发送通知信息给上级达人
 		         WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
@@ -300,7 +297,7 @@ public class SubscribeHandler extends AbstractHandler {
         	    templateMessage.addData(new WxMpTemplateData("first", "有新成员接受邀请"))
         	    		.addData(new WxMpTemplateData("keyword1", level +" "+userWxInfo.getNickname()))
         	    		.addData(new WxMpTemplateData("keyword2", dateFormatLong.format(new Date())))
-        	    		.addData(new WxMpTemplateData("remark", "邀请奖励："+pointsReward.getString("points")+"阅豆\n权益激活：将分享新成员内容带货收益\n\n点击查看团队列表。"));
+        	    		.addData(new WxMpTemplateData("remark", "权益激活：新成员分享产生订单时，将获得团返收益\n\n点击查看团队列表。"));
         	      msgId = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);  
     			}
     		}else if("TUser".equalsIgnoreCase(params[0])) {//商家小程序用户扫码关注服务号，补全平台 openid。TUser::openid，openid 为商家小程序用户 openid
