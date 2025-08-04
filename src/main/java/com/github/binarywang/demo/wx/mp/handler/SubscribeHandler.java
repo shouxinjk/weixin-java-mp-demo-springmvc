@@ -213,7 +213,7 @@ public class SubscribeHandler extends AbstractHandler {
 //	    			data.put("hierarchy", "9");
 	    			data.put("level", level);
 	    			data.put("upgrade", "无");
-	    			data.put("status", "pending");
+	    			data.put("status", "ready");
 	    			data.put("openid", userWxInfo.getOpenId());
 	    			data.put("unionid", userWxInfo.getUnionId());
 	    			data.put("appId", wxMpConfig.getAppid()); //指定服务号 appId
