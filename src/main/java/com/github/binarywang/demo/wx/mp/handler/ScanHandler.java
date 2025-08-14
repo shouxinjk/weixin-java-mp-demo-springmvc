@@ -41,7 +41,8 @@ import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
  */
 @Component
 public class ScanHandler extends AbstractHandler {
-	@Value("#{extProps['mp.msg.media.brokerGroupChat']}") String brokerGroupChatQrcodeMediaId;
+  @Value("#{extProps['mp.msg.media.brokerGroupChat']}") String brokerGroupChatQrcodeMediaId;
+  @Value("#{extProps['mp.msg.subscribe']}") String subscribeAutoResponseMsg;
   @Autowired
   private iLifeConfig ilifeConfig;
   @Autowired
@@ -635,7 +636,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 				  .build();
 				wxMpService.getKefuService().sendKefuMessage(kfMsg);
 				//**/
-				return new TextBuilder().build("感谢关注，我们提供DTC整体解决方案，商家能够发布商品到私域，生活家能够分享并获取佣金，师家能够与商家签约并接受服务派单。有任何问题，请随时联系我们~~", wxMessage, weixinService);
+				return new TextBuilder().build(subscribeAutoResponseMsg, wxMessage, weixinService);
 			}else if(ilifeConfig.isAutoRegisterBroker()) {//推广早期，所有注册者均 直接作为达人加入。完成后返回上级达人群二维码图片，便于加群维护
 			  try {
 				  //自动注册为达人
@@ -692,7 +693,7 @@ public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
 
 		  }
 		  //最后都要返回申明
-		  return new TextBuilder().build("感谢关注，我们提供DTC整体解决方案，商家能够发布商品到私域，生活家能够分享并获取佣金，师家能够与商家签约并接受服务派单。有任何问题，请随时联系我们~~", wxMessage, weixinService);
+		  return new TextBuilder().build(subscribeAutoResponseMsg, wxMessage, weixinService);
 	  }
 	  
 	  return null;
