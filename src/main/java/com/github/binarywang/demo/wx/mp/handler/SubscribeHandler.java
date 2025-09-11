@@ -353,7 +353,7 @@ public class SubscribeHandler extends AbstractHandler {
 	    			String url = ilifeConfig.getRegisterBrokerUrl()+"system";//针对上级达人创建，上级达人默认为系统达人
 	    			JSONObject data = new JSONObject();
 //	    			data.put("hierarchy", "9");
-	    			data.put("level", "生活家");
+	    			data.put("level", "4");
 	    			data.put("upgrade", "无");
 	    			data.put("status", "ready");//默认直接设置为ready，后续接收清单推送
 	    			data.put("openid", userWxInfo.getOpenId());
@@ -691,7 +691,7 @@ public class SubscribeHandler extends AbstractHandler {
 			String url = ilifeConfig.getRegisterBrokerUrl()+ilifeConfig.getDefaultParentBrokerId();//固定达人ID 
 			JSONObject data = new JSONObject();
 			data.put("hierarchy", "3");//是一个3级达人
-			data.put("level", "生活家");
+			data.put("level", "4");
 			data.put("upgrade", "无");
 			data.put("status", "ready");//默认直接设置为ready，后续接收清单推送
 			data.put("openid", openid);
