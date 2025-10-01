@@ -326,7 +326,7 @@ public class MsgHandler extends AbstractHandler {
     
 
     
-    //嫁接ChatGPT：当前未启用
+    //接入 AI 回复
     boolean hasChatGPT = false;
     /**
 	//chatgpt比较慢，先回复一条消息
@@ -345,9 +345,11 @@ public class MsgHandler extends AbstractHandler {
 				  .build();
 			wxMpService.getKefuService().sendKefuMessage(kfMsg);
     }
-	//请求chatgpt
+    //**/
+	//请求墨加 AI
+    String userId = userWxInfo.getOpenId();
     try {
-    	String answer = helper.requestChatGPT(keyword);
+    	String answer = helper.getChatMessage(userId,keyword);
     	if(answer!=null&&answer.trim().length()>0) {
     		hasChatGPT = true;
     		//等待时间过长无法直接返回，采用客服消息
@@ -454,7 +456,7 @@ public class MsgHandler extends AbstractHandler {
     if(hasChatGPT) { //如果chatgpt已经回复过则不作任何处理
     	return new TextBuilder().build("", wxMessage, weixinService);
     }else {
-    	return new TextBuilder().build("啊哦，我的小脑袋瓜有点转不动了🤭可以输入清单、方案、商品、排行榜等内容直接查找，也可以直接进入菜单哦~~", wxMessage, weixinService);
+    	return new TextBuilder().build("请进入菜单，可以直达企业数智化、师家签约服务、达人分销广场~~", wxMessage, weixinService);
     }
 }
 }

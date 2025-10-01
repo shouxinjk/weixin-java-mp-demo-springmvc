@@ -51,6 +51,12 @@ public class SxHelper {
 		@Value("#{extProps['chatgpt.apikey']}") String chatgptApiKey;
 		@Value("#{extProps['chatgpt.msg']}") String chatgptMsg;
 		
+		//More AI
+		@Value("#{extProps['ai.endpoint']}") String aiEndpoint;
+		@Value("#{extProps['ai.apikey']}") String aiApiKey;
+		@Value("#{extProps['ai.tenantId']}") String aiTenantId;
+		@Value("#{extProps['ai.mode']}") String aiMode;
+		
 	    ArangoDbClient arangoClient;
 	    
 		@Value("#{extProps['arangodb.host']}") String host;
@@ -376,6 +382,20 @@ public class SxHelper {
           return "";
 	  }
 	  /**/
+	  
+	  //调用 Dify 得到回复，采用 blocking 模式，默认租户为 548，
+	  public String getChatMessage(String user, String query) {
+		  String remote = ilifeConfig.getSxApi()+"/rest/api/chat-message";
+		  JSONObject params = new JSONObject();
+		  params.put("user", user);
+		  params.put("query", query);
+		  JSONObject result = HttpClientHelper.getInstance().post(remote, params);
+		  logger.error("got result.",result);
+		  if(result.getBooleanValue("success")) {
+			  return result.getString("answer");
+		  }
+		  return "";
+	  }
 	  
 	  //根据位置发起搜索
 	  public JSONObject searchByLocation(String lat,String lon) {
