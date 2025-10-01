@@ -390,11 +390,8 @@ public class SxHelper {
 		  params.put("user", user);
 		  params.put("query", query);
 		  JSONObject result = HttpClientHelper.getInstance().post(remote, params);
-		  logger.error("got result.",result);
-		  if(result.getBooleanValue("success")) {
-			  return result.getString("answer");
-		  }
-		  return "";
+		  logger.error("got result. ai: " + result.toJSONString());
+		  return result.getString("answer");
 	  }
 	  
 	  //根据位置发起搜索
