@@ -84,6 +84,7 @@ public class MsgHandler extends AbstractHandler {
     	return null;
     }
     
+    /**
     //当用户输入关键词如“你好”，“客服”等，并且有客服在线时，把消息转发给在线客服
     if (StringUtils.startsWithAny(wxMessage.getContent(), "你好", "客服")
       && weixinService.hasKefuOnline()) {
@@ -266,7 +267,9 @@ public class MsgHandler extends AbstractHandler {
     		}
     	}
     }
-
+    //定制逻辑结束
+    //**/
+    
     //匹配口令，当前支持淘口令 [a-zA-Z0-9]{11} 写入broker_seeds，等待采集入库，采集脚本将自动触发通知，并返回信息“正在查找对应的商品，请稍等”
     //已经不需要处理，在convertUrl过程中已经一并处理
     /**
